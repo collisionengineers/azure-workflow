@@ -15,7 +15,7 @@ Current version: `0.1.0-alpha.1`.
 | `review-repository-pull-request` | Independently review the complete actual PR without fixing or mutating it |
 | `operate-azure-repository` | Inspect live Azure and apply only a separately approved exact mutation |
 
-The package includes exactly two MCP connections: the pinned Azure MCP and Microsoft Learn MCP. GitHub uses Git and `gh`; there is no GitHub MCP, hook, workflow database, or background organizer.
+The package includes exactly two namespaced MCP connections: `azure-workflow-azure` is the pinned Azure MCP and `azure-workflow-microsoft-learn` is Microsoft Learn MCP. GitHub uses Git and `gh`; there is no GitHub MCP, hook, workflow database, or background organizer.
 
 ## Workflow
 

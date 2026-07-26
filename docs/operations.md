@@ -53,7 +53,8 @@ Tracked MCP configuration contains only server command/URL and telemetry setting
 
 - Package/skill schema: canonical Full check and creator validators.
 - Plugin discovery/install: `codex plugin list --available --json` and install result.
-- Azure MCP startup: pinned package startup/tool-list probe, then an explicitly scoped read.
+- Azure MCP startup: prove `azure-workflow-azure` resolves the pinned package, perform a tool-list probe, then an explicitly scoped read.
+- Microsoft Learn startup: prove `azure-workflow-microsoft-learn` resolves the packaged remote endpoint and can list/call a documentation tool.
 - Microsoft Learn: current official search/fetch smoke prompt in a fresh thread.
 - GitHub PR review: evidence collector JSON, CI checks, comments/reviews/threads, exact head/fingerprint.
 

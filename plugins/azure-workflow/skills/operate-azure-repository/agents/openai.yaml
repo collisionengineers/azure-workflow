@@ -6,11 +6,11 @@ interface:
 dependencies:
   tools:
     - type: "mcp"
-      value: "azure"
+      value: "azure-workflow-azure"
       description: "Azure resource inspection, validation, and approved operations"
       transport: "stdio"
     - type: "mcp"
-      value: "microsoft-learn"
+      value: "azure-workflow-microsoft-learn"
       description: "Current official Microsoft and Azure documentation"
       transport: "streamable_http"
       url: "https://learn.microsoft.com/api/mcp"

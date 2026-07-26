@@ -34,7 +34,7 @@ try {
     Copy-Item -LiteralPath (Join-Path $pluginRoot 'references\risk-scaling.md') -Destination (Join-Path $mutant 'references\risk-scaling.md')
     $manifestPath = Join-Path $mutant '.codex-plugin\plugin.json'
     $manifest = Get-Content -LiteralPath $manifestPath -Raw
-    $manifest = $manifest.Replace('"version": "0.1.0-alpha.1"', '"version": "0.1.0"')
+    $manifest = [regex]::Replace($manifest, '"version"\s*:\s*"[^"]+"', '"version": "0.1.0"', 1)
     [System.IO.File]::WriteAllText($manifestPath, $manifest, [System.Text.UTF8Encoding]::new($false))
     & $validator -PluginPath $mutant | Out-Null
     Assert-ExitCode 1 'invalid release version mutation'

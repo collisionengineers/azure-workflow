@@ -40,11 +40,11 @@ try {
     if (Test-Path -LiteralPath $mcpPath) {
         $mcp = Get-Content -LiteralPath $mcpPath -Raw | ConvertFrom-Json
         $serverNames = @($mcp.mcpServers.PSObject.Properties.Name | Sort-Object)
-        if (($serverNames -join ',') -ne 'azure,microsoft-learn') { Add-ErrorMessage 'MCP inventory must contain exactly azure and microsoft-learn.' }
-        if ($mcp.mcpServers.azure.command -ne 'npx') { Add-ErrorMessage 'Azure MCP must use npx.' }
-        if (@($mcp.mcpServers.azure.args) -notcontains '@azure/mcp@3.0.0-beta.29') { Add-ErrorMessage 'Azure MCP package must be pinned to 3.0.0-beta.29.' }
-        if ($mcp.mcpServers.azure.env.AZURE_MCP_COLLECT_TELEMETRY -ne 'false') { Add-ErrorMessage 'Azure MCP telemetry must be disabled.' }
-        if ($mcp.mcpServers.'microsoft-learn'.type -ne 'http' -or $mcp.mcpServers.'microsoft-learn'.url -ne 'https://learn.microsoft.com/api/mcp') { Add-ErrorMessage 'Microsoft Learn MCP registration is invalid.' }
+        if (($serverNames -join ',') -ne 'azure-workflow-azure,azure-workflow-microsoft-learn') { Add-ErrorMessage 'MCP inventory must contain exactly the two Azure Workflow namespaced servers.' }
+        if ($mcp.mcpServers.'azure-workflow-azure'.command -ne 'npx') { Add-ErrorMessage 'Azure MCP must use npx.' }
+        if (@($mcp.mcpServers.'azure-workflow-azure'.args) -notcontains '@azure/mcp@3.0.0-beta.29') { Add-ErrorMessage 'Azure MCP package must be pinned to 3.0.0-beta.29.' }
+        if ($mcp.mcpServers.'azure-workflow-azure'.env.AZURE_MCP_COLLECT_TELEMETRY -ne 'false') { Add-ErrorMessage 'Azure MCP telemetry must be disabled.' }
+        if ($mcp.mcpServers.'azure-workflow-microsoft-learn'.type -ne 'http' -or $mcp.mcpServers.'azure-workflow-microsoft-learn'.url -ne 'https://learn.microsoft.com/api/mcp') { Add-ErrorMessage 'Microsoft Learn MCP registration is invalid.' }
     }
 
     $expectedSkills = @(
@@ -72,8 +72,8 @@ try {
         if (Test-Path -LiteralPath (Join-Path $skillRoot 'agents\openai.yaml')) {
             $agentYaml = Get-Content -LiteralPath (Join-Path $skillRoot 'agents\openai.yaml') -Raw
             if ($agentYaml -notmatch [regex]::Escape("`$$skill")) { Add-ErrorMessage "$skill default prompt must name `$$skill." }
-            if ($agentYaml -notmatch '(?m)^\s*value:\s*"microsoft-learn"\s*$') { Add-ErrorMessage "$skill must declare the Microsoft Learn dependency." }
-            $hasAzureDependency = $agentYaml -match '(?m)^\s*value:\s*"azure"\s*$'
+            if ($agentYaml -notmatch '(?m)^\s*value:\s*"azure-workflow-microsoft-learn"\s*$') { Add-ErrorMessage "$skill must declare the Microsoft Learn dependency." }
+            $hasAzureDependency = $agentYaml -match '(?m)^\s*value:\s*"azure-workflow-azure"\s*$'
             if ($skill -eq 'operate-azure-repository' -and -not $hasAzureDependency) { Add-ErrorMessage 'operate-azure-repository must declare the Azure MCP dependency.' }
             if ($skill -ne 'operate-azure-repository' -and $hasAzureDependency) { Add-ErrorMessage "$skill must not declare direct Azure MCP mutation tooling." }
         }

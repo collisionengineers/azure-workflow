@@ -24,7 +24,7 @@ The plugin is an instruction/tool bundle executed by Codex. It has no daemon, da
 | Component | Owner | Responsibility |
 | --- | --- | --- |
 | plugin manifest | `plugins/azure-workflow/.codex-plugin/plugin.json` | package identity, public metadata, skill/MCP routes |
-| MCP registration | `plugins/azure-workflow/.mcp.json` | pinned Azure MCP and remote Microsoft Learn MCP |
+| MCP registration | `plugins/azure-workflow/.mcp.json` | namespaced `azure-workflow-azure` pinned Azure MCP and `azure-workflow-microsoft-learn` remote Microsoft Learn MCP |
 | six skill entry points | `plugins/azure-workflow/skills/*/SKILL.md` | routing, authorization, sequence, endpoint |
 | skill references/assets | each owning skill | conditional procedures and neutral output material |
 | shared lifecycle profiles | `plugins/azure-workflow/references/` | risk, version/release, and conditional .NET policy |

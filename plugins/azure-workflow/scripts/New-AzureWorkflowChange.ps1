@@ -20,7 +20,7 @@ $ErrorActionPreference = 'Stop'
 function Write-ValidationFailure {
     param([Parameter(Mandatory)][string]$Message)
 
-    [Console]::Error.WriteLine($Message)
+    Write-Error -Message $Message -ErrorAction Continue
     exit 1
 }
 

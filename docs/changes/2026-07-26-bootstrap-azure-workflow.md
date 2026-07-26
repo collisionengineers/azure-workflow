@@ -81,6 +81,7 @@ The plugin registers a local Azure MCP process but deploys/mutates no Azure reso
 ## Decisions and conflicts
 
 - One Azure-oriented plugin, six goal-based skills, two MCPs, no hooks/apps.
+- Package server IDs are `azure-workflow-azure` and `azure-workflow-microsoft-learn` so existing global MCP registrations cannot silently shadow the pinned plugin definitions.
 - Compact delivery has no issue/record by default and promotes on any material effect.
 - Shared plugin-root references own risk, version/release, and conditional .NET routing.
 - Repository documentation uses a living product index rather than default PRD/FRD/operator-notes conventions.
@@ -90,8 +91,8 @@ The plugin registers a local Azure MCP process but deploys/mutates no Azure reso
 ## Implementation
 
 - Status: active.
-- Deviations: none; detailed helper/test implementation may be smaller than exhaustive planning examples where the same contract is proven without redundant fixtures.
-- Recovery actions: none.
+- Deviations: the two MCP server IDs were namespaced after installation proved that a pre-existing global `azure` registration could shadow the plugin's pinned definition. The services and two-server boundary did not change.
+- Recovery actions: removed the invalid prior `collisionspike-v2` marketplace registration that prevented every Codex plugin list/install command; no repository or plugin files at that source path were removed.
 
 ## Source retirement parity
 
@@ -128,8 +129,8 @@ Parity conditions before retirement:
 | --- | --- | --- | --- |
 | planning checkpoint validation | Docs | links/fences/diff valid | passed before `3be34e8`; no broken relative links or unbalanced fences |
 | plugin/skill creator scaffolds | Full | valid initial package shape | passed; scaffolders created plugin and six skills |
-| canonical Full check | Full | all package/docs/scripts/fixtures valid | pending |
-| installed plugin/MCP smoke | Full | plugin discovered; two MCP routes tested | pending |
+| canonical Full check | Full | all package/docs/scripts/fixtures valid | passed: repository/package/tests plus official plugin and six skill validators |
+| installed plugin/MCP smoke | Full | plugin discovered; two MCP routes tested | passed in fresh read-only Codex processes: installed `0.1.0-alpha.1+codex.20260726232543`; `azure-workflow-microsoft-learn` called `microsoft_docs_search`; `azure-workflow-azure` called read-only `subscription_list` successfully |
 | actual PR CI/review | Full | green and clean exact final head | pending |
 
 ## Independent review
@@ -156,5 +157,5 @@ Pending implementation, validation, installation, and exact-head PR review.
 
 ## Blocker or follow-ups
 
-- Blocker: none for repository/package implementation. Live Azure read acceptance may remain externally blocked by the known local Azure CLI extension metadata permission failure.
+- Blocker: none for repository/package implementation or MCP read acceptance.
 - Follow-ups: beta cross-repository evidence is allocated on the roadmap and is not part of this alpha bootstrap.
