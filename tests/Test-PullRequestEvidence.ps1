@@ -68,6 +68,41 @@ if (-not $partialFailureObserved) { $failures.Add('Partial API failure must bloc
 $originalInvokeGhJson = (Get-Item -LiteralPath Function:\Invoke-GhJson).ScriptBlock
 function Invoke-GhJson {
     param([Parameter(Mandatory)][string[]]$Arguments)
+    return [pscustomobject]@{ id = 1 }
+}
+try {
+    $singleItemPage = @(Get-RestArray -Endpoint 'fixture')
+    if ($singleItemPage.Count -ne 1 -or $singleItemPage[0].id -ne 1) { $failures.Add('Generic REST pagination must accept a one-item scalar response under strict mode.') }
+}
+finally {
+    Set-Item -LiteralPath Function:\Invoke-GhJson -Value $originalInvokeGhJson
+}
+
+$optionalPropertySnapshot = [pscustomobject]@{
+    base_oid = 'base'
+    head_oid = 'head'
+    pr_updated_at = '2026-07-26T00:00:00Z'
+    checks = @()
+    statuses = @()
+    review_decision = $null
+    review_requests = @([pscustomobject]@{ id = 1; login = 'reviewer'; type = 'User' })
+    files = @([pscustomobject]@{ filename = 'file.ps1'; status = 'added'; sha = 'sha' })
+    commits = @([pscustomobject]@{ sha = 'commit' })
+    reviews = @()
+    issue_comments = @()
+    inline_comments = @()
+    review_threads = @()
+    inventory = [pscustomobject]@{
+        files = [pscustomobject]@{ expected_count = 1; collected_count = 1; endpoint_limit = 3000; complete = $true }
+        commits = [pscustomobject]@{ expected_count = 1; collected_count = 1; endpoint_limit = 250; complete = $true }
+    }
+}
+$optionalPropertyFingerprint = Get-EvidenceFingerprint -Snapshot $optionalPropertySnapshot
+if ($optionalPropertyFingerprint -notmatch '^[0-9a-f]{64}$') { $failures.Add('Evidence fingerprint must tolerate absent optional GitHub properties.') }
+
+$originalInvokeGhJson = (Get-Item -LiteralPath Function:\Invoke-GhJson).ScriptBlock
+function Invoke-GhJson {
+    param([Parameter(Mandatory)][string[]]$Arguments)
 
     $threadId = @($Arguments | Where-Object { $_ -like 'threadId=*' })
     if ($threadId.Count -gt 0) {

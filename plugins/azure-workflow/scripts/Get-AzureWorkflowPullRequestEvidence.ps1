@@ -30,8 +30,8 @@ function Get-RestArray {
         $separator = if ($Endpoint.Contains('?')) { '&' } else { '?' }
         $response = Invoke-GhJson -Arguments @('api', "$Endpoint${separator}per_page=100&page=$page")
         $pageItems = if ([string]::IsNullOrWhiteSpace($Property)) { @($response) } else { @($response.$Property) }
-        foreach ($item in $pageItems) { if ($null -ne $item) { $items.Add($item) } }
-        if ($pageItems.Count -lt 100) { return @($items) }
+        foreach ($item in @($pageItems)) { if ($null -ne $item) { $items.Add($item) } }
+        if (@($pageItems).Count -lt 100) { return @($items) }
     }
     throw "Pagination did not terminate for $Endpoint"
 }
@@ -72,6 +72,18 @@ function Get-StringHash {
     $bytes = [System.Text.Encoding]::UTF8.GetBytes($Text)
     $hash = [System.Security.Cryptography.SHA256]::HashData($bytes)
     return [Convert]::ToHexString($hash).ToLowerInvariant()
+}
+
+function Get-OptionalPropertyValue {
+    param(
+        [AllowNull()]$InputObject,
+        [Parameter(Mandatory)][string]$Name
+    )
+
+    if ($null -eq $InputObject) { return $null }
+    $property = $InputObject.PSObject.Properties[$Name]
+    if ($null -eq $property) { return $null }
+    return $property.Value
 }
 
 function Get-ReviewThreads {
@@ -192,11 +204,11 @@ query($threadId: ID!, $after: String) {
 function Get-EvidenceFingerprint {
     param([Parameter(Mandatory)]$Snapshot)
 
-    $checks = @($Snapshot.checks | ForEach-Object { [ordered]@{ id = $_.id; name = $_.name; status = $_.status; conclusion = $_.conclusion; completed_at = $_.completed_at; url = $_.details_url } } | Sort-Object id, name)
-    $statuses = @($Snapshot.statuses | ForEach-Object { [ordered]@{ id = $_.id; context = $_.context; state = $_.state; updated_at = $_.updated_at; url = $_.target_url } } | Sort-Object id, context)
-    $reviews = @($Snapshot.reviews | ForEach-Object { [ordered]@{ id = $_.id; state = $_.state; submitted_at = $_.submitted_at; author = $_.user.login; body_hash = Get-StringHash $_.body } } | Sort-Object id)
-    $issueComments = @($Snapshot.issue_comments | ForEach-Object { [ordered]@{ id = $_.id; updated_at = $_.updated_at; author = $_.user.login; body_hash = Get-StringHash $_.body } } | Sort-Object id)
-    $inlineComments = @($Snapshot.inline_comments | ForEach-Object { [ordered]@{ id = $_.id; updated_at = $_.updated_at; author = $_.user.login; path = $_.path; line = $_.line; body_hash = Get-StringHash $_.body } } | Sort-Object id)
+    $checks = @($Snapshot.checks | ForEach-Object { [ordered]@{ id = Get-OptionalPropertyValue $_ 'id'; name = Get-OptionalPropertyValue $_ 'name'; status = Get-OptionalPropertyValue $_ 'status'; conclusion = Get-OptionalPropertyValue $_ 'conclusion'; completed_at = Get-OptionalPropertyValue $_ 'completed_at'; url = Get-OptionalPropertyValue $_ 'details_url' } } | Sort-Object id, name)
+    $statuses = @($Snapshot.statuses | ForEach-Object { [ordered]@{ id = Get-OptionalPropertyValue $_ 'id'; context = Get-OptionalPropertyValue $_ 'context'; state = Get-OptionalPropertyValue $_ 'state'; updated_at = Get-OptionalPropertyValue $_ 'updated_at'; url = Get-OptionalPropertyValue $_ 'target_url' } } | Sort-Object id, context)
+    $reviews = @($Snapshot.reviews | ForEach-Object { $user = Get-OptionalPropertyValue $_ 'user'; [ordered]@{ id = Get-OptionalPropertyValue $_ 'id'; state = Get-OptionalPropertyValue $_ 'state'; submitted_at = Get-OptionalPropertyValue $_ 'submitted_at'; author = Get-OptionalPropertyValue $user 'login'; body_hash = Get-StringHash (Get-OptionalPropertyValue $_ 'body') } } | Sort-Object id)
+    $issueComments = @($Snapshot.issue_comments | ForEach-Object { $user = Get-OptionalPropertyValue $_ 'user'; [ordered]@{ id = Get-OptionalPropertyValue $_ 'id'; updated_at = Get-OptionalPropertyValue $_ 'updated_at'; author = Get-OptionalPropertyValue $user 'login'; body_hash = Get-StringHash (Get-OptionalPropertyValue $_ 'body') } } | Sort-Object id)
+    $inlineComments = @($Snapshot.inline_comments | ForEach-Object { $user = Get-OptionalPropertyValue $_ 'user'; [ordered]@{ id = Get-OptionalPropertyValue $_ 'id'; updated_at = Get-OptionalPropertyValue $_ 'updated_at'; author = Get-OptionalPropertyValue $user 'login'; path = Get-OptionalPropertyValue $_ 'path'; line = Get-OptionalPropertyValue $_ 'line'; body_hash = Get-StringHash (Get-OptionalPropertyValue $_ 'body') } } | Sort-Object id)
     $threads = @($Snapshot.review_threads | ForEach-Object {
         [ordered]@{
             id = $_.id
@@ -204,12 +216,12 @@ function Get-EvidenceFingerprint {
             is_outdated = $_.is_outdated
             path = $_.path
             line = $_.line
-            comments = @($_.comments | ForEach-Object { [ordered]@{ id = $_.id; updated_at = $_.updatedAt; author = $_.author.login; outdated = $_.outdated; body_hash = Get-StringHash $_.body } } | Sort-Object id)
+            comments = @($_.comments | ForEach-Object { $author = Get-OptionalPropertyValue $_ 'author'; [ordered]@{ id = Get-OptionalPropertyValue $_ 'id'; updated_at = Get-OptionalPropertyValue $_ 'updatedAt'; author = Get-OptionalPropertyValue $author 'login'; outdated = Get-OptionalPropertyValue $_ 'outdated'; body_hash = Get-StringHash (Get-OptionalPropertyValue $_ 'body') } } | Sort-Object id)
         }
     } | Sort-Object id)
-    $requests = @($Snapshot.review_requests | ForEach-Object { [ordered]@{ id = $_.id; login = $_.login; slug = $_.slug; type = $_.type } } | Sort-Object id, login, slug)
-    $files = @($Snapshot.files | ForEach-Object { [ordered]@{ filename = $_.filename; previous_filename = $_.previous_filename; status = $_.status; sha = $_.sha } } | Sort-Object filename, previous_filename)
-    $commits = @($Snapshot.commits | ForEach-Object { [ordered]@{ sha = $_.sha } } | Sort-Object sha)
+    $requests = @($Snapshot.review_requests | ForEach-Object { [ordered]@{ id = Get-OptionalPropertyValue $_ 'id'; login = Get-OptionalPropertyValue $_ 'login'; slug = Get-OptionalPropertyValue $_ 'slug'; type = Get-OptionalPropertyValue $_ 'type' } } | Sort-Object id, login, slug)
+    $files = @($Snapshot.files | ForEach-Object { [ordered]@{ filename = Get-OptionalPropertyValue $_ 'filename'; previous_filename = Get-OptionalPropertyValue $_ 'previous_filename'; status = Get-OptionalPropertyValue $_ 'status'; sha = Get-OptionalPropertyValue $_ 'sha' } } | Sort-Object filename, previous_filename)
+    $commits = @($Snapshot.commits | ForEach-Object { [ordered]@{ sha = Get-OptionalPropertyValue $_ 'sha' } } | Sort-Object sha)
 
     $projection = [ordered]@{
         base_oid = $Snapshot.base_oid
@@ -276,8 +288,18 @@ function Get-Snapshot {
         inline_comments = $inlineComments
         review_threads = $threads
         inventory = [pscustomobject][ordered]@{
-            files = $fileInventory
-            commits = $commitInventory
+            files = [pscustomobject][ordered]@{
+                expected_count = $fileInventory.expected_count
+                collected_count = $fileInventory.collected_count
+                endpoint_limit = $fileInventory.endpoint_limit
+                complete = $fileInventory.complete
+            }
+            commits = [pscustomobject][ordered]@{
+                expected_count = $commitInventory.expected_count
+                collected_count = $commitInventory.collected_count
+                endpoint_limit = $commitInventory.endpoint_limit
+                complete = $commitInventory.complete
+            }
         }
     }
     $snapshot | Add-Member -NotePropertyName fingerprint -NotePropertyValue (Get-EvidenceFingerprint -Snapshot $snapshot)
