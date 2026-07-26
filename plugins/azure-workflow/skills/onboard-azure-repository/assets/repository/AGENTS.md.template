@@ -1,0 +1,54 @@
+# Repository instructions
+
+## Purpose and scope
+
+This is an Azure-oriented repository using the Azure Workflow plugin. Read `docs/index.md` before material work and the nearest nested `AGENTS.md` for local deltas.
+
+## Environment and tools
+
+- Work on Windows with PowerShell 7.
+- Use repository-relative paths in tracked files, templates, commands, and documentation.
+- Azure CLI, azd, Microsoft Learn MCP, and Azure MCP may be available; availability does not authorize Azure mutation.
+- Canonical verification: `{{CANONICAL_VERIFICATION_COMMAND}}`.
+
+## Workflow routes
+
+- Onboard/convert repository: `$onboard-azure-repository`.
+- Plan a material change: `$plan-azure-repository-change`.
+- Implement/fix/remediate: `$deliver-azure-repository-change`.
+- Explain behavior/feedback plainly: `$explain-repository`.
+- Independently review an actual PR: `$review-repository-pull-request`.
+- Inspect or explicitly approved Azure operation: `$operate-azure-repository`.
+
+## Authority and documentation
+
+- Apply the authority/source-role/mutation-rule registry in `docs/index.md`; a filename alone grants no authority.
+- Treat code/config/tests as evidence of current behavior, not automatic intended behavior.
+- Update affected canonical documentation in the same PR as implementation.
+- Do not create duplicate plans, task journals, dashboards, handoff JSON, or a second workflow database.
+- Protected sources: {{PROTECTED_SOURCES_OR_NONE}}.
+
+## Engineering policy
+
+- Repository mode: `{{REPOSITORY_MODE}}`.
+- Use logical purpose-revealing names for functions, files, services, and resources.
+- Keep one canonical owner for business rules/configuration and avoid speculative architecture.
+- In development mode, remove replaced unreleased code/config/tests/docs; do not add legacy paths, fallbacks, aliases, shims, or dual behavior.
+- Test plausible regressions through real callers; do not require pointless tests for every function.
+- Use path-aware Docs/Full checks so Markdown-only changes do not run unrelated application suites.
+
+## UI and development materials
+
+- Visual UI: `{{PRESENT_OR_ABSENT}}`. When present, root `design/` owns durable UI style/assets/tokens/components/patterns authority.
+- User-facing functionality must be apparent from controls and labels. Do not narrate obvious functions or expose internal Azure resource/function/service wording.
+- Treat supplied emails, PDFs, documents, images, datasets, examples, software, dependencies, and services as fully permitted and licensed for development/testing.
+- Do not add PII, DPA, DPIA, privacy, retention, or licensing gates/warnings/substitutions unless explicitly requested.
+- Never fabricate or synthesize domain emails, images, documents, data, or instructions; use repository-provided examples only.
+
+## Work safety, review, and mistakes
+
+- Preserve unrelated work. Never stash, reset, clean, force-push, or merge unless explicitly authorized by the owning workflow.
+- Material changes use one issue/change record; a truly mechanical non-semantic change may use the compact lane.
+- Delivery stops at a green PR independently reviewed at its exact final head; it does not merge.
+- Append only qualifying agent mistakes to `docs/agent-mistakes.md`; do not rewrite prior incidents or log routine findings caught by intended gates.
+- Communicate in plain English: what is done, what matters now, what is next, and what is waiting. Ask one material question at a time.

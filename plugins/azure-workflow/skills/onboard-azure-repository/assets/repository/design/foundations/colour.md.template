@@ -1,0 +1,15 @@
+# Colour
+
+## Roles and semantics
+
+{{APPROVED_COLOUR_ROLES_STATES_AND_CONTRAST}}
+
+## Canonical tokens/source
+
+{{RELATIVE_TOKEN_OR_SOURCE_PATH}}
+
+## Runtime consumers
+
+{{RELATIVE_RUNTIME_PATHS}}
+
+Do not place invented colour values here; derive this document from approved repository sources.

@@ -1,0 +1,13 @@
+# Logos
+
+## Approved sources
+
+| Relative source path | Variant/use | Runtime destination/consumer |
+| --- | --- | --- |
+| {{RELATIVE_PATH}} | {{USE}} | {{RELATIVE_PATH}} |
+
+## Rules
+
+{{APPROVED_CLEAR_SPACE_SCALE_COLOUR_AND_MISUSE_RULES}}
+
+Do not invent a logo or copy generated/runtime duplicates into this directory.

@@ -1,0 +1,19 @@
+interface:
+  display_name: "Operate Azure Repository"
+  short_description: "Plan and apply controlled Azure operations"
+  default_prompt: "Use $operate-azure-repository to inspect this repository's Azure scope and carry out only explicitly approved changes."
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "azure"
+      description: "Azure resource inspection, validation, and approved operations"
+      transport: "stdio"
+    - type: "mcp"
+      value: "microsoft-learn"
+      description: "Current official Microsoft and Azure documentation"
+      transport: "streamable_http"
+      url: "https://learn.microsoft.com/api/mcp"
+
+policy:
+  allow_implicit_invocation: true

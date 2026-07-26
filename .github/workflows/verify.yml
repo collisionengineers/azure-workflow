@@ -1,0 +1,44 @@
+name: verify
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: windows-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run path-aware repository check
+        shell: pwsh
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PUSH_BEFORE_SHA: ${{ github.event.before }}
+          HEAD_SHA: ${{ github.sha }}
+        run: |
+          $baseRef = if ($env:EVENT_NAME -eq 'pull_request') {
+            $env:PR_BASE_SHA
+          } elseif ($env:PUSH_BEFORE_SHA -and $env:PUSH_BEFORE_SHA -notmatch '^0+$') {
+            $env:PUSH_BEFORE_SHA
+          } else {
+            $null
+          }
+
+          if ($baseRef) {
+            pwsh -NoLogo -NoProfile -File ./scripts/Invoke-RepoCheck.ps1 `
+              -Scope Auto `
+              -BaseRef $baseRef `
+              -HeadRef $env:HEAD_SHA
+          } else {
+            pwsh -NoLogo -NoProfile -File ./scripts/Invoke-RepoCheck.ps1 -Scope Full
+          }

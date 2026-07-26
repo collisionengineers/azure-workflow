@@ -1,0 +1,7 @@
+# Icons
+
+| Relative source path | Meaning/use | Runtime destination/consumer |
+| --- | --- | --- |
+| {{RELATIVE_PATH}} | {{MEANING}} | {{RELATIVE_PATH}} |
+
+Record approved supplied icons only. Do not generate placeholders or use internal infrastructure symbols as user concepts.

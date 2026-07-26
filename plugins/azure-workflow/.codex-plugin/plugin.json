@@ -1,0 +1,43 @@
+{
+  "name": "azure-workflow",
+  "version": "0.1.0-alpha.1",
+  "description": "Own Azure repository onboarding, planning, delivery, explanation, review, and controlled operations.",
+  "author": {
+    "name": "Collision Engineers",
+    "url": "https://github.com/collisionengineers"
+  },
+  "homepage": "https://github.com/collisionengineers/azure-workflow",
+  "repository": "https://github.com/collisionengineers/azure-workflow",
+  "keywords": [
+    "azure",
+    "repository",
+    "workflow",
+    "documentation",
+    "delivery",
+    "explanation",
+    "review"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Azure Workflow",
+    "shortDescription": "Own and explain Azure repository work from plan to reviewed PR.",
+    "longDescription": "Converts Azure repositories to a durable documentation and GitHub standard, explains repository behavior and feedback in plain English, creates decision-complete plans, delivers independently reviewed changes, and gates Azure mutations with explicit approval.",
+    "developerName": "Collision Engineers",
+    "category": "Productivity",
+    "capabilities": [
+      "Repository onboarding",
+      "Feature planning",
+      "Implementation",
+      "Plain-language explanation",
+      "Independent review",
+      "Azure operations"
+    ],
+    "websiteURL": "https://github.com/collisionengineers/azure-workflow",
+    "defaultPrompt": [
+      "Onboard this Azure repository into the workflow standard.",
+      "Plan this repository change and stop before implementation.",
+      "Deliver this repository change through a green exact-head-reviewed pull request."
+    ]
+  }
+}

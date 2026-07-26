@@ -1,0 +1,8 @@
+{
+  "start":{"base_oid":"1111111111111111111111111111111111111111","head_oid":"2222222222222222222222222222222222222222","fingerprint":"stable-a"},
+  "end":{"base_oid":"1111111111111111111111111111111111111111","head_oid":"2222222222222222222222222222222222222222","fingerprint":"stable-a"},
+  "pagination_complete":true,
+  "expected_valid":true,
+  "expected_reason":"stable",
+  "review_threads":[]
+}

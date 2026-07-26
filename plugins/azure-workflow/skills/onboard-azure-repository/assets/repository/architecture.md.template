@@ -1,0 +1,39 @@
+# Architecture
+
+## System context
+
+{{SYSTEM_AND_EXTERNAL_ACTORS}}
+
+## Components and ownership
+
+{{COMPONENTS_AND_PURPOSE_REVEALING_OWNERS}}
+
+## Entry points and callers
+
+{{REAL_CALL_PATHS}}
+
+## Data and integrations
+
+{{DATA_OWNERS_AND_EXTERNAL_CONTRACTS}}
+
+## Rule and configuration ownership
+
+{{CANONICAL_RULE_AND_CONFIGURATION_OWNERS}}
+
+## Source roles and generated material
+
+| Path | Role | Canonical source/generator | Consumer |
+| --- | --- | --- | --- |
+| {{PATH}} | {{LIVE_GENERATED_REFERENCE_COMPATIBILITY_OR_HISTORY}} | {{SOURCE_OR_NOT_APPLICABLE}} | {{CONSUMER}} |
+
+## Failure and recovery
+
+{{FAILURE_BOUNDARIES_AND_RECOVERY}}
+
+## Deployment topology
+
+{{ENVIRONMENTS_AND_AZURE_RESOURCE_PURPOSES}}
+
+## Architecture boundaries
+
+{{PROHIBITED_OR_DEFERRED_PATTERNS}}

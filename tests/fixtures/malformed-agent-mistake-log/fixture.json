@@ -1,0 +1,1 @@
+{"scenario":"existing incident body is rewritten or incident ID duplicated","expected":"repository validator rejects non-append-only or duplicate history"}

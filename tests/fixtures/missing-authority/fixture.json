@@ -1,0 +1,1 @@
+{"scenario":"documentation exists without authority routing","expected":"repository validator rejects missing docs index or source roles"}

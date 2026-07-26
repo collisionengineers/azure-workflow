@@ -1,0 +1,7 @@
+# Patterns
+
+| Pattern/journey | User goal | Steps and states | Components | Runtime owner |
+| --- | --- | --- | --- | --- |
+| {{NAME}} | {{GOAL}} | {{STEPS_STATES_RECOVERY}} | {{COMPONENT_LINKS}} | {{RELATIVE_PATH}} |
+
+Document repeated user journeys and recovery behavior; do not duplicate feature requirements.

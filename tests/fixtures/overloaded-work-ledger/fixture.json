@@ -1,0 +1,1 @@
+{"scenario":"legacy active and verification buckets mix completion, sequence, and evidence","expected":"compare declared and evidence state; do not trust rendered percentage"}

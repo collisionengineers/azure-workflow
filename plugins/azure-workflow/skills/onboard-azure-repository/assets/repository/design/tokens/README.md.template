@@ -1,0 +1,11 @@
+# Design tokens
+
+- Canonical token source: `{{RELATIVE_PATH_OR_NONE}}`
+- Format/generator: {{FORMAT_AND_COMMAND_OR_NONE}}
+- Generated/runtime outputs: {{RELATIVE_PATHS_OR_NONE}}
+
+## Token groups
+
+{{EXERCISED_TOKEN_GROUPS}}
+
+Use one canonical source. Do not create a token system when the repository has no shared exercised token need, and never hand-edit generated outputs.

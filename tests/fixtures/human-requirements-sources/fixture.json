@@ -1,0 +1,1 @@
+{"scenario":"unclassified notes, protected interview evidence, controlled SRS, and obsolete PRD coexist","expected":"classify role and mutation separately; preserve controlled IDs; no default duplicate PRD or FRD"}

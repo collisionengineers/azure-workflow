@@ -1,0 +1,1 @@
+{"scenario":"project has a repeated project-specific intake category","expected":"retain only when orthogonal, registered, queryable, and mapped to one base kind"}

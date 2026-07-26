@@ -1,127 +1,76 @@
 # Azure Workflow
 
-`azure-workflow` is a planned Codex plugin that will take durable ownership of repository onboarding, documentation, feature planning, implementation, plain-English explanation, pull-request review, GitHub delivery, and explicitly approved Azure operations.
+Azure Workflow is one Codex plugin that takes durable ownership of Azure-oriented repository onboarding, documentation, planning, implementation, plain-English explanation, pull-request review, GitHub work management, and explicitly approved Azure operations.
 
-Status: **final planning closeout; plugin implementation has not started.**
+Current version: `0.1.0-alpha.1`.
 
-## What this is
+## What it provides
 
-The intended product is one reusable plugin for Azure-oriented repositories. It should be installable into an existing repository, discover the repository's real authority and implementation, convert its documentation and work-management system without losing material truth, and then own a restrained plan-deliver-review workflow.
-
-The plugin is general across Azure-oriented repositories. Azure scope is established by repository evidence or explicit user intent; .NET alone is not sufficient and non-Azure onboarding is unsupported. CollisionSpike and CollisionSpike v2 appear only as brownfield research cases used to expose failure modes. Their product rules, names, feature taxonomy, `operator-notes` convention, and design assets are not plugin defaults.
-
-## Public workflows
-
-The alpha contains six justified public skills:
-
-| Skill | Standalone outcome |
+| Skill | Outcome |
 | --- | --- |
-| `onboard-azure-repository` | Convert an existing repository to the durable standard through a reviewed PR |
-| `plan-azure-repository-change` | Produce a decision-complete plan and stop before implementation |
-| `deliver-azure-repository-change` | Implement one change through a green, exact-head-reviewed PR |
-| `explain-repository` | Explain code, behavior, terminology, checks, or feedback in plain English without changing anything |
-| `review-repository-pull-request` | Independently assess an actual pull request without fixing it |
-| `operate-azure-repository` | Inspect live Azure state and perform only separately approved mutations |
+| `onboard-azure-repository` | Convert an existing Azure repository to the documentation/GitHub/workflow standard through a reviewed PR |
+| `plan-azure-repository-change` | Create a repository-grounded, decision-complete plan and stop before implementation |
+| `deliver-azure-repository-change` | Implement or remediate one change through a green exact-head-reviewed PR |
+| `explain-repository` | Explain code, architecture, failures, GitHub feedback, current position, and one next action in plain English |
+| `review-repository-pull-request` | Independently review the complete actual PR without fixing or mutating it |
+| `operate-azure-repository` | Inspect live Azure and apply only a separately approved exact mutation |
 
-UI/UX, documentation maintenance, GitHub work tracking, testing/CI, versioning, and .NET are routed concerns within those outcomes. They do not become skills merely to make the package look modular.
+The package includes exactly two MCP connections: the pinned Azure MCP and Microsoft Learn MCP. GitHub uses Git and `gh`; there is no GitHub MCP, hook, workflow database, or background organizer.
 
-## Design summary
-
-- One plugin, not one plugin per lifecycle stage.
-- Exactly two packaged MCP connections: Azure MCP and Microsoft Learn MCP.
-- GitHub uses Git, `gh`, and `gh api`; no second GitHub MCP path is packaged.
-- No hook, app connector, workflow database, generated task ledger, or repository-local copy of upstream Microsoft documentation in the alpha.
-- One change record per active change; GitHub owns live work state.
-- Product truth, roadmap, current architecture, operations, decisions, design authority, and change evidence have separate durable owners.
-- Large capability catalogs remain stable indexes and product contracts; only activated outcomes become issues.
-- Markdown-only work receives documentation checks rather than unrelated application/database/Azure suites.
-- Implementation ends at a real pull request reviewed at its exact final head. The plugin does not merge.
-- Unambiguous, reversible, non-semantic low-risk delivery uses a compact lane without a durable change record or issue. Any material effect escalates before implementation continues.
-- The planning and legacy-input folders are removed after implementation parity; released repository truth lives only in canonical docs, plugin resources, tests, pull requests, and Git history.
-
-See [the approved plan](planning/00-approved-plan.md) and [system architecture](planning/01-system-architecture.md).
-
-## What went wrong before
-
-The previous workflow grew into eight installable plugins, dozens of overlapping skills, repository-local copies of third-party skills and documentation, a task-state system, generated ledgers, duplicate routing, duplicated UI assets, stale hooks, and validators coupled to those internals. It became difficult to identify which rule or component actually controlled behavior. Planning and governance arrived after implementation, creating churn and competing sources of truth.
-
-This repository rejects those mechanisms explicitly. “Do not overengineer” here means:
-
-- no lifecycle package explosion;
-- no skill without a distinct user endpoint and stopping boundary;
-- no state protocol where one ordinary change record and GitHub state suffice;
-- no speculative future architecture, fallbacks, or dormant implementations in development mode;
-- no duplicated policy, assets, checks, or external documentation; and
-- no heavyweight verification unrelated to the changed paths.
-
-The full rules are in [AGENTS.md](AGENTS.md).
-
-## Repository map
+## Workflow
 
 ```text
-planning/     approved specification, workflows, standards, interfaces, and research
-ref-files/    read-only source material from previous attempts; extraction evidence only
-.codex/       local workspace configuration used while developing this repository
-.obsidian/    shared Markdown workspace metadata
-hooks.json    retained legacy input; not the approved plugin hook design
+existing Azure repository
+        |
+        v
+onboard -> canonical docs + GitHub routing + proportional CI -> reviewed PR
+        |
+        +--> plan -> one decision-complete record -> reviewed Docs PR -> STOP
+        |
+        +--> deliver -> implementation + docs + CI -> actual PR review/remediation -> STOP
+        |
+        +--> explain -> plain-English understanding + one next action (read-only)
+        |
+        +--> review PR -> exact-head findings/verdict (read-only)
+        |
+        `--> operate Azure -> read evidence -> exact apply card -> approval -> apply/readback
 ```
 
-The future implementation will add the plugin, repository documentation, scripts, tests, GitHub forms/templates, and CI described by [the exact file-tree contract](planning/02-plugin-file-tree.md).
+Truly mechanical, reversible, non-semantic delivery can use a compact lane with no issue/change record. Any behavior, contract, data, identity, dependency, architecture, operations, UI meaning, IaC, Azure, migration, release, or canonical-document impact promotes it to the normal plan-bearing route.
 
-## Start here
+## Repository documentation model
 
-Read in this order:
+- [Product requirements](docs/product/index.md) own intended behavior and constraints.
+- [Capabilities](docs/product/capabilities.md) provide stable IDs and release allocation without creating issues for every idea.
+- [Roadmap](docs/roadmap.md) owns Now/Next/Later/Not planned outcomes.
+- [Architecture](docs/architecture.md) owns current components, callers, and rule/configuration boundaries.
+- [Operations](docs/operations.md) owns commands, release/install, GitHub, and recovery procedures.
+- [Decisions](docs/decisions/) own durable hard-to-reverse choices.
+- [Change records](docs/changes/) own one change's plan and evidence, then become history.
+- [Agent mistake log](docs/agent-mistakes.md) is append-only evidence for future plugin improvement.
 
-1. [Planning index](planning/README.md)
-2. [Approved plan](planning/00-approved-plan.md)
-3. [System architecture](planning/01-system-architecture.md)
-4. [Exact plugin file tree](planning/02-plugin-file-tree.md)
-5. The relevant skill, workflow, standard, or interface document for the change
-6. [Implementation sequence](planning/delivery/implementation-sequence.md) when implementation begins
+GitHub owns actionable/live work. Large feature lists become product/capability/roadmap truth first; only a small activated set becomes issues.
 
-`ref-files/` is not part of the reading path unless a planning or implementation question needs provenance from an earlier attempt.
+## Develop and verify
 
-## How to develop it
+All supported development runs on Windows in PowerShell 7.
 
-All work is performed on Windows with PowerShell 7.
+```powershell
+pwsh -NoLogo -NoProfile -File ./scripts/Invoke-RepoCheck.ps1 -Scope Full
+```
 
-For planning changes:
+`Docs` scope validates documentation/schema/routing only. `Full` also validates the package, skills, scripts, fixtures, and deterministic helpers. `Auto` classifies changed paths and fails safe to Full.
 
-1. inspect the real repository and owning planning document;
-2. change the smallest canonical source;
-3. update affected links, counts, file trees, examples, tests, and acceptance criteria;
-4. keep case-study facts out of packaged defaults;
-5. run `git diff --check`, validate relative Markdown links, and search for contradictions; and
-6. report any validation that cannot run because implementation does not yet exist.
+The plugin follows current OpenAI guidance: one installable plugin for related capabilities; task-specific skills with precise descriptions; concise procedural `SKILL.md` files; direct progressive-disclosure references; scripts for deterministic operations; assets for copied output; practical layered `AGENTS.md`; and fresh representative skill tests.
 
-For implementation:
+## Install during alpha development
 
-1. create the package with the built-in `plugin-creator` flow;
-2. initialize each approved skill with `skill-creator`;
-3. keep each `SKILL.md` concise and directly route conditional references;
-4. use scripts only for deterministic/repeated operations and assets only for output material;
-5. validate the manifest and all six skills;
-6. run fixture and fresh-thread activation tests;
-7. install through the local marketplace and test the two MCP routes; and
-8. deliver through CI and a complete review of the actual pull request.
+From the repository root, first validate, then register this repository as a personal marketplace and install/update `azure-workflow` using the current Codex plugin CLI. See [operations](docs/operations.md) for the exact commands and cachebuster/reinstall procedure.
 
-The detailed order and gates are in [plugin implementation sequence](planning/delivery/implementation-sequence.md).
+Azure live acceptance requires working local Azure authentication. A repository or product implementation request never authorizes a live Azure change; the operate skill always presents the exact scope and mutation for separate approval.
 
-## Guidance used
+## Boundaries
 
-The design follows current published guidance rather than optimizing for the smallest visible skill count:
+The plugin is for Azure-oriented repositories established by repository evidence or explicit user intent. .NET alone is not Azure evidence. UI/UX, .NET, testing, documentation maintenance, versioning, and GitHub are conditional concerns inside the six user workflows, not extra skills.
 
-- [OpenAI: AGENTS.md](https://learn.chatgpt.com/docs/agent-configuration/agents-md) — keep durable repository guidance practical, concise, layered, and close to the code it governs.
-- [OpenAI: Build skills](https://developers.openai.com/plugins/build/skills) — use recognizable task-specific workflows, precise descriptions, progressive disclosure, optional scripts/references, and representative testing.
-- [OpenAI: Plugins](https://developers.openai.com/plugins/) — use a plugin as the installable bundle for related skills and MCP connections.
-- [Agent Skills specification](https://agentskills.io/specification) — `SKILL.md` metadata and portable optional-resource structure.
-
-## Repository assumptions
-
-Provided emails, PDFs, documents, images, datasets, examples, software, dependencies, and services are assumed to have full permission and all necessary licences for development and testing. The workflow does not create PII, DPA, DPIA, privacy, retention, or licensing gates, reduce the requested result for those presumed concerns, or fabricate replacement operational examples.
-
-User-facing applications produced through this workflow must use purpose-revealing controls and labels, avoid narrating obvious functions, and never expose internal Azure resource or implementation terminology.
-
-## Current verification boundary
-
-There is no plugin build or canonical repository check yet. Until implementation creates it, do not claim package, skill, MCP, fixture, or installed-workflow validation. Planning changes can currently prove Markdown links, internal consistency, `git diff --check`, and direct inspection only.
+It deliberately excludes the failure modes of earlier attempts: lifecycle plugin proliferation, overlapping micro-skills, task-state protocols, generated ledgers, copied upstream documentation, duplicate policy/assets, speculative architecture/fallbacks, hundreds of issues created from feature catalogs, and expensive checks unrelated to changed paths.
