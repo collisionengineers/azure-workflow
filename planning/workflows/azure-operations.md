@@ -142,6 +142,8 @@ Verify both platform and product behavior:
 | Product caller | Actual application entry point produces expected outcome |
 | Cost | Expected SKU/count and material cost change recorded |
 
+If the operation establishes a qualifying agent mistake, contain and recover first. Because the operation route does not gain incidental repository-write authority, return a copy-ready pending `docs/agent-mistakes.md` entry and route its append plus any IaC/document reconciliation through delivery. Do not describe it as durably recorded. Finish with the observed state and one next human action or safe waiting condition.
+
 ## Special cases
 
 ### Destructive action

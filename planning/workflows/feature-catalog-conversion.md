@@ -83,7 +83,7 @@ remove or mark old plan pack non-authoritative
 ## Stage 1: freeze and inventory
 
 - Require a clean worktree and record the exact base commit.
-- Preserve `operator-notes/` byte-for-byte and every other declared human-owned root according to its explicit mutation rule.
+- Preserve every human-authored source/protected root according to its explicit mutation rule. Treat unclassified notes as non-binding discovery input; no path name makes the source authoritative or immutable.
 - Inventory every file, heading, table row, checkbox, link, status label, plan membership/completion field, stable ID, generated view/source, and stated authority in the legacy planning surfaces.
 - Record counts in the onboarding change record so the conversion can prove completeness.
 - Do not infer that the newest file is most authoritative.
@@ -211,7 +211,7 @@ After parity:
 | Old material | Action |
 | --- | --- |
 | Pure duplicate/stale plan/process text | Remove |
-| Source worksheet/interview evidence still valuable | Preserve in place if human-owned or move to `docs/reference/requirements/` with status |
+| Source worksheet/interview/discovery evidence still valuable | Preserve in place under its mutation rule or, when authorized, move to `docs/reference/requirements/` with explicit non-canonical status |
 | Historical review snapshot | Move to `docs/reference/reviews/` or retain with historical status |
 | Unapproved UI concept | `docs/reference/ui-concepts/` with explicit non-authority |
 | Active detailed plan for current work | Convert to one change record and link its issue |

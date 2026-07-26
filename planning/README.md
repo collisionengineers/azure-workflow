@@ -1,6 +1,6 @@
 # Azure Workflow planning pack
 
-Status: decision-complete specification; implementation has not started
+Status: final architecture closeout; implementation has not started
 
 Revised: 2026-07-26 after checking current OpenAI plugin/skill guidance, the Agent Skills specification, Semantic Versioning, GitHub's current issue/Project model, the Cloudflare skills repository, design-token/accessibility guidance, current Microsoft .NET guidance, and implementation-level evidence from two named brownfield repository case studies.
 
@@ -25,6 +25,13 @@ The implementation must follow this pack. `ref-files/` is source material only a
    - [CollisionSpike development-base recommendation](research/collisionspike-development-base-recommendation.md)
    - [Microsoft .NET project guidance](research/dotnet-project-guidance.md)
    - [Translator and educator workflow placement](research/translator-educator-placement.md)
+   - [Development-material and licensing audit](research/development-material-and-licensing-audit.md)
+   - [Documentation drift-prevention audit](research/documentation-drift-prevention-audit.md)
+   - [Agent mistake-log design](research/agent-mistake-log-design.md)
+   - [ADHD and non-coder collaboration design](research/adhd-noncoder-collaboration-design.md)
+   - [Path portability audit](research/path-portability-audit.md)
+   - [Human notes and requirements-documentation audit](research/operator-notes-and-requirements-documentation-audit.md)
+   - [Final architecture audit](research/final-architecture-audit.md)
 5. Core design decisions:
    - [Skill boundaries and progressive disclosure](standards/skill-boundaries.md)
    - [Documentation and planning lifecycle](standards/documentation-lifecycle.md)
@@ -46,6 +53,7 @@ The implementation must follow this pack. `ref-files/` is source material only a
    - [Repository documentation](standards/repository-documentation.md)
    - [Authority and conflicts](standards/authority-and-conflicts.md)
    - [Change record](standards/change-record.md)
+   - [Agent mistake log](standards/agent-mistake-log.md)
    - [Policy placement](standards/policy-placement.md)
    - [Repository modes](standards/repository-modes.md)
    - [UI and design system](standards/ui-design-system.md)
@@ -68,6 +76,7 @@ The implementation must follow this pack. `ref-files/` is source material only a
 ## Locked decisions
 
 - One plugin named `azure-workflow`; no plugin-per-stage suite.
+- Supported repositories are Azure-oriented by repository evidence or explicit user intent. .NET alone is not sufficient; non-Azure onboarding stops without mutation.
 - Six focused public skills: onboard, plan, deliver, explain repository, review pull request, and operate.
 - Planning is a standalone skill because it authorizes documentation-only repository delivery, forbids implementation, and has a distinct reviewed plan-PR endpoint.
 - A standalone plan normally ends as a Docs-only review-complete PR; delivery planning is an unpublished prerequisite on the same implementation branch, so one request never creates two PRs.
@@ -90,15 +99,22 @@ The implementation must follow this pack. `ref-files/` is source material only a
 - A clean worktree is mandatory but not sufficient. Onboarding also inspects branch/open-PR purpose and all linked worktrees, never repurposes an active branch, and treats other worktree roots as exclusion boundaries. The plugin never stashes, resets, cleans, or creates a worktree around unrelated changes.
 - The normal implementation endpoint is a green pull request with a fresh complete review of the actual PR at its exact final head. The plugin does not merge and never presents a same-author agent review as GitHub approval.
 - Azure research, reads, validation, and what-if may run automatically; every Azure mutation requires fresh, single-use approval for the exact operation.
-- `operator-notes/`, when present, is immutable key business authority unless the user explicitly requests an edit. Other repository-declared human-owned roots are discovered, assigned an explicit authority/mutation role, and preserved rather than hard-coded by product name.
+- Human-authored sources and protected roots are discovered and assigned separate content-authority and mutation roles. No filename—including `operator-notes/`, `PRD.md`, or `FRD.md`—becomes authoritative or immutable by convention alone; explicit target-repository declarations remain binding.
+- `docs/product/index.md` is the living repository-level PRD role, while warranted product-area documents carry durable functional-specification detail. Existing controlled PRD/FRD/SRS artifacts are preserved and routed when their format is itself required; the plugin does not create duplicate acronym-named documents by default.
 - Repositories declare `development` or `released` mode. Development mode carries no speculative compatibility, legacy, dual-path, or silent fallback code.
+- Delivery uses a compact lane for unambiguous, reversible, non-semantic low-risk changes. It creates no durable change record or issue unless requested, but still uses proportional checks and actual-PR exact-head review. Any material effect escalates to the standard record-bearing route before implementation continues.
 - Released compatibility/replay bridges name their supported contract, owner, activation scope, observability, removal trigger, and target removal version or date. A retained bridge without that lifecycle is a finding.
 - User-facing UI is self-explanatory and never exposes internal/development wording or internal Azure implementation names.
-- Repository-provided data is permitted for development. The workflow does not invent PII/DPIA/retention work and never fabricates domain emails, images, documents, PDFs, or instructions for tests.
+- Supplied data, examples, software, dependencies, and services are presumed fully permitted and licensed for development and testing. The workflow does not invent PII/DPA/DPIA/privacy/retention/licensing work, restrict the requested result for those presumed concerns, or fabricate replacement domain material.
 - Tests and CI are proportional. Markdown-only changes receive documentation checks; executable or ambiguous changes receive full checks, while GitHub still reports one stable `verify` status.
 - Onboarding removes superseded documentation only after claim-level and capability-level parity proves that no material truth was lost.
+- Documentation stays current through declared plan impact, same-PR canonical updates and deterministic validation, then semantic exact-head review; no hook, scheduled bot, or seventh documentation skill is added by default.
+- Every onboarded repository has one append-only `docs/agent-mistakes.md` for material, evidenced agent failures and reusable plugin-improvement signals. It is not a task board, review ledger, per-incident folder, or automatic source of plugin changes.
+- Low-cognitive-load organization is built into the six existing workflows. `explain-repository` owns read-only plain-English orientation and one evidence-based next-action recommendation; durable truth stays in repository docs and live order stays in GitHub. No organizer/ADHD skill, `NEXT.md`, dashboard, hook, or new Project field is added.
 - Packaged skills, references, templates, and scripts contain no source-project domain facts, assets, paths, or taxonomy defaults. Named case studies remain quarantined research and repository-root acceptance tests enforce the clean-room boundary.
+- Tracked commands and generated repository artifacts use repository-relative paths. Creator tools are resolved at runtime from `CODEX_HOME`, its documented per-user default, or the active skill locator; resolved workstation paths are used only in memory for containment or the required Codex marketplace deeplink and are never persisted.
 - The initial target is the private, personal-account-owned repository `collisionengineers/azure-workflow`. GitHub Free limitations are reported as capability gaps; they do not trigger account conversion or a paid-plan requirement.
+- `planning/`, `ref-files/`, `.codex/`, `.obsidian/`, and root `hooks.json` are bootstrap inputs only. After implementation maps their material content and passes decision/link/test parity, the released repository removes them and relies on canonical docs, plugin resources, tests, PR evidence, and Git history.
 
 ## Change control
 

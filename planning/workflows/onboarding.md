@@ -82,8 +82,8 @@ Inventory:
 
 - root/nested `AGENTS.md` and repository-local agent/plugin instructions;
 - repository-local plugins, skills, agents, hooks, marketplaces, workflow/task-state directories, validators, and every inbound route to them, including paths already deleted in the working candidate but still required by present instructions/scripts;
-- all relevant `operator-notes/` and every other repository-declared human-owned root, with each root's authority role and mutation rule recorded and its contents preserved as required;
-- README/docs/wiki exports/ADRs/RFCs/plans/roadmaps/feature lists/runbooks/generated docs, including their source owner, generator, generated destinations, staging behavior, and source-to-view round-trip behavior;
+- every relevant human-authored source/protected root—including existing PRD/FRD/SRS/URS/contract/notes material—with content role, approval/status evidence, canonical destination, and mutation rule recorded independently; unclassified notes remain preserved non-binding discovery input;
+- README/docs/wiki exports/ADRs/RFCs/plans/roadmaps/feature lists/runbooks/generated docs and existing agent mistake/incident/lesson logs, including their source owner, generator, generated destinations, staging behavior, and source-to-view round-trip behavior;
 - every stable capability/requirement ID, product clause, allocation, checkbox, dependency, and cross-link in large planning corpora;
 - every local work ledger, ticket/status directory, plan membership/status/completion field, generated board/index, historical evidence link, and the count in each active/verification/backlog/completed state;
 - application entry points, real callers, components/owners, interfaces, schemas, persistence, configuration, flags, and the entry-point-to-policy-owner call graph for behaviorally important flows;
@@ -97,7 +97,7 @@ Inventory:
 - CI/release/deployment/IaC/environment/monitoring/recovery;
 - GitHub issue forms/types/labels/milestones/Projects/rules/templates/open issues/PRs and discoverable owners;
 - Azure service, identity, subscription/environment, and operational references; and
-- evidence for mode, version/maturity, supported contracts, release authority, UI/data/test/naming policies.
+- evidence for mode, version/maturity, supported contracts, release authority, UI/test/naming policies, the supplied-material permission/licensing default, and any explicitly requested exception.
 
 ### Claim ledger
 
@@ -140,21 +140,24 @@ Apply the Microsoft Learn guidance gate before making a conversion recommendatio
 
 Ask one question only when two active same-role sources conflict materially or mode/release/product authority cannot be determined. Record `DOC-CON-NNN`, consequence, recommended default, decision owner, answer, incorporation, and rescan.
 
+Do not infer approval or protection from names such as `operator-notes/`, `PRD.md`, or `FRD.md`. For each unclassified human-authored source, preserve it, map material claims/IDs, and ask only when accepting or rejecting a claim changes intended behavior. Existing controlled requirement artifacts retain their IDs, approval history, and format until the owner approves consolidation and claim/identifier/link/history parity passes.
+
 ## Stage 4: canonical rewrite
 
 Write in this order:
 
 1. `docs/index.md` authority and routes.
-2. `docs/product/index.md` users/outcomes/scope/invariants/contracts/mode/version/maturity/release authority/policies, including `Visual UI: present | absent`.
-3. `docs/product/capabilities.md` and `areas/` only when the inventory warrants them.
+2. `docs/product/index.md` as the living PRD role: purpose/problem, users/outcomes, success measures, scope, requirements/invariants, quality constraints, contracts, mode/version/maturity/release authority/policies, including `Visual UI: present | absent`.
+3. `docs/product/capabilities.md` and functional-specification `areas/` only when the inventory warrants them; do not create a default `PRD.md`, `FRD.md`, or one area file per feature.
 4. `docs/roadmap.md` with release gates and Now/Next/Later/Not planned outcomes.
 5. When `Visual UI: present`, the exact root `design/` spine: brand style/imagery/logo inventory, colour/typography/layout/motion/accessibility foundations, one token-source route, icon/font inventories, component/pattern indexes, and approved-reference inventory.
 6. `docs/architecture.md` from current executable reality, including runtime call paths, rule/configuration ownership, and live/generated/reference/compatibility source roles when the system is non-trivial.
 7. `docs/operations.md` with verified Windows/PowerShell procedures, exact technology toolchains/platforms, and one canonical command whose skips/ratchets/prerequisites are explicit.
 8. Required active/historical ADRs.
-9. Root `AGENTS.md` and only justified nested deltas, including the conditional design route.
-10. Human README.
-11. GitHub issue forms/PR template and canonical CI routing.
+9. Append-only `docs/agent-mistakes.md`, preserving mapped existing evidence and creating no synthetic incident when none exists.
+10. Root `AGENTS.md` and only justified nested deltas, including conditional design, concise supplied-material/licensing, mistake-log, and low-cognitive-load collaboration rules.
+11. Human README with one obvious documentation/live-work route and no duplicate next-action/status file.
+12. GitHub issue forms/PR template and canonical CI routing.
 
 Templates are filled with repository facts. Existing compatible material is merged; it is never blindly overwritten.
 
@@ -247,7 +250,8 @@ No bulk issue import occurs by default. Only activated Now outcomes receive pare
 - Prefer existing native verification; add one thin wrapper only when needed.
 - CI always reports `verify`; Markdown-only runs Docs, executable/ambiguous runs Full.
 - For every supported local/CI platform, run or fixture-test equivalent canonical inputs. A clean exact commit that is green remotely but fails the declared local check is an onboarding finding until the difference is explained, normalized, or explicitly supported as a tested platform branch.
-- Validate required paths/headings/links, capability uniqueness/allocation/linking, roadmap vocabulary, issue-form YAML/types, exactly-one-kind/category registry rules, PR template, ADR/record schemas, policies, and that every mandatory workflow/skill/hook route resolves to the new supported owner. For source-backed generated human views, compare source text, parsed semantic value, and generated/rendered value, including YAML-special-character cases. When `Visual UI: present`, also validate the complete design spine, surface applicability, the repository's one declared token-source route, relative source/runtime mappings, and absence of placeholder/synthetic assets.
+- Validate required paths/headings/links, capability uniqueness/allocation/linking, roadmap vocabulary, issue-form YAML/types, exactly-one-kind/category registry rules, PR template, ADR/record schemas, mistake-log title/template/entry IDs/fields/append history, the supplied-material/licensing and non-synthetic policies, and that every mandatory workflow/skill/hook route resolves to the new supported owner. For source-backed generated human views, compare source text, parsed semantic value, and generated/rendered value, including YAML-special-character cases. When `Visual UI: present`, also validate the complete design spine, surface applicability, the repository's one declared token-source route, relative source/runtime mappings, and absence of placeholder/synthetic assets.
+- Treat those checks as structural proof only. The conversion PR review must independently compare canonical product/design/current-system claims with real code, configuration, callers, and procedures; unresolved semantic documentation drift blocks completion.
 - Validate that material rules/settings have one named authority, generated/materialized paths trace to one source, reference/test-only modules are not presented as live owners, and every released bridge has complete lifecycle metadata. For .NET, validate the detected project variant without forcing a target/framework/solution/package/test-platform migration.
 - Reject self-referential fixed-point ledgers and generated inventories unless each output protects a named risk, has one source owner, is lossless/reproducible, and remains proportionate to its consumer.
 - Run the repository's proportional native checks.
@@ -259,9 +263,9 @@ No bulk issue import occurs by default. Only activated Now outcomes receive pare
 1. Commit the checked conversion narrowly, push, and create/update the actual PR. Use native draft when supported or normal PR + `do-not-merge` on the personal Free/private route.
 2. Wait for required CI on the exact head and collect the complete PR evidence snapshot.
 3. Invoke `$review-repository-pull-request` in a fresh context. The reviewer receives the actual PR, original sources, claim/capability/taxonomy/rule-configuration/source-role-hotspot ledgers, the design-source/runtime ledger when applicable, the .NET profile result when applicable, affected GitHub-item counts, conflicts/answers, resulting canonical tree, removed-path diff, parity reports, GitHub setup plan/result, checks, reviews/comments/threads, and raw local checks. It independently spot-checks old-to-new claims/IDs/design assets, runtime owners, taxonomy mappings, and every removal.
-4. Remediate blockers/required findings, re-prove, update the record, push, and repeat the complete PR review for the new head.
+4. Remediate blockers/required findings, re-prove, append/link any qualifying agent mistake made or discovered during the authorized conversion, update the record, push, and repeat the complete PR review for the new head. Ordinary review findings are not automatically mistake incidents.
 5. After a clean candidate, commit the final `ready` record update, wait for CI, and obtain a final clean exact-head review. Make no later tracked change.
-6. Publish the exact review result as a labelled `COMMENT` review, refresh head/checks/feedback, transition native draft to ready or remove `do-not-merge`, read back, and stop. Do not merge.
+6. Publish the exact review result as a labelled `COMMENT` review, refresh head/checks/feedback, transition native draft to ready or remove `do-not-merge`, read back, and stop. Do not merge. State one next human action or the exact waiting condition.
 
 ## Failure behavior
 

@@ -45,7 +45,7 @@ major UI route + explicit direction approval
 Before planning UI:
 
 1. Current user instruction.
-2. Relevant `operator-notes/`.
+2. Applicable declared product/external requirements and relevant discovery/evidence sources, using their recorded roles.
 3. Canonical product behavior and terminology.
 4. Root `design/` visual authority when `docs/product/index.md` declares `Visual UI: present`.
 5. Approved UI/design ADR or product-area contract.

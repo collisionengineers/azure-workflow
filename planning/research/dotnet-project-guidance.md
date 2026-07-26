@@ -4,6 +4,12 @@ Research date: 2026-07-26
 
 Scope: current Microsoft guidance that can sensibly apply to **any repository containing .NET projects**, including modern SDK-style .NET, .NET Framework, ASP.NET Core, workers/console apps, libraries, tests, Entity Framework Core, and Azure Functions. This is a technology profile inside the existing workflow, not an Azure-only architecture prescription.
 
+## Status and use
+
+This file is dated research and decision evidence. It is not copied into the plugin and is not operational authority for a future repository run. Version numbers, support dates, defaults, APIs, tooling behavior, host models, and Microsoft recommendations recorded here can drift; a workflow that materially depends on one must refresh it through Microsoft Learn under the central MCP policy.
+
+Only the stable routing decision is carried into the packaged profile: inspect the actual repository, identify its exact .NET variant, ask Microsoft Learn a narrow current question when needed, and apply the normal repository workflow without automatic modernization.
+
 ## Conclusion
 
 Microsoft does not prescribe one universal folder tree, a fixed number of projects, Clean Architecture for every application, microservices, Aspire, exhaustive testing, or a mandatory analyzer configuration. Its guidance is more proportional:
@@ -14,7 +20,56 @@ Microsoft does not prescribe one universal folder tree, a fixed number of projec
 - SDK, target framework, package, analyzer, configuration, and test choices should be explicit and reproducible; and
 - integration tests should be focused on important infrastructure behavior, not written for every permutation.
 
-That aligns with this plugin’s stated goal: clean, understandable, extendable code without speculative architecture. The plugin should add **one shared conditional .NET reference**, not another public skill, MCP server, hook, or rigid repository template.
+That aligns with this plugin’s stated goal: clean, understandable, extendable code without speculative architecture. The plugin should add **one small shared conditional .NET routing reference**, not another public skill, MCP server, hook, rigid repository template, or static substitute for Microsoft Learn.
+
+## Static-guidance audit
+
+The first draft of the packaged `.NET` standard grew to 220 lines. That was too much. It mixed four different kinds of content:
+
+| Content | Correct owner |
+| --- | --- |
+| Point-in-time Microsoft release, support, host, API, and tool facts | Microsoft Learn at the point of a material decision; this dated research may retain the historical evidence |
+| Repository-specific SDK, project, host, configuration, dependency, test, and command facts | Inspection of the target repository and its actual tool output |
+| General ownership, maintainability, documentation, mode, testing, and review rules | Existing generic workflow references and repository authority |
+| `.NET` activation, variant detection, evidence questions, and Learn query routing | The concise shared packaged `.NET` profile |
+
+The packaged reference must therefore **not** summarize the Microsoft documentation catalogue or repeat the generic implementation/review handbook. It retains only information that helps an agent choose the right evidence source and avoid applying the wrong `.NET` variant.
+
+The live Microsoft Learn service search performed for this audit through Microsoft's official CLI, which exposes the same search/fetch content capabilities as the MCP server, confirmed both the value and the limit of the service. It returned relevant current .NET dependency-injection and architecture pages, but the same broad query also returned older ASP.NET Web API, SignalR, .NET Framework migration, MAUI, and Functions in-process material. This is expected search behavior, not a defect. It proves why the plugin must supply a small applicability guard:
+
+```text
+actual repository variant + requested decision
+                    |
+                    v
+          narrow Microsoft Learn query
+                    |
+                    v
+       fetch and verify the selected page
+                    |
+                    v
+       apply only if product/version/host match
+```
+
+Microsoft Learn should be called for current or narrowly defined Microsoft-controlled facts. It should not be called merely because a file is written in C#, and its first search result must not be treated as a universal architecture instruction.
+
+### Keep in the packaged profile
+
+- activation evidence and exact variant classification;
+- local repository/toolchain inventory questions that Microsoft Learn cannot answer;
+- lifecycle-specific call/reuse/refresh rules;
+- a requirement to scope and fetch the applicable official page before relying on it;
+- compact evidence recording and failure behavior; and
+- prohibitions against automatic framework, architecture, solution, package, test, analyzer, or hosting choices.
+
+### Keep out of the packaged profile
+
+- current supported-version tables and end-of-support dates;
+- current CLI defaults, migration deadlines, package/API details, and host-specific recipes;
+- copied Microsoft tutorials, code samples, or architecture catalogues;
+- duplicated generic rules for source ownership, documentation, modes, testing, UI, and PR review; and
+- collision-project-specific architecture lessons.
+
+This keeps the MCP useful rather than ceremonial while preventing it from becoming an unscoped “best practices” oracle.
 
 ## What current Microsoft guidance establishes
 
@@ -38,6 +93,7 @@ That aligns with this plugin’s stated goal: clean, understandable, extendable 
 
 ## Official sources
 
+- [Microsoft Learn MCP server and CLI](https://github.com/MicrosoftDocs/mcp)
 - [.NET releases, patches, and support](https://learn.microsoft.com/en-us/dotnet/core/releases-and-support)
 - [.NET project SDK overview](https://learn.microsoft.com/en-us/dotnet/core/project-sdk/overview)
 - [`global.json` overview](https://learn.microsoft.com/en-us/dotnet/core/tools/global-json)

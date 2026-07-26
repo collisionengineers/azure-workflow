@@ -18,7 +18,8 @@ The plugin manifest must not contain a `hooks` property.
 - A session-start hook would duplicate that routing and could load stale or irrelevant context.
 - A tool-preflight hook cannot reliably identify all Azure writes because changes can occur through MCP, Azure CLI, `azd`, Terraform, Bicep deployment commands, or repository scripts.
 - Hook command paths and trust records are machine-specific and would weaken portability.
-- The current plugin validator rejects unsupported manifest fields including `hooks`.
+- Current OpenAI plugin documentation supports bundled lifecycle hooks. The installed creator validator still rejects a manifest `hooks` field, so installed behavior and creator validation are not treated as interchangeable evidence.
+- No demonstrated workflow failure requires a hook in this plugin. Instructions, deterministic validation, CI, exact-head review, and the explicit Azure mutation gate already own the relevant controls.
 - The previous root `hooks.json` is source-project-specific and points to a repository-local script that is absent here; it must be removed during implementation.
 
 ## Replacement controls
@@ -36,8 +37,8 @@ The plugin manifest must not contain a `hooks` property.
 
 Hooks may be proposed in a future ADR only if all of these are true:
 
-1. The Codex plugin manifest supports and validates the hook declaration.
+1. A repeated real failure shows the existing instruction/validation/review controls are insufficient.
 2. The hook solves a demonstrated failure that repository instructions and deterministic checks cannot solve.
-3. Its paths work from an installed plugin without copying machine-specific scripts into every repository.
-4. It has explicit Windows and clean-failure tests.
-5. It does not become the sole safety barrier for destructive or external actions.
+3. The current installed Codex surface and creator/validator agree on the selected hook declaration path.
+4. Its paths work from an installed plugin without copying machine-specific scripts into every repository.
+5. It has explicit Windows and clean-failure tests and is not the sole safety barrier for destructive or external actions.

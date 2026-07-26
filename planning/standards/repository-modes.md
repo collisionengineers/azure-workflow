@@ -12,7 +12,7 @@ The mode is declared in root `AGENTS.md` and `docs/product/index.md`. Do not inf
 ## Mode resolution
 
 ```text
-Read AGENTS.md + docs/product/index.md + operator-notes/
+Read AGENTS.md + docs/index.md + declared product/controlled requirements
                   |
                   v
 same declared mode? ---- yes ----> use it

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-One Markdown file carries the durable plan, decisions, implementation evidence, review rounds, and ready outcome for one bounded change. It replaces task folders, JSON handoffs, journals, and separate planning/review/validation packs.
+One Markdown file carries the durable plan, decisions, implementation evidence, review rounds, and ready outcome for onboarding and each standard/high-risk bounded change. It replaces task folders, JSON handoffs, journals, and separate planning/review/validation packs.
 
 It is not the canonical product specification, roadmap, or live task board. Those facts remain in their owners and are linked from the record.
 
@@ -17,6 +17,7 @@ docs/changes/YYYY-MM-DD-slug.md
 - The create script refuses duplicates and overwrites.
 - Resume the same record across plan and delivery.
 - A replaced request creates a successor and links both directions.
+- Compact-lane delivery creates no record when the work is mechanical, unambiguous, readily reversible, and has no behavioral, contract, data/schema, identity, dependency, architecture, operations, UI-meaning, IaC, Azure, migration, or release effect. If any condition fails or scope expands, promote before implementation and create the standard record.
 
 ## Status values
 
@@ -145,6 +146,8 @@ Superseded by: none
 
 ## Documentation and work tracking
 
+- Documentation impact declared before implementation: {{AFFECTED_OWNERS_OR_NONE_WITH_SPECIFIC_REASON}}
+- Agent mistake entries: {{AM_IDS_OR_NONE}}
 - Product/capabilities: {{UPDATED_OR_NOT_APPLICABLE_WITH_REASON}}
 - Design system/assets: {{UPDATED_OR_NOT_APPLICABLE_WITH_REASON}}
 - Roadmap/release: {{UPDATED_OR_NOT_APPLICABLE_WITH_REASON}}
@@ -164,10 +167,13 @@ Superseded by: none
 
 ## Update rules
 
-- Planning creates the record before implementation; delivery reuses it.
+- Planning creates the record before onboarding or standard/high-risk implementation; delivery reuses it. Compact-lane delivery has no record unless the user or repository policy requires one.
+- Before implementation, planning fills the documentation-impact declaration and every owner row with an affected path/section or a specific reason it is unchanged. “No docs” without a reason is invalid.
 - Planning fills every decision/plan section, marks implementation checks `not run — planning only`, records the Docs check/review, sets `planned`, and—when standalone with a remote—publishes the documentation through a ready plan PR before stopping.
 - Standard/high-risk planning records include a fresh plan-review round.
 - Delivery changes status to `active` and records only checks actually run and observed.
+- Delivery updates every affected canonical owner in the same pull request. It does not defer documentation drift as ordinary follow-up work.
+- Record only qualifying mistake-log IDs associated with this work. `none` is normal; do not create ceremonial incidents. A pending read-only entry is not listed as durable until an authorized workflow appends it.
 - Keep original scope and decisions visible; record deviations instead of rewriting history to make the result appear preplanned.
 - Preserve every plan review and PR remediation round that precedes the final tracked record update. Link the PR as the durable owner of the final exact-head attestation.
 - `blocked` names the exact decision/prerequisite, owner, affected endpoint, and safe next action.
@@ -178,4 +184,4 @@ Superseded by: none
 
 ## Compactness
 
-Every section remains present for reliable validation. `Not applicable — <specific reason>` is valid. Low-risk records stay concise; high-risk work expands in the same file rather than spawning a second artifact hierarchy.
+When a record is required, every section remains present for reliable validation. `Not applicable — <specific reason>` is valid. A user-requested or policy-required low-risk record stays concise; high-risk work expands in the same file rather than spawning a second artifact hierarchy.

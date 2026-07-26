@@ -47,6 +47,8 @@ The reviewer is read-only:
 - must distinguish static, runtime, CI, GitHub, and unavailable evidence; and
 - must not treat its same-account identity as GitHub approval.
 
+Review findings are evidence about the PR, not automatically agent mistake-log incidents. Delivery decides whether a corrected finding meets the material/reusable admission test. If the reviewer itself makes or recognizes its own qualifying error, it returns a copy-ready pending entry and explicitly states that the read-only review did not persist it.
+
 The owning workflow—not the reviewer—may publish the returned report verbatim as a GitHub `COMMENT` review and may remediate findings under its separate mutation authority.
 
 ## Required inputs
@@ -66,6 +68,8 @@ The owning workflow—not the reviewer—may publish the returned report verbati
 Use the collection contract in [GitHub PR review research](../research/github-pull-request-review-capability-audit.md). In the implemented plugin, the review skill loads its direct `pr-evidence-collection.md` reference and runs the shared evidence collector.
 
 The reviewer applies the Microsoft Learn call gate independently. If a current Microsoft claim can determine a blocker or required finding, it queries/fetches the official guidance and records compact evidence in the result. It does not treat the implementation owner’s citation as independent proof, and it does not repeat background research that cannot affect the verdict.
+
+The reviewer applies the repository's development-material authority as written: supplied materials, software, dependencies, and services are presumed fully permitted and licensed. It must not create a finding based only on PII, DPA, DPIA, privacy, retention, or licensing analysis that the user did not request, and must not demand synthetic/anonymized substitutes or reduced test/function scope for those presumed concerns. It still reviews explicit product retention/deletion behavior, technical authentication/authorization, permissions, trust boundaries, secrets, and any privacy/licensing outcome deliberately in scope.
 
 ## Stable evidence gate
 
@@ -92,7 +96,7 @@ After examining the diff, the reviewer runs the collector again. A changed head 
 3. Real callers reach the intended policy owner; registrations or unused code do not count as completion.
 4. Each changed behavior and behaviorally important setting has one discoverable canonical owner and explicit precedence; the PR does not add a second rule/configuration stage to an unresolved hotspot.
 5. Positive, negative, failure, retry, conflict, recovery, and observability behavior match the request.
-6. Relevant `operator-notes/` were read, remain unchanged unless explicitly requested, and are not contradicted.
+6. Relevant human-authored/controlled sources were interpreted according to their declared role, every protected mutation rule was respected, and the PR neither contradicts active authority nor promotes draft/evidence/history into product truth.
 7. Repository mode is applied: no unreleased legacy/fallback path in development; only named, observable compatibility/replay bridges with complete retirement metadata in released mode.
 8. Public interfaces, schemas, persistence, configuration, migrations, deployment, and recovery are safe and coherent.
 9. Authentication, permissions, secrets, and trust boundaries are correct.
@@ -102,7 +106,7 @@ After examining the diff, the reviewer runs the collector again. A changed head 
 13. Tests target plausible regressions, CI selected the correct path-aware scope, and no prohibited synthetic domain examples were created.
 14. Generated/materialized outputs trace to one canonical source and deterministic command; reference/test-only code is not exported or represented as the live owner.
 15. Planned future capability produced only a small currently exercised seam, not dormant abstraction or resources.
-16. Product, design, architecture, operations, ADRs, roadmap/capabilities, and change record agree with the implementation.
+16. Product, design, architecture, operations, ADRs, roadmap/capabilities, and change record agree semantically with the implementation and real callers/configuration; passing links/schemas alone is insufficient, and unresolved documentation drift is blocker/required work.
 17. For .NET-affecting PRs, the shared profile’s project graph, DI/options, compatibility, tooling/support, variant, and proportional-test checks pass without imposed modernization.
 18. Existing human/automated feedback was reconciled against the current head; unresolved or requested-changes state is not hidden.
 19. No unrelated paths, unexplained generated output, hidden scope expansion, or user work are included.
@@ -140,6 +144,8 @@ Advisories may accompany `clean`. “Mostly clean,” “looks good,” and appr
 
 The result also names the final evidence-snapshot timestamp and fingerprint. A later comment, review, thread-state change, check transition, or head change does not rewrite history, but it requires the owning workflow to refresh state before completion and may reopen the gate.
 
+End with one plain-English action derived from the verdict: delivery remediation for `changes-required`, the single named evidence acquisition for `evidence-blocked`, or the genuine human/merge-authority action or waiting state for `clean`. This is a recommendation only; review remains read-only and does not change PR state.
+
 ## Feedback reconciliation
 
 Every review, general comment, inline comment, and thread is classified as actionable, already addressed, clarification needed, contradictory, scope-expanding, incorrect, or non-actionable. The reviewer reports the evidence and required next action but does not reply or resolve.
@@ -152,6 +158,8 @@ The implementation owner:
 4. resolves only fully addressed threads and reads them back;
 5. leaves ambiguity, contradiction, and scope expansion unresolved for a decision; and
 6. re-requests a distinct human review after addressing `CHANGES_REQUESTED`.
+
+When remediation establishes a qualifying agent mistake under `docs/agent-mistakes.md`, the implementation owner appends it and records the ID before requesting the next exact-head review. Routine findings caught by this intended gate remain review evidence only.
 
 The workflow never dismisses a human review.
 

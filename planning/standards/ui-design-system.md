@@ -63,7 +63,7 @@ Every shown Markdown file is required when `Visual UI: present`. Conditional dir
 
 | Question | Canonical owner |
 | --- | --- |
-| What job, workflow, terminology, permission, or state should the user experience? | `docs/product/` and applicable `operator-notes/` |
+| What job, workflow, terminology, permission, or state should the user experience? | `docs/product/` plus any active external/controlled requirement routed by `docs/index.md` |
 | What is the approved visual character and imagery treatment? | `design/brand/` |
 | Which colour, typography, spacing, layout, motion, and accessibility rules apply? | `design/foundations/` |
 | Where is the one machine-readable token source? | Path declared in `design/tokens/README.md` |

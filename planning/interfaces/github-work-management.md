@@ -314,7 +314,7 @@ body:
     id: constraints
     attributes:
       label: Constraints and authority
-      description: Link operator notes, product sections, external contracts, examples, or boundaries that govern the request.
+      description: Link active product sections, controlled/external requirements, evidence, examples, or boundaries that govern the request.
     validations:
       required: false
   - type: input
@@ -640,6 +640,17 @@ Definitions:
 
 The plugin ends normal delivery with the implementation issue in `In review` and a green PR carrying a clean independent review for its exact final head. It does not mark the issue `Done` before merge.
 
+### Next-action presentation
+
+The plugin does not add a `Next action` Project field, `NEXT.md`, duplicate status label, or generated dashboard. When the user asks what to do next, `$explain-repository` derives one conversational recommendation from existing owners:
+
+1. continue or unblock the single current `In progress` change;
+2. perform a genuine waiting human action on an `In review` item;
+3. resolve a blocking Decision for an activated Now outcome; then
+4. select one unblocked `Ready` item already in Now, using Priority, target release, dependencies, and the user's stated goal.
+
+It never selects by issue age alone and never auto-activates Triage, Next, Later, or unallocated work. A material tie produces one recommended default and one focused question. The recommendation is read-only synthesis, not new Project state.
+
 ### Standalone planning loop
 
 Planning is work on the same issue, not a second planning-status system:
@@ -716,7 +727,7 @@ GitHub supports issue hierarchy and native blocking relationships; see [Adding s
 | Backlog/roadmap idea | Feature issue required if it is promoted to actionable Triage; durable catalog entry may remain unallocated without an issue |
 | Standard/high-risk plan | Create/reuse an issue when GitHub is available; absence does not invalidate a decision-complete local plan, but the work cannot enter Project `Ready` or delivery until the issue exists |
 | Standard/high-risk delivery | Issue required; delivery may create it as an authorized normal step when none exists |
-| Low-risk contained fix/docs/maintenance | Issue optional; PR and change record are enough unless repository policy says otherwise |
+| Compact-lane contained fix/docs/maintenance | No issue or change record by default; the PR states why the compact lane applies unless the user or repository policy requires either artifact |
 | `Not planned` boundary | No open issue; close any existing issue with reason and update product authority |
 | Material unresolved decision | Decision form using the selected owner-aware work-kind encoding required when it blocks more than the current conversation/change |
 
@@ -739,7 +750,7 @@ The issue body receives one remote `Plan` link after the standalone plan branch 
 
 - A standalone plan PR contains only the change record and already-settled canonical planning-document changes. Its body uses `Refs #N`, never a closing keyword. It runs Docs checks and stops ready without implementation.
 - If implementation begins before that plan PR merges, delivery resumes the same branch/PR, restores native draft or `do-not-merge`, and changes the record to `active`. If it merged, delivery branches from the updated default branch.
-- PR body links the change record and uses `Closes #N` only for an implementation task that is complete when merged.
+- PR body links the change record, names the canonical documents/design authorities changed or gives a specific reason none changed, and uses `Closes #N` only for an implementation task that is complete when merged.
 - A PR that contributes to a wider Feature uses `Refs #N` for the parent and closes only its bounded sub-issue.
 - Parent Feature issues remain open through operator/release acceptance when that is part of their outcome.
 - The plugin never closes an issue merely because its own ready-PR endpoint was reached.

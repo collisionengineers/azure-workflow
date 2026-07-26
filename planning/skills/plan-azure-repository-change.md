@@ -19,12 +19,10 @@ skills/plan-azure-repository-change/
     |-- change-planning.md
     |-- documentation-lifecycle.md
     |-- github-planning.md
-    |-- risk-scaling.md
-    |-- ui-ux-planning.md
-    `-- versioning-and-release-stages.md
+    `-- ui-ux-planning.md
 ```
 
-No `scripts/` subfolder exists. The plugin-root create-only script copies the plan skill's change-record asset. The conditional shared .NET profile lives at `plugins/azure-workflow/references/dotnet-projects.md`, outside this skill-local tree, and is linked directly from `SKILL.md`.
+No `scripts/` subfolder exists. The plugin-root create-only script copies the plan skill's change-record asset. Shared .NET, risk, and version/release references live under `plugins/azure-workflow/references/` and are linked directly from `SKILL.md`.
 
 ## `SKILL.md` frontmatter
 
@@ -43,11 +41,19 @@ interface:
   short_description: "Create a decision-complete repository-grounded plan"
   default_prompt: "Use $plan-azure-repository-change to inspect and plan this change, persist it through a documentation-only pull request reviewed at its exact final head, and stop before implementation."
 
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "microsoft-learn"
+      description: "Current official Microsoft and Azure documentation"
+      transport: "streamable_http"
+      url: "https://learn.microsoft.com/api/mcp"
+
 policy:
   allow_implicit_invocation: true
 ```
 
-No MCP is unconditionally required. Apply the central Microsoft Learn guidance gate. Call it when the user asks for Microsoft guidance or when a material decision depends on current Microsoft version/support/tool/API/host/service/migration/deployment guidance; do not call it for pure repository-owned logic. Record compact evidence for delivery reuse. Unavailable official evidence blocks only the dependent decision. Planning cannot authorize an Azure mutation.
+The dependency makes Microsoft Learn available; it does not make every call mandatory. Apply the central guidance gate when the user asks for Microsoft guidance or when a material decision depends on current Microsoft version/support/tool/API/host/service/migration/deployment guidance; do not call it for pure repository-owned logic. Record compact evidence for delivery reuse. Unavailable official evidence blocks only the dependent decision. Planning cannot authorize an Azure mutation.
 
 ## Required `SKILL.md` body structure
 
@@ -81,7 +87,7 @@ It does not authorize:
 - merge or issue closure;
 - bulk issue creation or roadmap reallocation outside the named change;
 - Azure mutation; or
-- rewriting `operator-notes/`.
+- changing a human-edit-only, preserve-in-place, or other protected source outside its declared mutation rule.
 
 When delivery invokes this skill as a prerequisite, it performs the same planning/documentation/review gate but skips the standalone push/plan-PR endpoint. The delivery request authorizes continuation on the same branch and eventual implementation PR. The planning skill itself never performs implementation.
 
@@ -90,13 +96,13 @@ When delivery invokes this skill as a prerequisite, it performs the same plannin
 1. Confirm that the endpoint is planning, either standalone or as the explicit prerequisite of `$deliver-azure-repository-change`.
 2. Require an onboarded repository and a clean worktree. Route brownfield conversion to `$onboard-azure-repository`.
 3. Resolve/fetch the remote default branch. Create or unambiguously resume `workflow/YYYYMMDD-<slug>` from that base before writing the record; never attach to a similarly named branch by age alone.
-4. Read root/nearest `AGENTS.md`, `docs/index.md`, relevant `operator-notes/`, product authority, current architecture/operations including the GitHub taxonomy registry, active ADRs, roadmap/capability entries, existing issue, and any named prior record. When `Visual UI: present`, read `design/README.md` and the applicable brand/foundation/token/asset/component/pattern authorities before proposing UI work.
+4. Read root/nearest `AGENTS.md`, `docs/index.md`, declared active product/external requirements and relevant discovery/evidence sources, current architecture/operations including the GitHub taxonomy registry, active ADRs, roadmap/capability entries, existing issue, and any named prior record. Respect every recorded source role and mutation rule. When `Visual UI: present`, read `design/README.md` and the applicable brand/foundation/token/asset/component/pattern authorities before proposing UI work.
 5. Resolve repository mode, current version/maturity stage, target release/horizon, and baseline commit.
-6. Inspect real callers, owning components, data/configuration/persistence, rule/configuration authority, source roles, failure/recovery behavior, tests, UI, CI, Azure impact, and existing extension seams. Note size/branch/fan-out/churn hotspots that the change would deepen. For UI work, resolve the one token source and every affected design-source/runtime mapping.
+6. Inspect real callers, owning components, data/configuration/persistence, rule/configuration authority, source roles, failure/recovery behavior, tests, UI, CI, Azure impact, and existing extension seams. Note size/branch/fan-out/churn hotspots that the change would deepen. For UI work, resolve the one token source and every affected design-source/runtime mapping. Treat supplied materials/software/services as fully permitted and licensed for development/testing; do not add unsolicited PII/DPA/DPIA/privacy/retention/licensing analysis, gates, warnings, substitutions, or scope reductions.
 7. Distinguish intended behavior, current implementation, external constraints, and historical evidence.
 8. Apply the Microsoft Learn call gate. Reuse a scoped official result already recorded for the same active change only when its product/version/host and baseline remain applicable and no drift signal exists.
-9. Ask one material question at a time only when repository authority cannot answer it and the answer changes behavior, safety, architecture, release allocation, migration, cost, or acceptance.
-10. Use the real Codex `update_plan` harness for the active planning work; a Markdown checklist is not a substitute.
+9. Ask one material question at a time only when repository authority cannot answer it and the answer changes behavior, safety, architecture, release allocation, migration, cost, or acceptance. Lead with the recommended default and concrete consequence; accept answered decisions and reopen them only for new contradictory evidence.
+10. Use the real Codex `update_plan` harness for the active planning work with at most one in-progress step; a Markdown checklist is not a substitute. Give concise `done / now / next / waiting` orientation when useful rather than exposing a tool diary.
 11. Select low/standard/high risk and load only applicable references:
    - always: `change-planning.md`, `risk-scaling.md`, `documentation-lifecycle.md`;
    - release/version/horizon affected: `versioning-and-release-stages.md`;
@@ -104,13 +110,14 @@ When delivery invokes this skill as a prerequisite, it performs the same plannin
    - UI/UX affected: `ui-ux-planning.md`;
    - .NET source/project/build/package/test/persistence/host/deployment affected: shared `../../references/dotnet-projects.md`, using only the applicable variant sections.
 12. Explore alternatives only when two or more viable options differ materially.
-13. Write one change record containing scope, exclusions, baseline, authorities, current state, callers/owners, rule/configuration/source-role effects, acceptance, ordered implementation plan, failure/recovery, tests, documentation, Azure effects, decisions, intended proof, and compact Microsoft evidence when used. UI plans name exact `design/` owners/mappings to update or state why the current design authority remains unchanged. .NET plans include the exact solution/project/TFM scope, entry-point-to-owner path, dependency/configuration/DI/public-contract/migration effects, proportional test route, and current Microsoft support evidence whenever a version-specific choice is made.
+13. Write one change record containing scope, exclusions, baseline, authorities, current state, callers/owners, rule/configuration/source-role effects, acceptance, ordered implementation plan, failure/recovery, tests, documentation, Azure effects, decisions, intended proof, and compact Microsoft evidence when used. Declare every affected canonical product/capability/roadmap/design/architecture/operations/ADR/instruction owner or give a specific reason none changes. UI plans name exact `design/` owners/mappings to update or state why the current design authority remains unchanged. .NET plans include the exact solution/project/TFM scope, entry-point-to-owner path, dependency/configuration/DI/public-contract/migration effects, proportional test route, and current Microsoft support evidence whenever a version-specific choice is made.
 14. Update canonical product/capability/roadmap/ADR documents only for intended facts and allocations that are already settled by authority. Proposed/unresolved behavior remains in the record; never edit architecture/operations as though unimplemented work exists.
 15. For standard/high risk, obtain a fresh read-only plan review and remediate every blocker/required finding.
 16. Set status `planned` and run the Docs-scope canonical check.
 17. If invoked as a delivery prerequisite, return control on the same cleanly scoped branch without creating a separate plan PR.
 18. Before publishing remote work, require the selected/created issue to have exactly one owner-aware work kind, only registered custom categories, required semantic content, and Project membership. Repair unambiguous metadata; ask one focused question when classification is ambiguous. Do not rely on private form requiredness or form Project auto-add.
-19. For standalone planning, stage literal documentation paths, commit narrowly, push, and create/update a plan PR that never closes the implementation issue. Use native draft when supported or normal PR + `do-not-merge` on the personal Free/private route. Monitor Docs CI. For standard/high risk, invoke `$review-repository-pull-request` in a fresh context against the actual PR; remediate documentation findings and repeat full review. Publish the clean exact-head result, transition the under-review marker, and stop before implementation. If remote publication was explicitly excluded/unavailable, make the verified local documentation commit and report that fallback.
+19. If this workflow makes or discovers a qualifying mistake, recover first and append it under `docs/agent-mistakes.md`; record its ID in the change record. Do not log routine planning iteration. If clean authorized persistence is unavailable, return the copy-ready pending entry without claiming it was recorded.
+20. For standalone planning, stage literal documentation paths, commit narrowly, push, and create/update a plan PR that never closes the implementation issue. Use native draft when supported or normal PR + `do-not-merge` on the personal Free/private route. Monitor Docs CI. For standard/high risk, invoke `$review-repository-pull-request` in a fresh context against the actual PR. If a fresh context is unavailable, retain the under-review marker, emit a copy-ready review prompt, and stop without marking the plan reviewed. Otherwise remediate documentation findings, repeat full review, publish the clean exact-head result, transition the marker, and stop before implementation. If remote publication was explicitly excluded/unavailable, make the verified local documentation commit and report that fallback. Finish with the completed plan state, one next human action or explicit waiting condition, and what can safely remain later.
 
 ## Interview rule
 
@@ -122,7 +129,7 @@ Ask only decisions that cannot be resolved safely from current authority. Exampl
 - Which of two materially different UI journeys is selected?
 - Is a destructive data/Azure migration acceptable?
 
-Do not ask the user to choose ordinary implementation details that source inspection can settle. Do not batch an intimidating questionnaire; ask the next blocking material question, incorporate the answer, and continue.
+Do not ask the user to choose ordinary implementation details that source inspection can settle. Do not batch an intimidating questionnaire; ask the next blocking material question, explain why it matters, incorporate the answer, briefly orient `done / now / next`, and continue. Never re-ask an accepted answer merely because context is long.
 
 ## Change-record completion gate
 
@@ -178,13 +185,13 @@ Contains the inspection, current-state mapping, interview, option, plan-writing,
 
 ### `references/documentation-lifecycle.md`
 
-Contains the canonical truth/roadmap/GitHub/change-record ownership matrix and documentation update rules from [documentation lifecycle](../standards/documentation-lifecycle.md).
+Contains the canonical truth/roadmap/GitHub/change-record/mistake-log ownership matrix, pre-implementation impact declaration, qualifying-incident append rules, same-PR update rules, mechanical-versus-semantic proof boundary, on-demand drift route, and staleness controls from [documentation lifecycle](../standards/documentation-lifecycle.md) and [the mistake-log standard](../standards/agent-mistake-log.md).
 
 ### `references/github-planning.md`
 
 Contains the issue-required matrix, exactly-one owner-aware work-kind rule, registered-facet/form limitations, semantic-content and Project-membership readback, capability/parent relationship, milestone/horizon decisions, documentation-only plan-PR publication, and planning status transitions from [GitHub work management](../interfaces/github-work-management.md).
 
-### `references/risk-scaling.md`
+### `../../references/risk-scaling.md`
 
 Defines low/standard/high planning depth and review requirements.
 
@@ -192,7 +199,7 @@ Defines low/standard/high planning depth and review requirements.
 
 Contains the UI-impact classifier, `design/` authority and token/source mapping, UI contract, state matrix, incremental route, major-direction approval, and UI plan completion gates from [UI/UX](../workflows/ui-ux.md).
 
-### `references/versioning-and-release-stages.md`
+### `../../references/versioning-and-release-stages.md`
 
 Contains SemVer, maturity-stage, roadmap-horizon, and release-allocation rules from [versioning](../standards/versioning-and-release-stages.md).
 

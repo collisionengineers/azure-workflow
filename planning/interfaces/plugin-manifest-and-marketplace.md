@@ -2,12 +2,24 @@
 
 ## Scaffold command
 
-Run from the `plugin-creator` skill root or use its absolute script path. The repository root is `C:\Users\PC\Documents\GitHub\a-workflow` during local development.
+Run from the repository root. Resolve the installed `plugin-creator` script from `CODEX_HOME`, or from Codex's documented per-user default when `CODEX_HOME` is unset. If the active skill reports a different filesystem locator, use that discovered locator for the current session without recording it in the repository.
 
 ```powershell
-python scripts/create_basic_plugin.py azure-workflow `
-  --path C:\Users\PC\Documents\GitHub\a-workflow\plugins `
-  --marketplace-path C:\Users\PC\Documents\GitHub\a-workflow\.agents\plugins\marketplace.json `
+$azureWorkflowCodexRoot = if ([string]::IsNullOrWhiteSpace($env:CODEX_HOME)) {
+  Join-Path ([Environment]::GetFolderPath('UserProfile')) '.codex'
+} else {
+  $env:CODEX_HOME
+}
+$pluginCreatorSkillRoot = Join-Path $azureWorkflowCodexRoot 'skills\.system\plugin-creator'
+$createPlugin = Join-Path $pluginCreatorSkillRoot 'scripts\create_basic_plugin.py'
+
+if (-not (Test-Path -LiteralPath $createPlugin -PathType Leaf)) {
+  throw 'Select or install plugin-creator before scaffolding.'
+}
+
+python $createPlugin azure-workflow `
+  --path .\plugins `
+  --marketplace-path .\.agents\plugins\marketplace.json `
   --with-skills `
   --with-scripts `
   --with-mcp `
@@ -62,10 +74,7 @@ Path: `plugins/azure-workflow/.codex-plugin/plugin.json`
     "defaultPrompt": [
       "Onboard this Azure repository into the workflow standard.",
       "Plan this repository change and stop before implementation.",
-      "Deliver this repository change through a green exact-head-reviewed pull request.",
-      "Explain this repository feature or technical feedback in plain English without changing anything.",
-      "Independently review this pull request without changing it.",
-      "Operate this repository's Azure environment safely."
+      "Deliver this repository change through a green exact-head-reviewed pull request."
     ]
   }
 }
@@ -79,6 +88,7 @@ Rules:
 - Omit `hooks`, `apps`, product gating, logos, icons, screenshots, privacy URL, and terms URL.
 - `mcpServers` remains a path because `.mcp.json` exists.
 - No manifest field may contain a TODO placeholder.
+- Keep `interface.defaultPrompt` to the three lifecycle starters above. The six individual skills expose their own exact starter prompts through `agents/openai.yaml`.
 
 ## Exact marketplace manifest
 
@@ -120,8 +130,8 @@ Rules:
 The package is not ready until all of these pass:
 
 ```powershell
-python C:\Users\PC\.codex\skills\.system\plugin-creator\scripts\validate_plugin.py `
-  C:\Users\PC\Documents\GitHub\a-workflow\plugins\azure-workflow
+$validatePlugin = Join-Path $pluginCreatorSkillRoot 'scripts\validate_plugin.py'
+python $validatePlugin .\plugins\azure-workflow
 
 pwsh -NoLogo -NoProfile -File .\scripts\Invoke-RepoCheck.ps1
 ```

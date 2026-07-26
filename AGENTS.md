@@ -2,9 +2,9 @@
 
 ## Purpose and current state
 
-This repository develops `azure-workflow`, one installable Codex plugin for durable repository onboarding, planning, implementation, explanation, pull-request review, documentation stewardship, GitHub work management, and controlled Azure operations.
+This repository develops `azure-workflow`, one installable Codex plugin for durable Azure-oriented repository onboarding, planning, implementation, explanation, pull-request review, documentation stewardship, GitHub work management, and controlled Azure operations. It must generalize across Azure projects without becoming a universal non-Azure workflow.
 
-The repository is currently a decision-complete planning workspace. Plugin implementation has not started. Do not pretend that planned files, commands, skills, MCP servers, or validation already exist.
+The repository is currently at final planning closeout. Plugin implementation has not started. Do not pretend that planned files, commands, skills, MCP servers, or validation already exist.
 
 ## Authority and repository map
 
@@ -72,9 +72,10 @@ The rejected previous attempts failed in concrete ways. Do not reintroduce them:
 - Do not use hooks to duplicate context already supplied by `AGENTS.md`, skills, or deterministic checks.
 - Do not duplicate logos, fonts, tokens, templates, PR checklists, or policy text across skills.
 - Do not run application, database, or Azure checks for an ordinary Markdown-only change.
-- Do not copy CollisionSpike names, feature IDs, business rules, operator folders, UI assets, or taxonomy into packaged defaults. Case studies prove general behavior; they are not templates.
+- Do not copy CollisionSpike names, feature IDs, business rules, operator folders, UI assets, or taxonomy into packaged defaults. Do not reserve `operator-notes/` or infer authority from any filename or folder name; preserve an explicit target-repository authority/mutation declaration as a local rule. Case studies prove general behavior; they are not templates.
 - Do not add legacy code, compatibility shims, fallback paths, dormant feature flags, or parallel implementations in `development` mode. A released repository may retain compatibility only for a named supported contract with an explicit migration/removal decision.
 - Do not treat “future extensibility” as permission for abstractions with no current caller. Preserve an obvious seam or stable identity when evidence requires it; implement the future feature only when activated.
+- Do not require a full change record for an unambiguous, reversible, non-semantic low-risk edit. Escalate to the standard record-bearing workflow before continuing if behavior, contracts, data, identity, dependencies, architecture, operations, UI meaning, IaC, Azure, migration, or release scope is affected.
 
 ## Product and data assumptions
 

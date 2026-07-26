@@ -79,7 +79,7 @@ confirm planning endpoint and repository identity
 clean onboarded Git repository? -- no --> route/refuse with exact reason
       |
       v
-read AGENTS + docs/index + operator-notes + product/roadmap/ADRs
+read AGENTS + docs/index + declared requirements/sources + product/roadmap/ADRs
       |
       v
 record baseline commit + issue/capability/release/horizon/mode
@@ -126,7 +126,7 @@ Record before design:
 - exact issue/parent issue if supplied;
 - capability IDs and canonical product sections;
 - current semantic version, maturity stage, repository mode, target release, and horizon;
-- current user instruction, applicable `operator-notes/`, active product authority, and active ADRs; and
+- current user instruction, declared active product/external requirements, relevant discovery/evidence sources with their roles, and active ADRs; and
 - risk level and why.
 
 Do not select the newest record or assume a feature-list row is active work. `unallocated` and no issue are valid states.
@@ -151,6 +151,8 @@ When .NET source/project/build/package/test/persistence/host/deployment is affec
 
 Separate intended behavior, observed behavior, external constraints, assumptions, and unresolved decisions.
 
+Apply the repository's supplied-material authority without opening a new decision: supplied emails, PDFs, documents, images, datasets, examples, software, dependencies, and services are presumed fully permitted and licensed for development/testing. Do not add PII, DPA, DPIA, privacy, retention, or licensing analysis, warnings, gates, issues, acceptance criteria, test substitutions, or scope reductions unless the user explicitly requested that separate outcome. Explicit functional retention/deletion behavior, technical authentication/authorization, trust boundaries, and secret protection remain normal plan subjects.
+
 For each Microsoft Learn result actually used, record official URL, UTC retrieval time, exact product/version/host scope, whether the page states a requirement/recommendation/example, and the decision effect. Do not paste the documentation corpus into the plan.
 
 ## Phase 3: focused interview
@@ -164,7 +166,7 @@ Ask one material question at a time and include:
 - the recommended default and reason; and
 - the exact decision required.
 
-Do not ask the user to select ordinary filenames, patterns already established in code, routine test mechanics, or other implementation details discoverable by inspection.
+Do not ask the user to select ordinary filenames, patterns already established in code, routine test mechanics, or other implementation details discoverable by inspection. Retain each accepted answer in the active record/session plan and do not reopen it without new contradictory evidence. After incorporating an answer, state the resolved point, current planning focus, and what question—if any—comes next.
 
 ## Phase 4: decision-complete design
 
@@ -181,6 +183,7 @@ Settle, where applicable:
 9. Ordered implementation steps naming owner/path, intended behavior, dependency, and proof.
 10. Focused tests, real-caller proof, canonical docs/full check, independent review inputs, documentation/ADR updates, rollout, and recovery.
 11. Source-role and bridge lifecycle changes, hotspot effect, and local/CI reproducibility consequences.
+12. Exact canonical-document/design/instruction owners affected, or a specific reason each class remains correct and unchanged.
 
 The implementer must not need to invent an architecture, ownership boundary, interface, data policy, failure behavior, UI direction, migration rule, release placement, or acceptance criterion.
 
@@ -203,14 +206,16 @@ In an execution-capable Codex mode:
 
 1. Call the real `update_plan` tool for the session work.
 2. Create/resume exactly one change record.
-3. Fill planning sections; mark intended checks `not run — planning only`.
+3. Fill planning sections, including exact documentation impact or a specific reason for none; mark intended checks `not run — planning only`.
 4. Update product/capability/roadmap/ADR documents only for already-settled intended facts; never describe unimplemented architecture/operations as current.
 5. Obtain required plan review, preserve the round, and run the Docs-scope canonical check.
 6. Set `planned` or `blocked`.
-7. If delivery invoked the prerequisite, return without a separate push/PR so delivery continues the same branch and record.
-8. Otherwise commit the documentation with `docs: plan <short outcome>`, push, and open/update the plan PR using native draft when supported or normal PR + `do-not-merge` on the personal Free/private route. Link the issue/record both ways and monitor Docs CI.
-9. For standard/high risk, invoke `$review-repository-pull-request` in a fresh context against the actual plan PR. Remediate/recommit/re-push documentation findings and repeat complete review. Publish the final exact-head `COMMENT` review, transition the under-review marker, and then stop.
-10. Do not change product code, runtime configuration, IaC, executable CI/workflows, Azure, or merge state.
+7. If the workflow made or discovered a qualifying agent mistake, recover safely, append it to `docs/agent-mistakes.md`, and list the ID in the record. Routine option refinement and expected failed probes are not incidents. If persistence is unavailable, return a copy-ready pending entry and say it is not recorded.
+8. If delivery invoked the prerequisite, return without a separate push/PR so delivery continues the same branch and record.
+9. Otherwise commit the documentation with `docs: plan <short outcome>`, push, and open/update the plan PR using native draft when supported or normal PR + `do-not-merge` on the personal Free/private route. Link the issue/record both ways and monitor Docs CI.
+10. For standard/high risk, invoke `$review-repository-pull-request` in a fresh context against the actual plan PR. Remediate/recommit/re-push documentation findings and repeat complete review. Publish the final exact-head `COMMENT` review, transition the under-review marker, and then stop.
+11. Return a compact `done / now / next / waiting` handoff with one next human action or an explicit no-action/waiting state. Do not create a durable next-action file.
+12. Do not change product code, runtime configuration, IaC, executable CI/workflows, Azure, or merge state.
 
 If remote publication is explicitly excluded/unavailable, make the verified local documentation commit and report that the normal ready-plan-PR endpoint remains unavailable. If repository mutation itself is unavailable, return the complete proposed plan/intended paths and do not falsely claim persistence.
 

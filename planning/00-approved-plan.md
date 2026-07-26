@@ -6,7 +6,9 @@ Research revision: 2026-07-26
 
 ## Outcome
 
-Build one Codex plugin, `azure-workflow`, that can be installed into an existing Azure-oriented repository and then own its repository workflow from conversion through planning, implementation, plain-language explanation, review, GitHub delivery, and controlled Azure operation.
+Build one Codex plugin, `azure-workflow`, that can be installed into an existing Azure-oriented repository and then own its repository workflow from conversion through planning, implementation, plain-language explanation, review, GitHub delivery, and controlled Azure operation. It is product- and architecture-independent within that Azure scope; it is not a universal non-Azure repository workflow.
+
+A repository is Azure-oriented when repository evidence identifies Azure as a current or intended target, or the user explicitly declares Azure as the intended target. A .NET project alone does not establish Azure scope. Onboarding stops without mutation when neither condition is met.
 
 The plugin is deliberately one distribution unit with six user-goal skills:
 
@@ -26,7 +28,7 @@ This split follows current [OpenAI skill-building guidance](https://developers.o
 - Initial version: `0.1.0-alpha.1`.
 - Local development reload: `0.1.0-alpha.1+codex.<cachebuster>`.
 - No hooks, app, workflow database, JSON task state, handoff protocol, or vendored Azure-document corpus.
-- One shared plugin-root `references/dotnet-projects.md` is conditionally consumed by onboarding, planning, delivery, explanation, and review; it is not a separate .NET skill.
+- Shared plugin-root references own .NET, risk scaling, and version/release guidance. Every consuming skill links them directly; none becomes a separate public skill.
 - PowerShell 7 is the only plugin-owned script runtime.
 - Azure credentials stay with Azure CLI/identity tooling and are never stored by the plugin.
 
@@ -58,6 +60,7 @@ docs/
 |-- roadmap.md
 |-- architecture.md
 |-- operations.md
+|-- agent-mistakes.md             # append-only qualifying agent incidents and plugin-improvement signals
 |-- decisions/
 |   `-- NNNN-title.md
 `-- changes/
@@ -77,11 +80,12 @@ Ownership is exact:
 
 | Question | Canonical owner |
 | --- | --- |
-| What should the product do? | `operator-notes/` where applicable, then `docs/product/` according to the declared authority map |
+| What should the product do? | Current user-approved authority and `docs/product/`, plus any active external/controlled requirements explicitly routed by `docs/index.md` |
 | What outcomes are Now/Next/Later/Not planned? | `docs/roadmap.md` |
 | What work is live and who owns it? | GitHub Issues, Project, and milestones |
 | How will this one approved change be implemented? | One `docs/changes/` record |
 | What does the system do now? | Code/config plus `docs/architecture.md` and `docs/operations.md` |
+| What material mistakes did agents make, and what reusable prevention signal resulted? | Append-only `docs/agent-mistakes.md` |
 | What visual language/assets/components/patterns should the UI use? | `design/`, when `Visual UI: present` |
 | Why was a durable choice made? | Active ADR in `docs/decisions/` |
 | What happened historically? | Merged change record, PR, commits, and release |
@@ -143,7 +147,7 @@ Alpha/beta/RC names do not themselves prove readiness. Each has the evidence gat
 ## Onboarding workflow
 
 1. Require a Git repository and clean worktree, then inspect the current/default branch, open-PR relationship, and every linked worktree before selecting an onboarding baseline. A clean branch already serving another pull request is not repurposed.
-2. Inventory instructions, `operator-notes/`, every repository-declared human-owned root, all documentation/plan/feature/work-ledger sources and generators, runtime call paths, rule/configuration owners, source roles, hotspots/churn, code, tests, every verification entry point, CI, deployment, IaC, Azure references, GitHub setup, and ownership evidence. For a visual UI, also inventory surface-specific style guidance, tokens/themes, components, logos, icons, fonts, screenshots/mockups, and runtime asset roots. For .NET, load the shared profile and inventory its actual project/toolchain/host variants without automatic modernization.
+2. Inventory instructions, every human-authored source and protected root, all formal/informal requirements, documentation/plan/feature/work-ledger sources and generators, runtime call paths, rule/configuration owners, source roles, hotspots/churn, code, tests, every verification entry point, CI, deployment, IaC, Azure references, GitHub setup, and ownership evidence. Record content role and mutation rule separately; no path name establishes either. For a visual UI, also inventory surface-specific style guidance, tokens/themes, components, logos, icons, fonts, screenshots/mockups, and runtime asset roots. For .NET, load the shared profile and inventory its actual project/toolchain/host variants without automatic modernization.
 3. Establish repository mode, versioning/maturity declaration, authority order, and canonical verification command.
 4. Build a claim ledger, legacy-work ledger, rule/configuration authority ledger, source-role/hotspot ledger, GitHub form/label/taxonomy ledger with affected-item counts, and, for large feature corpora, a capability ledger.
 5. Resolve same-role material conflicts one question at a time.
@@ -174,7 +178,7 @@ Explanation is a public read-only skill and a hard no-mutation boundary. It:
 1. Resolves the exact feature, path/symbol, architecture term, issue/PR/comment/thread/check, or other subject rather than guessing from similar names or recency.
 2. Reads the minimum repository authority and actual code/caller/GitHub/official evidence needed, distinguishing current implemented behavior, intended product behavior, proposed changes, current external guidance/state, and unknowns.
 3. Traces real triggers, owners, rules/configuration, effects, failures, and proof for feature/system questions; for feedback, retrieves the exact diff/thread/check context and explains the observation, consequence, requested outcome, stated force, and resolution evidence.
-4. Leads with a short ordinary-language answer, then uses a small sequence/diagram, impact, decisive evidence, and next action only when one genuinely exists.
+4. Leads with current position and a short ordinary-language answer, then uses a small sequence/diagram, impact, decisive evidence, what can wait, and one recommended next action only when one genuinely exists. It asks at most one material decision question.
 5. Calls Microsoft Learn only under the shared current-guidance gate and routes actual live Azure-state dependence to the read-only operate path.
 6. Stops without a PR correctness verdict, plan, implementation, documentation write, GitHub response/state change, or Azure mutation. Those endpoints hand off to review, plan, deliver, or operate.
 
@@ -182,16 +186,17 @@ The default explanation remains in the conversation. The plugin does not create 
 
 ## Delivery workflow
 
-1. Require an onboarded clean repository, resolve exact change identity, and normalize the selected issue's one work kind, registered facets, semantic content, and Project membership.
-2. Reuse the supplied planned record. If its plan PR is merged, branch from the updated default branch; if it is still open, resume that branch/PR and restore its supported under-review state (native draft or `do-not-merge`). Otherwise invoke planning as an unpublished prerequisite on the delivery branch.
-3. Compare baseline drift, set status `active`, create/resume the scoped branch, and call `update_plan`.
-4. Implement through real callers with clean purpose-revealing ownership, proportional tests, canonical documentation updates, and no speculative future machinery.
-5. In development mode, remove replaced behavior; do not add legacy paths, compatibility shims, dual reads/writes, or silent fallbacks.
-6. For UI work, implement the planned state matrix, action-to-owner mapping, wording, accessibility, supported viewport/input boundary, any canonical `design/`/token/source-asset updates, and proportional visual/functional proof.
-7. Run focused proof and the canonical path-aware check.
-8. Stage literal owned paths, commit narrowly, push, and create/update the PR using native draft state when supported or the documented normal-PR fallback. Set Project Status `In review` and monitor required checks.
-9. Invoke a fresh `review-repository-pull-request` context with the actual PR, complete diff, exact base/head, checks, reviews, comments, and threads. Remediate every blocker/required finding, re-prove, push, and repeat a complete review of the new head.
-10. Commit the final record/evidence update, obtain one last exact-head PR attestation with no later tracked changes, publish it as a clearly labelled `COMMENT` review, refresh checks/feedback/head, remove the under-review marker, and stop. Do not merge.
+1. Require an onboarded clean repository and resolve exact change identity.
+2. Classify the change before creating workflow artifacts. A purely mechanical, unambiguous, reversible low-risk change with no behavior, contract, data/schema, identity, dependency, architecture, operations, UI-meaning, IaC, Azure, migration, or release effect may use the compact lane without a durable change record or issue. Any material effect or scope expansion promotes it to standard risk before implementation continues.
+3. For record-bearing work, normalize the selected issue and reuse its planned record. If its plan PR is merged, branch from the updated default branch; if it is still open, resume that branch/PR and restore its supported under-review state. Otherwise invoke planning as an unpublished prerequisite on the delivery branch.
+4. Compare baseline drift, set a record to `active` when present, create/resume the scoped branch, and call `update_plan` for multi-step work.
+5. Implement through real callers with clean purpose-revealing ownership, proportional tests, canonical documentation updates, and no speculative future machinery.
+6. In development mode, remove replaced behavior; do not add legacy paths, compatibility shims, dual reads/writes, or silent fallbacks.
+7. For UI work, implement the planned state matrix, action-to-owner mapping, wording, accessibility, supported viewport/input boundary, any canonical `design/`/token/source-asset updates, and proportional visual/functional proof.
+8. Run focused proof and the canonical path-aware check.
+9. Stage literal owned paths, commit narrowly, push, and create/update the PR using native draft state when supported or the documented normal-PR fallback. A compact-lane PR states `Change record: not required — low-risk mechanical change`. Set Project Status `In review` only when a Project item exists, and monitor required checks.
+10. Invoke a fresh `review-repository-pull-request` context with the actual PR, complete diff, exact base/head, checks, reviews, comments, and threads. If no fresh context is available, retain the under-review marker, return a copy-ready review prompt, and stop. Remediate every blocker/required finding, re-prove, push, and repeat a complete review of the new head.
+11. For record-bearing work, commit the final record/evidence update. Obtain one last exact-head PR attestation with no later tracked changes, publish it as a clearly labelled `COMMENT` review, refresh checks/feedback/head, remove the under-review marker, and stop. Do not merge.
 
 ## Azure workflow
 
@@ -209,9 +214,9 @@ The default explanation remains in the conversation. The plugin does not create 
 - Exact commands/check selection belongs in `docs/operations.md` and scripts/CI.
 - Reusable workflow rules belong in skill references.
 - Deterministic structural requirements belong in validators.
-- `operator-notes/` remains immutable key human authority by default.
+- Human-authored sources keep their explicit target-repository authority and mutation rules; an unclassified notes root is preserved as non-binding discovery input until resolved, not promoted to product truth by name.
 
-The Windows/PowerShell, UI wording, internal-Azure-language, permissible-development-data, non-synthetic-example, logical-naming, development-mode, proportional-testing, maintainability, extendability, and non-overengineering rules are placed according to [policy placement](standards/policy-placement.md), not copied wholesale into every skill.
+The Windows/PowerShell, UI wording, internal-Azure-language, supplied-material permission/licensing, excluded unsolicited privacy/retention/licensing work, non-synthetic-example, logical-naming, development-mode, proportional-testing, maintainability, extendability, and non-overengineering rules are placed according to [policy placement](standards/policy-placement.md), not copied wholesale into every skill.
 
 ## Build and acceptance
 
@@ -226,9 +231,15 @@ Implementation proceeds through the exact phases in [implementation sequence](de
 - an overloaded repository-local work-ledger fixture proving lossless capability/history mapping, active-state anomaly detection, human-confirmed activation, and no bulk issue import;
 - a neutral accreted-rule-system fixture proving real-call-graph, rule/configuration-authority, source-role, hotspot/churn, bridge-lifecycle, and local/CI reproducibility findings;
 - a broad .NET fixture proving conditional profile activation without imposing framework upgrades, `.slnx`, Clean Architecture, Central Package Management, exhaustive tests, or Azure hosting;
+- development-material/licensing fixtures proving supplied content is used directly without invented PII/DPA/DPIA/privacy/retention/licensing gates, scope reductions, warnings, or synthetic substitutes;
+- documentation-drift fixtures proving declared impact, same-PR maintenance, cheap mechanical checks, read-only current-vs-intended inspection, and semantic exact-head review;
+- mistake-log fixtures proving evidence-based admission, append-only history, read-only pending-entry behavior, same-PR recording, and useful plugin-improvement classification without issue/state-machine noise;
+- low-cognitive-load scenarios proving plain-English orientation, one evidence-based next action, one-question planning, concise delivery handoff, and no duplicate `NEXT.md`/dashboard/Project field;
 - fresh-thread routing/stop tests for all six skills, including explain-versus-review/plan/deliver/operate boundaries;
 - feature-catalog, UI/UX, GitHub, path-aware CI, review-remediation, and interrupted-resumption scenarios;
 - installed-plugin proof in a new Codex thread;
+- path-portability proof that first-party commands, package content, templates, fixtures, and generated repository documents contain no workstation-specific filesystem path;
+- human-source/requirements-role proof that path names grant no authority, unclassified notes remain discovery input, explicit controlled/protected rules survive, and living PRD/functional-specification owners receive approved requirements without duplicate acronym files;
 - a green ready bootstrap PR plus either verified `main` protection or exact evidence that the repository visibility/account plan does not support it; and
 - live read-only Azure evidence before the Azure route is called fully proven.
 
@@ -277,3 +288,45 @@ The profile inventories SDK/TFM/support, solution/project graphs, composition ro
 ## Decision note: 2026-07-26 plain-language explanation
 
 The user confirmed a standalone translator/educator workflow for understanding features, technical concepts, pull-request feedback, and check failures. `explain-repository` is added as the sixth public skill because it has a recognizable trigger, read-only no-mutation boundary, and evidence-linked understanding endpoint distinct from review, planning, delivery, and Azure operation. It has two conditional skill-local references, no scripts/assets/state, conditionally consumes the shared .NET profile, and creates no persistent explainer-document hierarchy by default.
+
+## Decision note: 2026-07-26 development-material and licensing authority
+
+Supplied emails, PDFs, documents, images, datasets, examples, software, dependencies, and services are presumed fully permitted and licensed for development and testing, regardless of whether they are proprietary, MIT, Apache, open source, or otherwise licensed. Unless explicitly requested as a separate outcome, the workflow does not create PII, DPA, DPIA, privacy, retention, or licensing analysis, gates, warnings, work items, test substitutions, or scope reductions. Explicit product behavior, technical authentication/authorization, trust boundaries, secret protection, and deliberately requested privacy/licensing work remain in scope.
+
+This is a cross-cutting repository policy, not a standalone user goal, so it adds no skill or reference hierarchy. Onboarding writes the concise default into root `AGENTS.md`; planning, delivery, testing, and review enforce it at the points where excluded work could otherwise be invented.
+
+## Decision note: 2026-07-26 documentation drift prevention
+
+Durable documentation is maintained through three independent layers: plans declare exact canonical-document impact or a specific reason for none; implementation updates the owner and change record in the same pull request and runs deterministic Docs/Full validation; fresh exact-head review compares intended authority with real callers/configuration and blocks semantic disagreement. Mechanical checks are never represented as proof that prose matches runtime behavior.
+
+An on-demand read-only current-versus-documented comparison routes to `explain-repository`; planning and delivery own any correction, while PR correctness remains with review. No hook, scheduled bot, duplicate ledger, or seventh documentation skill is added by default.
+
+## Decision note: 2026-07-26 agent mistake log
+
+Every onboarded repository receives one required append-only `docs/agent-mistakes.md`. It records only evidenced agent errors with material impact or credible risk and a reusable prevention signal. Expected red tests, harmless exploratory failures, external outages, new human decisions, and ordinary defects caught by intended gates do not generate noise. Existing entries are never silently rewritten; later corrections are appended as linked follow-ups.
+
+This adds no public skill, script, issue-per-incident workflow, database, telemetry, or automatic plugin mutation. The blank log is an onboarding output asset, the repository standard owns admission/template/validation, and existing write-capable workflows append it. Read-only explanation/review and Azure operation return a copy-ready pending entry rather than crossing their mutation boundary. Change records link any incident IDs, while later plugin work decides whether a reusable candidate improvement should be adopted.
+
+## Decision note: 2026-07-26 ADHD and non-coder organization
+
+Plain-English orientation and “what should I do next?” are added to `explain-repository` because they share its evidence, read-only authorization, and understanding endpoint. The core skill leads with current position, uses layers and small diagrams, distinguishes what matters now from what can wait, recommends one evidence-based next action, and asks one decision question only when authority cannot resolve it. Its two existing references remain sufficient; a third orientation reference would split a small universal behavior and risk not being loaded.
+
+Durable organization remains distributed by fact ownership: README/docs index are the human route, product/capability/roadmap documents retain intended scope, GitHub owns live order and dependencies, planning owns one bounded decision-complete record, and delivery owns one active implementation/handoff. The plugin does not add an organizer/ADHD skill, `NEXT.md`, duplicate task board, dashboard generator, hook, or Project field. Planning asks one material question at a time and retains accepted answers; all workflows finish with one clear human action or state that none is required.
+
+## Decision note: 2026-07-26 path portability
+
+Repository paths in tracked commands, package content, templates, fixtures, and generated repository documents are relative to an explicit repository or skill root. Development commands resolve installed creator skills at runtime from `CODEX_HOME`, Codex's documented per-user default, or the active skill locator and fail clearly when the required script is unavailable. Runtime resolution may use an absolute path internally for containment, but it is never persisted or emitted as repository evidence.
+
+The only intentional output exception is the URL-encoded absolute marketplace-file value required by Codex's `View` and `Share` deeplinks. It is resolved from `.agents/plugins/marketplace.json` at response time and exists only in that ephemeral app handoff. Historical `ref-files/` inputs and explicit negative path fixtures remain quarantined and are not package or template defaults.
+
+## Decision note: 2026-07-26 human notes and PRD/FRD roles
+
+`operator-notes/` is no longer a reserved plugin convention. Onboarding discovers every relevant human-authored source/protected root and records its content role—approved authority, active external/controlled requirement, draft/discovery input, evidence/reference, or history—separately from its mutation rule. An unclassified notes folder is preserved and mined for candidate claims but remains non-binding until repository evidence or a human decision establishes otherwise. An explicit target-repository declaration can still make any real path authoritative and human-edit-only.
+
+The existing documentation spine supplies requirements roles without duplicate acronyms: `docs/product/index.md` is the living repository-level PRD role, warranted `docs/product/areas/<area>.md` files are durable functional specifications, and one change record holds change-specific acceptance/design/proof before becoming history. Existing formal PRD/FRD/SRS/URS or contractual artifacts retain their IDs, approval status, and controlled format when required. No default `operator-notes/`, `PRD.md`, `FRD.md`, traceability matrix, hook, script, or seventh skill is added.
+
+## Decision note: 2026-07-26 final architecture audit
+
+The supported scope is any Azure-oriented repository, established by repository evidence or explicit user intent; .NET alone is insufficient and non-Azure onboarding is out of scope. Low-risk mechanical delivery may omit a durable change record and issue while retaining proportional checks, a pull request, and exact-head review. Any material effect escalates before implementation continues.
+
+The planning pack and legacy source roots are bootstrap inputs, not permanent repository authority. After implementation maps their material decisions into product documentation, architecture, operations, ADRs, plugin workflows, tests, and the bootstrap record, decision/link/test parity and Git recoverability permit removal of `planning/`, `ref-files/`, `.codex/`, `.obsidian/`, and root `hooks.json`. See [the final architecture audit](research/final-architecture-audit.md).

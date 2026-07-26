@@ -26,7 +26,7 @@
 |       `------------------> review skill + CI + remediation -> ready   |
 |                                                                      |
 |  explain ----------------> code/docs/GitHub/official evidence         |
-|       `------------------> plain-English understanding; no changes    |
+|       `------------------> plain-English orientation/next action; read-only |
 |                                                                      |
 |  review PR --------------> actual PR + exact head + full diff         |
 |       `------------------> read-only findings/verdict; no fixes       |
@@ -83,12 +83,12 @@ No public UI/testing/documentation skill
 
 | Boundary | Plugin owns | Plugin does not own |
 | --- | --- | --- |
-| Repository truth | Authority map, canonical documentation/design structure, consistency, conversion, change records, and declared human-owned-root boundaries | Undeclared business decisions or edits to `operator-notes/`/other protected human roots without request |
+| Repository truth | Authority map, canonical requirements/documentation/design structure, consistency, conversion, change records, append-only agent-mistake evidence, and declared human-source/protected-root boundaries | Undeclared business decisions, inferred authority from path names, or edits outside a source's declared mutation rule |
 | Visual design | Conditional root `design/` schema, source/runtime mapping, one token-source rule, UI planning/delivery/review gates | A default brand, palette, logo, font, component system, product copy, or duplicated runtime assets |
 | .NET technology profile | Conditional discovery, planning, implementation, and review rules for actual .NET project types and toolchains | A forced target framework, solution format, project count, architecture pattern, test framework, Azure host, or automatic modernization |
 | Planning | Repository-grounded research, canonical intent/roadmap updates, risk/release/UI/GitHub decisions, reviewed Docs-only plan PR, stop boundary | Product implementation or executable/runtime mutation |
 | Implementation | Scoped code/config/docs/tests, caller proof, proportional verification, remediation | Unrelated dirty work or speculative scope |
-| Explanation | Evidence-grounded plain-English feature/system/term/feedback explanation with current/intended/proposed separation | Correctness verdict, plan, fix, persistent documentation, GitHub response, or state mutation |
+| Explanation | Evidence-grounded plain-English feature/system/term/feedback explanation, current-position orientation, and one evidence-based next-action recommendation with current/intended/proposed separation | Correctness verdict, persisted organization, plan, fix, documentation write, GitHub response, or state mutation |
 | Review | Fresh read-only review of the actual PR, exact-head findings/verdict, and feedback reconciliation | Implementation fixes, same-author approval, review dismissal, or automatic merge |
 | GitHub | Forms/templates in the repository; scoped branch/commits/PR; issue/project/milestone updates under the exact workflow | Organization-wide type changes or unrelated project mutation without confirmation |
 | Azure | Read discovery, official research, validation, exact approved mutation, post-change proof | Credential custody, guessed subscription, or unapproved mutation |
@@ -138,8 +138,8 @@ GitHub owns finer live states such as Triage, In progress, In review, and Done. 
 ## Documentation and work routing
 
 ```text
-operator-notes/ + declared human-owned roots
-       |          binding/non-binding and mutation role explicit
+declared human sources + protected roots
+       |          content role and mutation rule explicit
        v
 AGENTS.md         short always-loaded prohibitions and routes
        |
@@ -205,7 +205,7 @@ Mode is declared in `AGENTS.md` and `docs/product/index.md`. It is related to ma
 ```text
 current user instruction
           |
-operator-notes + declared product authority + active ADRs
+declared product/external authority + active ADRs
           |
           v
 intended change record
@@ -226,8 +226,10 @@ Code is evidence of current behavior, not automatic evidence of intended behavio
 
 - One plugin distributes six focused skills; there is no plugin-per-stage suite.
 - One change record replaces fixed task folders, journals, JSON handoffs, and duplicated plan artifacts.
+- One append-only agent-mistake log retains material improvement evidence without becoming a task engine, per-incident hierarchy, or automatic plugin authority.
 - A stable capability index replaces giant feature checklists; GitHub issues exist only for activated work.
 - PR review is both a standalone read-only user goal and an internal fresh role invoked by owning workflows. Explanation is a standalone read-only user goal but is not invoked for routine communication inside other skills. Validation is evidence, while UI/UX and .NET technology guidance remain conditional routes rather than public skills for symmetry's sake.
 - Two MCPs provide current Microsoft/Azure data; GitHub remains on Git/CLI and no documentation corpus is vendored.
 - One shared plugin-root .NET reference prevents five goal-specific copies from drifting. Each consuming skill links it directly and loads only the sections relevant to the detected project type.
 - `AGENTS.md`, `docs/index.md`, and conditional `design/README.md` provide durable routing; no session hook injects context.
+- README/docs index provide the human starting route, GitHub owns live order, and explanation synthesizes one next action; no `NEXT.md`, dashboard, organizer skill, or duplicate Project field is introduced.

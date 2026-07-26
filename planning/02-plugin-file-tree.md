@@ -18,6 +18,7 @@ azure-workflow/
 |   `-- workflows/
 |       `-- verify.yml
 |-- AGENTS.md
+|-- .gitignore
 |-- README.md
 |-- docs/
 |   |-- index.md
@@ -27,19 +28,20 @@ azure-workflow/
 |   |-- roadmap.md
 |   |-- architecture.md
 |   |-- operations.md
+|   |-- agent-mistakes.md
 |   |-- decisions/
 |   |   `-- 0001-single-plugin-six-skill-architecture.md
 |   `-- changes/
 |       `-- 2026-07-26-bootstrap-azure-workflow.md
-|-- planning/
-|   `-- ... this planning pack ...
 |-- plugins/
 |   `-- azure-workflow/
 |       |-- .codex-plugin/
 |       |   `-- plugin.json
 |       |-- .mcp.json
 |       |-- references/
-|       |   `-- dotnet-projects.md
+|       |   |-- dotnet-projects.md
+|       |   |-- risk-scaling.md
+|       |   `-- versioning-and-release-stages.md
 |       |-- scripts/
 |       |   |-- Get-AzureWorkflowPullRequestEvidence.ps1
 |       |   |-- New-AzureWorkflowChange.ps1
@@ -53,6 +55,7 @@ azure-workflow/
 |           |   |-- assets/
 |           |   |   `-- repository/
 |           |   |       |-- AGENTS.md.template
+|           |   |       |-- agent-mistakes.md.template
 |           |   |       |-- architecture.md.template
 |           |   |       |-- docs-index.md.template
 |           |   |       |-- operations.md.template
@@ -98,8 +101,7 @@ azure-workflow/
 |           |       |-- github-onboarding.md
 |           |       |-- repository-policy-profile.md
 |           |       |-- repository-standard.md
-|           |       |-- ui-design-system.md
-|           |       `-- versioning-and-release-stages.md
+|           |       `-- ui-design-system.md
 |           |-- plan-azure-repository-change/
 |           |   |-- SKILL.md
 |           |   |-- agents/
@@ -110,9 +112,7 @@ azure-workflow/
 |           |       |-- change-planning.md
 |           |       |-- documentation-lifecycle.md
 |           |       |-- github-planning.md
-|           |       |-- risk-scaling.md
-|           |       |-- ui-ux-planning.md
-|           |       `-- versioning-and-release-stages.md
+|           |       `-- ui-ux-planning.md
 |           |-- deliver-azure-repository-change/
 |           |   |-- SKILL.md
 |           |   |-- agents/
@@ -124,7 +124,6 @@ azure-workflow/
 |           |       |-- implementation-quality.md
 |           |       |-- repository-modes.md
 |           |       |-- pr-review-remediation.md
-|           |       |-- risk-scaling.md
 |           |       |-- testing-and-ci.md
 |           |       `-- ui-ux-delivery.md
 |           |-- explain-repository/
@@ -161,6 +160,7 @@ azure-workflow/
     |   |-- design-new-system/
     |   |-- domain-leak/
     |   |-- dotnet-repository/
+    |   |-- human-requirements-sources/
     |   |-- large-feature-catalog/
     |   |-- malformed-change-record/
     |   |-- missing-authority/
@@ -178,17 +178,20 @@ azure-workflow/
     `-- scenarios.md
 ```
 
+The planning pack and source inputs exist during bootstrap only. The final tracked release tree excludes `planning/`, `ref-files/`, `.codex/`, `.obsidian/`, and root `hooks.json` after their material decisions, links, and executable contracts have passed parity and remain recoverable through Git.
+
 ## Why resources live there
 
 | Resource | Owner | Reason |
 | --- | --- | --- |
 | Repository spine and GitHub templates | Onboarding assets | They are copied/transformed during conversion; OpenAI guidance treats reusable output templates as assets |
+| Agent mistake-log template | Onboarding asset | It becomes repository output; the standard supplies a stable append schema while no script, database, or incident-per-file machinery is justified |
 | Conditional design spine | Onboarding assets | UI-bearing repositories need a predictable authority; templates contain schemas only and never a palette, logo, font, token values, or product copy |
 | Change-record template | Planning asset | Planning creates the record; delivery reuses it and never owns a second copy |
 | PR body | Target repository `.github/pull_request_template.md` | Onboarding establishes it; delivery reads it rather than packaging a duplicate |
 | Deterministic helpers | Plugin-root `scripts/` | All skills share one tested implementation |
 | PR evidence collection | Shared helper plus review fixtures | REST/GraphQL pagination and head stability are fragile enough to require deterministic code and fixtures |
-| .NET project profile | Plugin-root `references/dotnet-projects.md` | One conditional technical contract is shared by onboard/plan/deliver/explain/review; five skill-local copies would drift, while `.NET` has no separate user endpoint |
+| Shared lifecycle policy | Plugin-root `references/{dotnet-projects,risk-scaling,versioning-and-release-stages}.md` | Cross-stage rules have one owner and every consumer links them directly; goal-specific procedures remain skill-local |
 | Explanation procedures | `explain-repository/references/` | Code/system tracing and GitHub-feedback translation are conditionally different evidence routes under one read-only understanding endpoint |
 | Policies and decision procedures | Owning skill `references/` | Loaded only when the route requires them; no reference-to-reference chase |
 | UI/UX planning vs delivery | Separate conditional references | Requirements/direction and implementation/proof have different stages, but UI remains part of one parent outcome |
@@ -209,7 +212,9 @@ plugins/azure-workflow/skills/test-*
 .repoplugin/
 ref-files/
 .codex/
+.obsidian/
 hooks.json
+planning/
 ```
 
 ## Folder rules

@@ -23,10 +23,22 @@ No layer substitutes for a later one.
 ## Static checks
 
 ```powershell
-python C:\Users\PC\.codex\skills\.system\plugin-creator\scripts\validate_plugin.py `
-  .\plugins\azure-workflow
+$azureWorkflowCodexRoot = if ([string]::IsNullOrWhiteSpace($env:CODEX_HOME)) {
+  Join-Path ([Environment]::GetFolderPath('UserProfile')) '.codex'
+} else {
+  $env:CODEX_HOME
+}
+$pluginValidate = Join-Path $azureWorkflowCodexRoot 'skills\.system\plugin-creator\scripts\validate_plugin.py'
+$quickValidate = Join-Path $azureWorkflowCodexRoot 'skills\.system\skill-creator\scripts\quick_validate.py'
 
-$quickValidate = 'C:\Users\PC\.codex\skills\.system\skill-creator\scripts\quick_validate.py'
+if (-not (Test-Path -LiteralPath $pluginValidate -PathType Leaf)) {
+  throw 'Select or install plugin-creator before validation.'
+}
+if (-not (Test-Path -LiteralPath $quickValidate -PathType Leaf)) {
+  throw 'Select or install skill-creator before validation.'
+}
+
+python $pluginValidate .\plugins\azure-workflow
 python $quickValidate .\plugins\azure-workflow\skills\onboard-azure-repository
 python $quickValidate .\plugins\azure-workflow\skills\plan-azure-repository-change
 python $quickValidate .\plugins\azure-workflow\skills\deliver-azure-repository-change
@@ -40,8 +52,10 @@ pwsh -NoLogo -NoProfile -File .\scripts\Invoke-RepoCheck.ps1 -Scope Full
 Pass:
 
 - manifest/marketplace/MCP schema valid, version `0.1.0-alpha.1`;
-- exactly six valid skill directories, exact skill-local references/assets, one shared `references/dotnet-projects.md`, and direct conditional links from onboard/plan/deliver/explain/review only;
+- exactly six valid skill directories, exact skill-local references/assets including the neutral agent-mistake-log onboarding template, exactly three shared lifecycle references (`dotnet-projects.md`, `risk-scaling.md`, and `versioning-and-release-stages.md`), and direct links from every declared consumer;
 - no placeholders, unexpected skill/resources, hook, app, plugin-root asset, predecessor policy, or forbidden state machinery;
+- no default `operator-notes/`, `PRD.md`, `FRD.md`, or traceability-matrix asset; the product-index asset contains the living PRD headings and product-area guidance is conditional;
+- no workstation-specific filesystem literal in first-party development commands, package content, templates, or generated-document assets; internal containment paths and the required response-time marketplace deeplink are not persisted;
 - all Markdown links, YAML, PowerShell parse, and `git diff --check` pass.
 
 ## Helper tests
@@ -58,9 +72,9 @@ Pass:
 | Fixture | Expected |
 | --- | --- |
 | compliant | exit 0, no errors |
-| missing authority | missing route/mode/version/release authority/canonical command findings |
+| missing authority | missing route/mode/version/release authority/product-requirements fields/canonical command/supplied-material-permission-and-licensing policy findings |
 | malformed record | exact invalid status/metadata/section findings |
-| conflicting documentation | structural warning requiring conflict workflow, not arbitrary winner |
+| conflicting documentation | structural warning requiring conflict workflow, not arbitrary winner; passing structure never claims semantic agreement with implementation |
 | custom issue taxonomy | four universal kinds plus registered additive facets/custom form and unrelated community/tool labels pass; replacement/multiple kinds, duplicate metadata labels, workflow-used unregistered namespaces, and form-per-area sprawl fail |
 | design with existing system | `Visual UI: present`; complete design spine routes to the existing one token/runtime system without duplicating it |
 | design with new system | `Visual UI: present`; complete design spine and DTCG token source only when currently required; no synthetic assets or speculative component machinery |
@@ -69,9 +83,11 @@ Pass:
 | overloaded work ledger | stable IDs/claims/proof survive; active-at-100%, active-empty, zero-Next/overloaded-Now, source/render mismatch, generated-side-effect, and bulk-import attempts fail or require explicit disposition |
 | accreted rule system | runtime graph, competing rule/config owners, scattered direct configuration, hotspots/churn, generated/materialized copies, exported reference code, and incomplete replay/compatibility lifecycle are findings; tidy folders and green remote checks cannot conceal a conflicting local verdict |
 | .NET repository | detects modern/legacy and host variants, maps exact project/toolchain/rule/config/test ownership, and passes without forced target upgrade, `.slnx`, Clean Architecture, Central Package Management, analyzer expansion, test-framework migration, coverage target, or Azure hosting |
+| human requirements sources | unclassified notes remain non-binding discovery input; explicit controlled/protected roles pass; filename-only authority, duplicate PRD/FRD defaults, lost IDs/status, and unauthorized protected-source changes fail |
 | stale workflow suite | fixture begins from a clean committed partially removed local plugin/hook/task system; missing targets and surviving routes fail, while mapped extraction plus one coherent supported route passes |
+| agent mistake history | neutral empty log and valid appended incidents pass; missing headings, synthetic starter incidents, invalid/duplicate IDs, unresolved follow-ups, forbidden classification, edited/deleted/reordered base incidents, and unresolved real-entry placeholders fail |
 
-Also test broken links, invalid ADR, invalid roadmap horizon, open issue for Not planned, missing capability target, duplicate capability ID, nested authority override, both owner-aware issue-form work-kind routes, maintainer blank-issue normalization contract, private-form/Project-auto-add limitations, registered custom categories/forms, missing design route/file, ambiguous surface applicability, duplicate token authority, unresolved/absolute design asset mapping, placeholder design asset, YAML metadata containing `#`, lossless source/parse/render output, active 100%-complete and zero-member plans, overloaded Now/Verify with empty Next, a route string whose plugin/skill target is absent, an obsolete active workflow ADR, a generator attempting to stage files, duplicate rule owners, scattered direct configuration, generated output without a canonical source, test-only code exported as live, released bridge without target retirement, local/CI canonical-verdict disagreement, .NET solution ambiguity, and forbidden `.repoplugin/`.
+Also test broken links, invalid ADR, invalid roadmap horizon, open issue for Not planned, missing capability target, duplicate capability ID, nested authority override, both owner-aware issue-form work-kind routes, maintainer blank-issue normalization contract, private-form/Project-auto-add limitations, registered custom categories/forms, missing design route/file, ambiguous surface applicability, duplicate token authority, unresolved/absolute design asset mapping, placeholder design asset, YAML metadata containing `#`, lossless source/parse/render output, active 100%-complete and zero-member plans, overloaded Now/Verify with empty Next, a route string whose plugin/skill target is absent, an obsolete active workflow ADR, a generator attempting to stage files, duplicate rule owners, scattered direct configuration, generated output without a canonical source, test-only code exported as live, released bridge without target retirement, local/CI canonical-verdict disagreement, .NET solution ambiguity, a read-only pending incident that is falsely claimed as persisted, and forbidden `.repoplugin/`.
 
 ### Pull-request evidence collector
 
@@ -91,7 +107,7 @@ Also test broken links, invalid ADR, invalid roadmap horizon, open issue for Not
 - Version drift or Azure `@latest`.
 - Missing one of six skills or unexpected seventh skill.
 - Missing either explanation reference, unexpected explanation script/asset, or an explanation skill that lacks its read-only stop boundary.
-- Missing/unlinked reference or duplicate change-record asset.
+- Missing/unlinked reference, duplicate change-record asset, missing/non-neutral agent-mistake-log onboarding asset, product-index asset missing living PRD fields, or default operator-notes/PRD/FRD asset.
 - Missing/duplicated shared .NET profile, a consuming skill without its direct conditional link, or `operate` loading it unconditionally.
 - Added hook/app/GitHub MCP.
 - Target-project name/identifier/policy/data/asset or absolute workstation path introduced into the package; prove rejection with the neutral domain-leak fixture.
@@ -108,7 +124,7 @@ Also test broken links, invalid ADR, invalid roadmap horizon, open issue for Not
 | workflow, script, YAML form, manifest, tests, source, config, IaC | Full |
 | missing/invalid base SHA or ambiguous path | Full |
 
-`verify` always reports. Docs scope still validates links, authority, records/ADRs/capabilities/roadmap, YAML forms when changed, and whitespace; it does not run unrelated code suites.
+`verify` always reports. Docs scope still validates links, authority, records/ADRs/capabilities/roadmap, the agent-mistake-log structure and append-only history when a base ref is available, YAML forms when changed, and whitespace; it does not run unrelated code suites.
 
 The workflow fixture also proves the default trigger set is pull requests plus pushes to the default branch. An open feature-branch head does not receive duplicate `push` and `pull_request` verification runs, and Docs scope does not install unrelated code/database/Azure dependencies or regenerate whole-repository ledgers.
 
@@ -136,7 +152,7 @@ Two matching records/PRs exist. Expected: asks exact identity; never selects lat
 
 ### 5. Brownfield onboarding with conflicts
 
-Expected: claim/capability ledgers, one material conflict surfaced, operator notes unchanged, canonical rewrite only after answer, triple parity before removals, ready conversion PR.
+Expected: claim/capability ledgers, every human-authored/controlled source classified by content role and mutation rule, one material conflict surfaced, protected sources unchanged, canonical rewrite only after answer, triple parity before removals, ready conversion PR. No folder name is treated as authority.
 
 ### 6. Large legacy feature catalog
 
@@ -242,6 +258,36 @@ Use the compliant, accreted-rule-system, .NET, and pull-request-evidence fixture
 
 Expected: understanding-only prompts select `explain-repository`, load only the applicable explanation reference plus the conditional .NET profile when material, cite decisive relative/GitHub/official evidence, distinguish current/intended/proposed/guidance/unknown, and make zero repository/Git/GitHub/Azure mutations. One-comment translation retrieves its exact diff/thread context but does not issue a whole-PR verdict. Correctness routes to review, fixing/persisting routes to delivery, planning routes to plan, and live Azure state routes to operate. A current Microsoft question calls Learn; repository-owned behavior does not. No explainer/FAQ/wiki file is created.
 
+### 29. Supplied-material permission and licensing authority
+
+A neutral fixture contains supplied emails, PDFs, images, data, a proprietary component, and MIT/Apache/open-source dependencies. Prompts request implementation and tests without privacy/licensing work.
+
+Expected: onboarding writes the concise full permission/licence assumption; planning, delivery, testing, and review use the supplied materials directly. They add no PII, DPA, DPIA, privacy, retention, or licensing gate/warning/issue/acceptance criterion, do not reduce functions or tests, do not demand a licence choice, and do not create synthetic/anonymized/blank replacements. A second prompt explicitly requesting a retention feature and licence inventory treats those named outcomes as normal scope while still protecting secrets and reviewing technical authentication/authorization.
+
+### 30. Documentation drift prevention and repair routing
+
+A neutral fixture has valid links/schemas but one product rule contradicts its real caller and one operations command is stale. A read-only prompt asks what differs; a later delivery prompt asks to correct it; the PR then changes behavior and documentation once more.
+
+Expected: `explain-repository` reports current versus intended disagreement and canonical owners with zero mutation or verdict. The change record declares exact documentation impact; delivery updates affected owners in the same PR; Docs/Full checks report only mechanical proof. Fresh review identifies any remaining semantic disagreement despite green structural checks, blocks completion, and a new exact-head review follows remediation. No documentation-audit skill, hook, scheduled bot, follow-up-docs shortcut, or duplicate status ledger appears.
+
+### 31. Agent mistake evidence and plugin-improvement signal
+
+A neutral fixture exercises: a write-capable delivery agent making a material wrong-scope edit and correcting it; an expected red test; an ordinary defect caught by the intended review gate; an explanation/review context recognizing its own qualifying false claim; and a later outcome that corrects an existing incident.
+
+Expected: only the material evidenced mistakes enter `docs/agent-mistakes.md`; the normal red test and contained ordinary defect do not. The write-authorized workflow appends one factual incident with a unique UTC ID, workflow-package/version provenance, evidence, correction, smallest candidate plugin improvement, and recurrence check, then links the ID from the active change record. Read-only explanation/review returns the exact copy-ready pending entry, states that it was not persisted, and makes no mutation. The later correction appends a separately identified follow-up rather than editing history. Base-ref validation detects deletion, rewriting, or reordering. A later plugin-improvement exercise groups supplied entries, distinguishes historical versions from current recurrence, selects the smallest justified control, adds a neutral recurrence scenario, and links incident IDs; it performs no automatic cross-repository collection. No issue, score, blame field, database, hook, scheduled bot, or automatic plugin edit is created.
+
+### 32. Low-cognitive-load non-coder orientation and organization
+
+Use a repository with an active change, a review awaiting genuine human action, several Ready/Now issues, a long Next/Later catalog, and one blocking Decision. Prompts include: `I do not code and I am overwhelmed. Where are we, what matters now, and exactly what should I do next?`, a broad idea dump for planning, and a delivery-completion handoff.
+
+Expected: `explain-repository` leads with a plain-English current position, separates the small active concern from work that can wait, and recommends exactly one evidence-based action from recorded status, priority, release, dependencies, and the user's goal. It defines necessary jargon without hiding architecture, cost, security, migration, failure, or uncertainty and does not patronize the user. Planning asks one material question at a time, recommends a default, retains accepted answers, and keeps one `update_plan` item in progress. Review maps its findings-first verdict to one clear response without acting. Delivery reports done/now/next/waiting compactly and ends with one human action or an explicit no-action/waiting state. No seventh skill, `NEXT.md`, dashboard, extra Project field, persistent explainer tree, or hidden organizer state appears.
+
+### 33. Human notes and PRD/FRD roles
+
+A neutral brownfield fixture contains: an undeclared `operator-notes/` brain dump with approved ideas, speculative alternatives, and stale claims; a human-edit-only interview folder declared as evidence; an active controlled SRS with stable requirement IDs and approval metadata; an obsolete `PRD.md`; and no current canonical product spine. A paired fixture explicitly declares its `operator-notes/` folder to be active product authority and preserve-in-place.
+
+Expected: the undeclared folder name grants no authority. Onboarding preserves it as non-binding discovery input, maps every material claim and ID, asks only the material approval/conflict questions, and writes accepted durable facts once to `docs/product/index.md` or warranted functional area documents. The product index contains purpose/problem, users/outcomes, success measures, scope, requirements/invariants, quality constraints, supported contracts, limitations, and open decisions. The evidence folder remains evidence and human-edit-only. The controlled SRS retains its IDs, approval/format, and authority route; the obsolete PRD is historical and cannot override active requirements. The paired repository's explicit operator-notes declaration remains binding and protected because of that declaration, not its name. No default `operator-notes/`, `PRD.md`, `FRD.md`, one-file-per-feature specification set, traceability database/matrix, hook, script, or seventh skill is created. Any retirement follows the source's mutation rule and claim/ID/link/history parity.
+
 ## GitHub acceptance
 
 - Private URL `https://github.com/collisionengineers/azure-workflow`, default `main`, issues enabled, wiki disabled.
@@ -272,4 +318,4 @@ Live Azure acceptance remains incomplete while local authentication/toolchain pr
 
 ## Final evidence report
 
-Report changed/removed paths, validator/fixture/scenario counts and outputs, installed plugin/marketplace proof, reviewer rounds, PR/check/ruleset/Project evidence, version/release state, and Azure read result or exact blocker.
+Report changed/removed paths, validator/fixture/scenario counts and outputs, agent-mistake IDs or explicit `none`/pending handoff, installed plugin/marketplace proof, reviewer rounds, PR/check/ruleset/Project evidence, version/release state, one next human action or waiting state, and Azure read result or exact blocker.

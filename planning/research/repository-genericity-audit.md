@@ -27,7 +27,7 @@ Only the first column is packaged as a default. The other values are discovered 
 
 1. No public skill name or trigger contains a product domain.
 2. Large feature conversion accepts arbitrary identifiers and product areas; it does not assume a case, report, email, finance, or other domain model.
-3. `operator-notes/` is treated as target authority without copying its contents into the plugin.
+3. Human-authored sources are classified from explicit target evidence rather than their folder names; a repository-specific `operator-notes/` authority declaration is preserved without becoming a plugin default.
 4. Project-specific issue categories are discovered and registered as orthogonal facets rather than shipped as defaults.
 5. UI/design templates define slots and ownership, not a palette, logo, font, component set, copy style, or journey.
 6. Azure resources are discovered from repository/IaC/current scope; no source-project topology is embedded.

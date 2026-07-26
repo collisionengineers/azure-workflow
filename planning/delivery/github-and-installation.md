@@ -148,7 +148,7 @@ Bootstrap base `main`, head `feat/bootstrap-azure-workflow`. The current private
 ## Register and install
 
 ```powershell
-codex plugin marketplace add C:\Users\PC\Documents\GitHub\a-workflow --json
+codex plugin marketplace add . --json
 codex plugin marketplace list
 codex plugin add azure-workflow@personal --json
 codex plugin list
@@ -159,11 +159,26 @@ Expected: marketplace `personal` resolves to the local repository and `azure-wor
 ## Development update loop
 
 ```powershell
-python C:\Users\PC\.codex\skills\.system\plugin-creator\scripts\update_plugin_cachebuster.py `
-  C:\Users\PC\Documents\GitHub\a-workflow\plugins\azure-workflow
+$azureWorkflowCodexRoot = if ([string]::IsNullOrWhiteSpace($env:CODEX_HOME)) {
+  Join-Path ([Environment]::GetFolderPath('UserProfile')) '.codex'
+} else {
+  $env:CODEX_HOME
+}
+$pluginCreatorSkillRoot = Join-Path $azureWorkflowCodexRoot 'skills\.system\plugin-creator'
+$updateCachebuster = Join-Path $pluginCreatorSkillRoot 'scripts\update_plugin_cachebuster.py'
+$readMarketplaceName = Join-Path $pluginCreatorSkillRoot 'scripts\read_marketplace_name.py'
 
-python C:\Users\PC\.codex\skills\.system\plugin-creator\scripts\read_marketplace_name.py `
-  --marketplace-path C:\Users\PC\Documents\GitHub\a-workflow\.agents\plugins\marketplace.json
+if (-not (Test-Path -LiteralPath $updateCachebuster -PathType Leaf)) {
+  throw 'Select or install plugin-creator before updating the plugin.'
+}
+if (-not (Test-Path -LiteralPath $readMarketplaceName -PathType Leaf)) {
+  throw 'The selected plugin-creator installation is incomplete.'
+}
+
+python $updateCachebuster .\plugins\azure-workflow
+
+python $readMarketplaceName `
+  --marketplace-path .\.agents\plugins\marketplace.json
 
 codex plugin add azure-workflow@personal --json
 ```
@@ -183,4 +198,4 @@ The delivery workflow stops at a green exact-head-reviewed PR. After authorized 
 
 ## Plugin-creator handoff
 
-When implementation actually creates/updates the marketplace entry, the final implementation response must include the plugin-creator-required Codex app handoff with URL-encoded `View azure-workflow` and `Share azure-workflow` links for the absolute marketplace JSON path.
+When implementation actually creates/updates the marketplace entry, the final implementation response must include the plugin-creator-required Codex app handoff with URL-encoded `View azure-workflow` and `Share azure-workflow` links. Resolve `.\.agents\plugins\marketplace.json` at response time and use its absolute value only in the deeplink query required by Codex. Never persist that resolved workstation path in tracked content, templates, fixtures, logs, or repository-generated documents.

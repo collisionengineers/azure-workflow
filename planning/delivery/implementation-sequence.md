@@ -4,6 +4,30 @@
 
 Build in this order so package shape, skill boundaries, repository standards, and tests stabilize before live installation or external setup. Each phase exits green before the next begins.
 
+Run the commands below from the repository root. Resolve the two installed creator skills once per PowerShell session from `CODEX_HOME`, or from Codex's documented per-user default when `CODEX_HOME` is unset:
+
+```powershell
+$azureWorkflowCodexRoot = if ([string]::IsNullOrWhiteSpace($env:CODEX_HOME)) {
+  Join-Path ([Environment]::GetFolderPath('UserProfile')) '.codex'
+} else {
+  $env:CODEX_HOME
+}
+
+$pluginCreatorSkillRoot = Join-Path $azureWorkflowCodexRoot 'skills\.system\plugin-creator'
+$skillCreatorSkillRoot = Join-Path $azureWorkflowCodexRoot 'skills\.system\skill-creator'
+$pluginCreator = Join-Path $pluginCreatorSkillRoot 'scripts\create_basic_plugin.py'
+$skillCreator = Join-Path $skillCreatorSkillRoot 'scripts\init_skill.py'
+
+if (-not (Test-Path -LiteralPath $pluginCreator -PathType Leaf)) {
+  throw 'Select or install plugin-creator before implementation.'
+}
+if (-not (Test-Path -LiteralPath $skillCreator -PathType Leaf)) {
+  throw 'Select or install skill-creator before implementation.'
+}
+```
+
+If an active skill reports a different filesystem locator, use that discovered locator for the current session. Never copy a resolved workstation path into a tracked file, template, fixture, or generated repository document.
+
 ```text
 planning freeze
    -> Git baseline
@@ -22,7 +46,7 @@ planning freeze
 1. Run the planning cross-check: links, exact paths, six-skill count, versions, statuses, MCPs, no hooks, owner-aware work-kind model, explanation/review boundaries, actual-PR review contract, and no competing `docs/product.md`/`docs/plans/` standard.
 2. Inventory `ref-files/`, `.codex/`, and root `hooks.json`; treat them only as extraction inputs.
 3. Confirm no plugin implementation files already exist that would be overwritten.
-4. Initialize Git only with explicit authority because this workspace currently is not a Git repository.
+4. Retain the existing Git repository and planning baseline; do not reinitialize or rewrite it.
 5. Create a `main` planning baseline commit containing the planning pack and chosen reference snapshot policy. Do not silently add secrets, machine state, or ignored predecessor artifacts.
 
 Exit: planning pack is internally consistent and recoverable from Git.
@@ -40,11 +64,9 @@ Exit: clean scoped branch, correct remote/default branch, no unrelated GitHub co
 Use the installed `plugin-creator` script exactly once:
 
 ```powershell
-$pluginCreator = 'C:\Users\PC\.codex\skills\.system\plugin-creator\scripts\create_basic_plugin.py'
-
 python $pluginCreator azure-workflow `
-  --path C:\Users\PC\Documents\GitHub\a-workflow\plugins `
-  --marketplace-path C:\Users\PC\Documents\GitHub\a-workflow\.agents\plugins\marketplace.json `
+  --path .\plugins `
+  --marketplace-path .\.agents\plugins\marketplace.json `
   --with-skills `
   --with-scripts `
   --with-mcp `
@@ -58,8 +80,7 @@ Exit: plugin-creator validation passes for the empty package shape.
 ## Phase 3: initialize six skills
 
 ```powershell
-$skillCreator = 'C:\Users\PC\.codex\skills\.system\skill-creator\scripts\init_skill.py'
-$skillRoot = 'C:\Users\PC\Documents\GitHub\a-workflow\plugins\azure-workflow\skills'
+$skillRoot = '.\plugins\azure-workflow\skills'
 
 python $skillCreator onboard-azure-repository `
   --path $skillRoot `
@@ -117,7 +138,7 @@ Requirements:
 - Each `SKILL.md` directly links every reference it may load.
 - No reference requires a second reference to understand its procedure.
 - Create the single plugin-root `references/dotnet-projects.md`; onboard/plan/deliver/explain/review link it directly and load it only for material .NET scope. Do not create a .NET skill, duplicate goal copies, extra MCP, or hook.
-- Onboarding assets contain repository-spine/issue/PR templates plus the conditional design Markdown spine and no domain-specific facts, asset binaries, token values, palette, logo, font, or product copy.
+- Onboarding assets contain repository-spine/issue/PR templates, the append-only agent-mistake-log template, plus the conditional design Markdown spine and no domain-specific facts, pre-populated incidents, asset binaries, token values, palette, logo, font, or product copy.
 - Planning owns the only change-record template.
 - Delivery reads the target repository's PR template and owns no duplicate asset.
 - Review owns the complete-diff/finding contract and GitHub evidence-collection reference; delivery owns only remediation/publication integration and does not duplicate the checklist.
@@ -137,7 +158,7 @@ Implement:
 4. `Test-AzureWorkflowPlugin.ps1`
 5. repository development wrapper `scripts/Invoke-RepoCheck.ps1`
 
-Use strict mode, contained literal paths, stable JSON output, documented exit codes, and no Git/Azure mutations. Add fixtures for compliant, missing authority, malformed record, conflicting documentation, existing/new/no-UI design routes, domain leakage, stale/partially removed workflow routing, large feature catalog, an overloaded local work ledger with semantic render drift, a neutral accreted rule/configuration system, broad .NET project variants, paginated PR feedback, unresolved/outdated threads, and a head that changes during collection.
+Use strict mode, contained literal paths, stable JSON output, documented exit codes, and no Git/Azure mutations. Add fixtures for compliant, missing authority, malformed record, malformed or rewritten agent-mistake history, conflicting documentation, human-authored/formal requirements sources, existing/new/no-UI design routes, domain leakage, stale/partially removed workflow routing, large feature catalog, an overloaded local work ledger with semantic render drift, a neutral accreted rule/configuration system, broad .NET project variants, paginated PR feedback, unresolved/outdated threads, and a head that changes during collection.
 
 Exit: script unit/fixture tests pass under PowerShell 7.
 
@@ -154,6 +175,7 @@ docs/product/capabilities.md
 docs/roadmap.md
 docs/architecture.md
 docs/operations.md
+docs/agent-mistakes.md
 docs/decisions/0001-single-plugin-six-skill-architecture.md
 docs/changes/2026-07-26-bootstrap-azure-workflow.md
 .github/ISSUE_TEMPLATE/{feature,bug,task,decision}.yml
@@ -163,6 +185,8 @@ docs/changes/2026-07-26-bootstrap-azure-workflow.md
 ```
 
 Declare mode `development`, version `0.1.0-alpha.1`, stage `alpha`, release authority, and `Visual UI: absent` because this repository packages a workflow and has no visual application surface. Do not create an empty root `design/` for this repository. Apply the exact policy-placement contract. The bootstrap record maps retained principles/provenance from reference material while excluding source-project product policy and predecessor lifecycle machinery.
+
+Write `docs/product/index.md` with the living product-requirements headings and do not create `operator-notes/`, `PRD.md`, or `FRD.md`. Classify `ref-files/` only as extraction evidence under its existing read-only rule; it is not product authority.
 
 Exit: repository-standard validator and Docs/Full classification tests pass.
 
@@ -197,6 +221,11 @@ Run [the complete acceptance matrix](verification-and-acceptance.md), including:
 - proportional tests/path-aware CI;
 - actual-PR review, same-author COMMENT evidence, paginated feedback/thread/check collection, stable-head evidence-fingerprint invalidation, remediation, exact-head invalidation, and CI remediation;
 - mode and non-synthetic-example policies;
+- supplied-material permission/licensing authority with no invented PII/DPA/DPIA/privacy/retention/licensing gate, warning, substitution, or scope reduction;
+- documentation impact declaration, same-PR maintenance, mechanical proof limits, read-only drift explanation, semantic exact-head review, and repair routing;
+- material-agent-mistake admission, append-only incident history, copy-ready read-only handoff, correction/follow-up linking, and reusable plugin-improvement classification without automatic task/plugin creation;
+- low-cognitive-load orientation and collaboration: plain-English current position, what matters now versus later, one evidence-based next action, one material question at a time, retained decisions, and no duplicate `NEXT.md`, dashboard, organizer skill, or persistent explainer tree;
+- human-source and requirements roles: unclassified notes remain non-binding discovery input, explicit protected/controlled declarations survive, living PRD/functional-specification owners receive approved requirements once, controlled formal IDs/status remain traceable, and no default acronym files or traceability machinery appear;
 - Azure MCP/Learn startup, Learn guidance routing, read-only inventory, and mutation stop.
 
 Use plugin-creator cachebuster + reinstall between local package changes. Never claim Azure complete before a live scoped read succeeds.
@@ -231,5 +260,6 @@ The implementation agent stops at a review-complete PR. After a human/authorized
 - Planning pack, canonical docs, GitHub setup, manifest version, and release contract agree.
 - Validators, fixtures, scenarios, installed smoke tests, CI, and fresh review pass.
 - All six routes and the planning-prerequisite/resumption/review-remediation paths behave as specified.
+- Supplied-material/licensing assumptions, the three-layer documentation-drift controls, the append-only agent-mistake evidence loop, low-cognitive-load collaboration, and human-source/requirements-role classification pass their fresh-thread scenarios without adding a skill, hook, scheduled bot, organizer state, duplicate requirements document, or ledger.
 - Reference inputs/stale setup are absent only after mapped extraction proof.
 - Normal implementation stops at a green exact-head-reviewed PR; alpha release waits for authorized merge.

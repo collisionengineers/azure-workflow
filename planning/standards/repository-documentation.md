@@ -24,13 +24,14 @@ repository/
 |-- docs/
 |   |-- index.md                           required
 |   |-- product/
-|   |   |-- index.md                       required
+|   |   |-- index.md                       required living product-requirements/PRD role
 |   |   |-- capabilities.md                conditional: use for stable capability IDs
 |   |   `-- areas/                         conditional: use for real product areas
 |   |       `-- <area>.md
 |   |-- roadmap.md                         required
 |   |-- architecture.md                    required
 |   |-- operations.md                      required
+|   |-- agent-mistakes.md                  required append-only historical learning evidence
 |   |-- decisions/
 |   |   `-- NNNN-title.md                  conditional per durable decision
 |   |-- changes/
@@ -73,17 +74,18 @@ Required headings:
 
 Required content:
 
-- route to `operator-notes/` as immutable key business authority when present;
-- name every other repository-declared human-owned root, its authority role, and whether ordinary agents may read, route, or edit it;
+- name every declared human-authored source/protected root relevant across sessions, its content role, canonical destination or external owner, and mutation rule; never infer authority from a path name;
 - route all other durable truth through `docs/index.md`;
 - route visual design authority through `design/README.md` when `Visual UI: present`;
 - declare `development` or `released` and link `docs/product/index.md`;
 - state Windows/PowerShell 7 and probe-before-use expectations for `az`, `azd`, workflow skills, and Azure MCP;
 - name the exact canonical verification command and its path-aware behavior;
 - route onboarding, planning, delivery, plain-language explanation, pull-request review, and Azure operations to the six skills;
+- require evidence-based qualifying agent mistakes to be appended to `docs/agent-mistakes.md`, while read-only workflows return a pending entry instead of writing;
+- require low-cognitive-load collaboration: outcome first, one recommended next action, one material question at a time, and no burdening the user with inspectable implementation choices;
 - require exactly one GitHub work kind and only `docs/operations.md`-registered project-specific categories for issues the workflow touches;
 - explain nearest nested `AGENTS.md` behavior;
-- state the user-facing wording, internal-Azure-language, development-data, non-synthetic-domain-example, purpose-revealing-name, and non-speculative-design constraints; and
+- state the user-facing wording, internal-Azure-language, supplied-material permission/licensing assumption, excluded unsolicited PII/DPA/DPIA/privacy/retention/licensing work, non-synthetic-domain-example, purpose-revealing-name, and non-speculative-design constraints; and
 - state repository-specific immutable/sensitive boundaries.
 
 Forbidden content:
@@ -120,7 +122,7 @@ Human discovery and supported use only:
 ## Documentation
 ```
 
-It links to `docs/index.md` and does not carry agent policy, a feature backlog, or a release checklist.
+It links to `docs/index.md` and the repository's live GitHub work surface when present. It does not carry agent policy, a feature backlog, a release checklist, or a duplicated “what next” status board.
 
 ## `docs/index.md`
 
@@ -131,19 +133,20 @@ Canonical router:
 ## Authority order
 ## Canonical documents
 ## Product areas
+## Human-authored sources and protected roots
 ## Visual design system
 ## Dynamic discovery
 ## Historical records
 ```
 
-The authority order names real paths/owners for product, external contracts, security, architecture, operation, decisions, and visual design when present. Dynamic discovery gives live commands/searches for callers/config/tests/deploy entry points instead of copying mutable lists.
+The authority order names real paths/owners for product, external/controlled requirements, security, architecture, operation, decisions, visual design when present, and historical agent-mistake evidence. When human-authored sources or protected roots exist, their table records path/URI, content role, status, canonical destination, and mutation rule. Dynamic discovery gives live commands/searches for callers/config/tests/deploy entry points instead of copying mutable lists. `Historical records` routes `docs/changes/` and `docs/agent-mistakes.md` without presenting either as live work.
 
 ## `docs/product/index.md`
 
-Top-level product and release contract:
+Top-level living product-requirements and release contract. This performs the repository-level PRD role without creating a duplicate `PRD.md`:
 
 ```markdown
-# Product
+# Product requirements
 Mode: development | released
 Versioning scheme: SemVer 2.0.0 | <recorded alternative>
 Current version: <exact version>
@@ -151,19 +154,24 @@ Maturity stage: prototype | alpha | beta | release-candidate | stable | maintena
 Release authority: <person/role/source>
 Visual UI: present | absent
 
-## Users and outcomes
+## Purpose and problem
+## Users and desired outcomes
+## Success measures
 ## In scope
 ## Out of scope
-## Invariants
+## Requirements and invariants
+## Quality attributes and constraints
 ## Supported contracts
 ## User-facing language and interaction
-## Development data and test examples
+## Development materials, licensing, and test examples
 ## Product areas and capabilities
 ## Current limitations
 ## Open product decisions
 ```
 
-It states intended behavior and supported boundaries; it never implies that every intended capability is currently implemented.
+It states intended behavior, success, and supported boundaries; it never implies that every intended capability is currently implemented. Success measures are observable outcomes or explicit evidence routes, not invented vanity metrics. Quality attributes and constraints contain only product-level performance, reliability, accessibility, security, compatibility, or operational outcomes that the product must satisfy; implementation design remains with architecture and change planning.
+
+The default section says supplied materials, software, dependencies, and services are fully permitted and licensed for development/testing and that unsolicited PII/DPA/DPIA/privacy/retention/licensing work does not constrain scope. It also routes repository-specific exceptions only when a human authority explicitly records one. It does not duplicate dependency inventories or invite licence classification.
 
 ## `docs/product/capabilities.md`
 
@@ -192,17 +200,30 @@ Create one only when a product area owns several related capabilities or a disti
 
 ```markdown
 # <Product area>
-## Authority and users
-## Intended outcomes
-## Capabilities and invariants
-## Workflow and states
-## Inputs, outputs, and terminology
-## Permissions and failure behavior
-## Boundaries and exclusions
-## Current limitations
+## Authority, users, and desired outcomes
+## Functional behavior and business rules
+## Workflow, states, and transitions
+## Inputs, outputs, data, and terminology
+## Permissions and failure/recovery behavior
+## Quality attributes and constraints
+## Acceptance examples and evidence routes
+## Boundaries, exclusions, and current limitations
 ```
 
-Split by user/product ownership, not by source-code folder. Do not create one file per trivial feature.
+Split by user/product ownership, not by source-code folder. This is the durable lightweight functional-specification/FRD role when the area warrants it. Small products keep the material in the product index; do not create one file per trivial feature.
+
+## PRD, FRD, SRS, and other formal requirements artifacts
+
+The content role matters more than the acronym:
+
+| Requirements role | Default owner |
+| --- | --- |
+| Product-wide purpose, users, outcomes, success, scope, requirements, constraints, and contracts | `docs/product/index.md` living PRD role |
+| Durable detailed behavior for a real product area | `docs/product/areas/<area>.md` functional-specification role |
+| One activated change's acceptance, design, proof, rollout, and recovery | Active `docs/changes/<record>.md`; historical after delivery |
+| Live work status, owner, dependency, and target release | GitHub Issue, Project, and milestone |
+
+An existing controlled PRD, FRD, SRS, URS, or contract retains its real path, IDs, status, approval history, and declared authority until migration parity is proved. Keep and route it when its format is a contractual/regulatory/supplier/human-controlled deliverable; otherwise consolidate accepted durable claims into the normal product spine without creating a duplicate acronym-named document. Add formal per-requirement IDs or a traceability matrix only when an existing contract, approval process, regulatory need, or multi-team interface requires that machinery.
 
 ## Root `design/`
 
@@ -301,6 +322,10 @@ Numbers are four-digit monotonic and never renumbered after merge. Only active A
 
 Use [the exact change-record contract](change-record.md). It is the only required per-change planning/evidence artifact, but it does not replace canonical product/roadmap/architecture/operations truth.
 
+## `docs/agent-mistakes.md`
+
+Use [the exact agent mistake-log standard](agent-mistake-log.md). It is one append-only file for material evidenced agent mistakes and reusable prevention signals. It is not a backlog, review-finding ledger, product authority, per-change requirement, or automatic source of plugin changes. An empty entries section is valid; no incident is fabricated during onboarding.
+
 ## Navigation
 
 ```text
@@ -311,10 +336,17 @@ AGENTS.md -> docs/index.md
                  +--> architecture                         current structure
                  +--> operations                           run/deploy/recover
                  +--> decisions                            durable reasons
-                 `--> changes                              plan/evidence/history
+                 +--> changes                              plan/evidence/history
+                 `--> agent-mistakes.md                    append-only learning evidence
 
 GitHub Issues + Project + milestones                       live work/release state
 ```
+
+## Human orientation and next action
+
+`README.md` is the obvious human starting point; `docs/index.md` routes durable truth; GitHub owns live order; `$explain-repository` synthesizes the current position and one evidence-based next action. Do not add `NEXT.md`, `TODO.md`, a generated daily dashboard, a Markdown status board, or a duplicate priority/next-action field.
+
+When current work exists, the explanation and owning workflow present `done / now / next / waiting` only as a concise view of the canonical sources. They do not persist that view as a new owner. See [the ADHD and non-coder collaboration design](../research/adhd-noncoder-collaboration-design.md).
 
 ## Canonical verification
 
@@ -325,15 +357,16 @@ GitHub Issues + Project + milestones                       live work/release sta
 - Markdown-only changes run documentation checks, not code suites. Executable/ambiguous paths run Full.
 - Focused proof runs first but never replaces the canonical check.
 
-## Reserved `operator-notes/`
+## Human-authored sources and protected roots
 
-This directory is not generated, moved, merged, or rewritten by ordinary onboarding/delivery. It is inventoried, routed, and preserved byte-for-byte unless the user explicitly requests an exact edit.
+A repository may contain approved specifications, contracts, working notes, interview transcripts, supplied evidence, or scratch areas under any name. `AGENTS.md` and `docs/index.md` record each relevant path/URI using two independent properties:
 
-## Other human-owned roots
+- content role: approved product authority, active external/controlled requirement, draft/discovery input, evidence/reference, or superseded/history; and
+- mutation rule: workflow-maintained, human-edit-only, preserve-in-place, or generated/do-not-edit.
 
-A repository may declare other human-owned directories—for example working notes, supplied evidence, or an operator scratch area. `AGENTS.md` and `docs/index.md` record each path, whether its contents are binding or non-binding, and its mutation rule. Onboarding discovers these declarations rather than hard-coding one product's folder names.
+No filename, directory name, human authorship, or immutability sets the content role automatically. In particular, `operator-notes/` has no reserved plugin meaning. A target repository may explicitly declare that exact folder—or any other real path—to be authoritative and human-edit-only, and the workflow then preserves that local rule.
 
-The default is preservation: inventory and route the root without rewriting, moving, deleting, or treating its contents as agent-generated state. `operator-notes/` keeps its stronger reserved authority above; another root does not become product authority merely because it is human-owned.
+An unclassified human-authored source is preserved during discovery and provisionally treated as non-binding discovery input. Onboarding extracts its material claims, resolves only material ambiguity, and records accepted requirements once in the canonical product owner. Retain, archive, move, or remove the original only under its declared mutation rule and after claim, identifier, link, and history parity. See [the human-notes and requirements audit](../research/operator-notes-and-requirements-documentation-audit.md).
 
 ## Generated documentation and views
 
@@ -350,6 +383,7 @@ A plan/delivery cannot claim its endpoint while any applicable condition is true
 - implemented boundaries changed without architecture agreement;
 - run/deploy/monitor/recover behavior changed without operations agreement;
 - a durable hard-to-reverse choice lacks an ADR;
+- a qualifying agent mistake made or discovered by a write-authorized workflow lacks its append-only entry, or a read-only workflow conceals that its entry is still pending;
 - live work status was copied into durable product/roadmap docs;
 - required change-record planning/evidence/review is missing; or
 - canonical links, schemas, or commands are broken.

@@ -83,7 +83,7 @@ When a command has mixed or unclear behavior, classify it as mutating.
 1. Confirm that current/live Azure evidence or operation is part of the endpoint. Route a repository-only plan to `$plan-azure-repository-change` and repository/IaC implementation to `$deliver-azure-repository-change`.
 2. Read repository authority, architecture, operations, active ADRs, IaC, and active change record.
 3. Work in Windows through PowerShell 7. Use `az`, `azd`, workflow skills, and Azure MCP only after the relevant preflight succeeds.
-4. Read relevant `operator-notes/` and preserve their authority.
+4. Read relevant declared product/external authorities and evidence sources from `docs/index.md`; apply their recorded content roles and preserve every protected mutation boundary.
 5. Run toolchain and authentication preflight. Resolve and report tenant, subscription, environment, and resource scope.
 6. Determine whether the request is read, research, validation, or mutation.
 7. Apply the central Microsoft Learn call gate. Query it when the user requests Microsoft guidance or the operation depends on current Azure/.NET service, API, CLI, IaC, version, limit, retirement, migration, security, reliability, deployment, or recovery guidance. Reuse only scoped current evidence without a drift signal; record official links, retrieval time, scope, status, and decision effect. Do not call it for a routine repository-proven command whose correctness is established by observed state alone.
@@ -96,6 +96,7 @@ When a command has mixed or unclear behavior, classify it as mutating.
 14. Execute the approved operation once. Do not widen scope or retry a materially different operation without approval.
 15. Verify resource state and the real application caller. Record observed results, monitoring, cost/security consequences, and recovery status.
 16. Reconcile IaC and canonical documentation. Deliver repository changes through the normal delivery route.
+17. If this operation makes or establishes a qualifying agent mistake, contain/recover it and return a copy-ready `Pending mistake-log entry`. Do not edit the repository incidentally; route append and any IaC/document correction through `$deliver-azure-repository-change`. State one next human action or the exact safe waiting condition.
 
 ## Exact apply card
 

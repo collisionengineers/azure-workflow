@@ -10,7 +10,7 @@ The order is role-based rather than a blanket "code wins" or "docs win" rule.
 
 | Question | Primary authority | Evidence or secondary authority |
 | --- | --- | --- |
-| What should the product do? | Current user-approved product authority, applicable `operator-notes/`, and `docs/product/` | Active change record and external contract |
+| What should the product do? | Current user-approved authority and `docs/product/`, plus active external/controlled requirements explicitly routed by `docs/index.md` | Active change record and non-binding discovery/evidence sources |
 | Why is architecture shaped this way? | Active ADR | `docs/architecture.md`, code history |
 | What does the system currently do? | Executed caller path, code, and configuration | Tests and runtime evidence |
 | How is it operated now? | Verified procedures in `docs/operations.md` | Scripts, CI, deployment configuration, observed Azure state |

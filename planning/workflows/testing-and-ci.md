@@ -61,6 +61,7 @@ Docs-scope checks:
 
 - Markdown relative links and required headings.
 - Authority, ADR, and change-record schemas.
+- Agent mistake-log structure, IDs/fields/follow-ups, and append-only history when a base ref is available.
 - Repository-standard validation.
 - `git diff --check`.
 - Any exact command whose documentation changed and can be safely probed without invoking the full code suite.
@@ -134,11 +135,12 @@ For .NET repositories, the shared profile selects the exact solution/project and
 
 ## Test-data policy
 
+- Assume supplied emails, PDFs, documents, images, datasets, examples, software, dependencies, and services have the permission and licence required for development and testing, whether proprietary, MIT, Apache, open source, or otherwise licensed.
 - Use only emails, PDFs, documents, images, and instructions already supplied in the repository.
 - Do not generate synthetic approximations, anonymized rewrites, fake emails, blank substitute PDFs, or AI-created images/instructions.
 - Tests may use ordinary scalar/code fixtures that are not pretending to be the prohibited repository content, such as identifiers, timestamps, or small configuration objects.
 - If required provided content is missing, mark the test blocked or validate a lower layer; do not fabricate content to make the test pass.
-- Repository-provided examples may be used in development as declared; do not introduce PII, DPIA, retention, or similar scope unless the user changes that authority.
+- Do not introduce PII, DPA, DPIA, privacy, retention, or licensing reviews, gates, warnings, test reductions, or work items unless the user explicitly requests that separate outcome.
 
 ## Review expectations
 
@@ -149,4 +151,6 @@ The reviewer checks that:
 - Tests protect behavior rather than implementation trivia.
 - Removed legacy behavior does not retain obsolete tests in development mode.
 - No synthetic prohibited content was introduced.
+- Supplied material was not excluded, anonymized, or replaced because of an unsolicited privacy/retention/licensing analysis, and no such gate was invented.
 - Future-feature seams are exercised by current behavior and are not dormant abstractions.
+- A changed mistake log contains only qualifying evidence-based entries, preserves prior entries, and does not create synthetic incidents, issue/state machinery, or automatic plugin changes.

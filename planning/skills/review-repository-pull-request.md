@@ -35,7 +35,7 @@ There is no skill-local `scripts/` or `assets/` folder. It uses the plugin-root 
 ```yaml
 ---
 name: review-repository-pull-request
-description: Independently and read-only review an existing GitHub pull request against its request, linked issue, repository authority, change record, exact base and head, complete diff, real callers, checks, tests, documentation, reviews, comments, and unresolved threads. Use when the user asks to review, audit, assess, judge correctness, or check a PR/comment, or when Azure Workflow onboarding, planning, or delivery requires a fresh post-push review. Return evidence-based findings and an exact-head verdict without fixing code or changing GitHub state. Use explain-repository instead when the user only asks what a PR, comment, or check means and does not request a correctness verdict.
+description: Independently and read-only review an existing GitHub pull request in an Azure-oriented or Azure Workflow-onboarded repository against its request, linked issue when present, repository authority, change record when required, exact base and head, complete diff, real callers, checks, tests, documentation, reviews, comments, and unresolved threads. Use when the user asks to review, audit, assess, judge correctness, or check a PR/comment in that scope, or when Azure Workflow onboarding, planning, or delivery requires a fresh post-push review. Return evidence-based findings and an exact-head verdict without fixing code or changing GitHub state. Use explain-repository instead when the user only asks what a PR, comment, or check means and does not request a correctness verdict.
 ---
 ```
 
@@ -47,11 +47,19 @@ interface:
   short_description: "Independently assess one GitHub pull request"
   default_prompt: "Use $review-repository-pull-request to independently review this pull request without changing it."
 
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "microsoft-learn"
+      description: "Current official Microsoft and Azure documentation"
+      transport: "streamable_http"
+      url: "https://learn.microsoft.com/api/mcp"
+
 policy:
   allow_implicit_invocation: true
 ```
 
-No MCP is unconditionally required. GitHub evidence uses `git`, `gh`, `gh api`, and the shared evidence collector. Independently query Microsoft Learn when a current Microsoft claim can change the verdict, including but not limited to version-specific .NET support/tooling. Do not repeat background guidance that cannot affect a finding. If official evidence is unavailable, return the exact scoped evidence limit.
+The dependency makes Microsoft Learn available; it does not make every call mandatory. GitHub evidence uses `git`, `gh`, `gh api`, and the shared evidence collector. Independently query Microsoft Learn when a current Microsoft claim can change the verdict, including but not limited to version-specific .NET support/tooling. Do not repeat background guidance that cannot affect a finding. If official evidence is unavailable, return the exact scoped evidence limit.
 
 ## Required `SKILL.md` body structure
 
@@ -92,16 +100,18 @@ If the user explicitly requests fixes, review first and hand the findings to `$d
 
 1. Require an explicit PR number/URL or one unambiguous current-branch PR. Never select the newest PR.
 2. Resolve the Git root and snapshot local status. Never mix uncommitted work into the PR evidence. A dirty worktree does not block object-level review, but it blocks local commands whose result would depend on those files; use exact-commit CI evidence or return the precise evidence limit. Do not stash, reset, clean, switch branches, or create a worktree.
-3. Read root/nearest `AGENTS.md`, relevant `operator-notes/`, `docs/index.md`, product/roadmap/architecture/operations/ADRs, linked issue, and change record. When `Visual UI: present` and the PR affects UI/design, read the applicable `design/` authorities, token-source declaration, asset inventories, and component/pattern maps. Detect whether the diff or unchanged callers behaviorally affect a .NET project.
+3. Read root/nearest `AGENTS.md`, `docs/index.md`, declared active product/external requirements and relevant discovery/evidence sources, product/roadmap/architecture/operations/ADRs, linked issue, and change record. Apply each source's recorded content role and mutation rule. When `Visual UI: present` and the PR affects UI/design, read the applicable `design/` authorities, token-source declaration, asset inventories, and component/pattern maps. Detect whether the diff or unchanged callers behaviorally affect a .NET project.
 4. Load both skill-local references. When .NET is affected, also load shared `../../references/dotnet-projects.md` and its applicable variant sections. Run `Get-AzureWorkflowPullRequestEvidence.ps1` with the repository root and PR number; retain its completion time and fingerprint.
 5. Require stable start/end base/head OIDs, stable check/feedback markers, complete pagination, exact base/head objects, and a full `baseOid...headOid` diff. If any is unavailable, return `evidence-blocked` rather than reviewing a partial change as complete.
-6. Review the PR purpose/body/issue/record consistency, including exactly one owner-aware issue kind, registered facets, and Project membership; then review every changed path, relevant unchanged callers/policy owners, positive/negative/failure/recovery behavior, permissions/security, schemas/config/migrations, UI/UX and design-source/runtime consistency, Azure consequences, tests, documentation, scope, naming, mode, and non-overengineering. For .NET, additionally verify project/reference and real-host call paths, single rule/configuration authority, DI/options lifetimes, public/package/schema compatibility, generated/source roles, proportional tests, exact commands, and current support evidence when relevant. Apply the Microsoft Learn gate independently for any decisive current claim and include compact source evidence in the verdict.
+6. Review the PR purpose/body/issue/record consistency, including exactly one owner-aware issue kind, registered facets, Project membership, and declared documentation impact; then review every changed path, relevant unchanged callers/policy owners, positive/negative/failure/recovery behavior, permissions/security, schemas/config/migrations, UI/UX and design-source/runtime consistency, Azure consequences, tests, documentation, scope, naming, mode, and non-overengineering. Compare canonical claims semantically with real implementation/configuration/callers; links and schemas alone cannot clear documentation drift. Apply the declared full permission/licence assumption to supplied materials/software/services and do not invent PII/DPA/DPIA/privacy/retention/licensing findings, substitutes, or scope reductions unless that outcome is explicitly in scope. For .NET, additionally verify project/reference and real-host call paths, single rule/configuration authority, DI/options lifetimes, public/package/schema compatibility, generated/source roles, proportional tests, exact commands, and current support evidence when relevant. Apply the Microsoft Learn gate independently for any decisive current claim and include compact source evidence in the verdict.
 7. Inspect current checks, submitted reviews, review decisions, general comments, inline comments, and every review thread. Deduplicate feedback by GitHub ID and distinguish unresolved, resolved, and outdated threads.
 8. Do not inherit the implementation owner's suspected findings or desired verdict. On a re-review, receive previous findings only to recheck their disposition; still review the entire current diff independently.
 9. Immediately before deciding the verdict, rerun the collector. If its head or evidence fingerprint differs, incorporate the new checks/feedback and repeat the affected review once; return `evidence-blocked` if the PR remains unstable.
 10. Return findings first, ordered `blocker`, `required`, then `advisory`, each with path/line or GitHub URL, observable impact, required outcome, and exact recheck.
 11. Return exactly one verdict bound to the stable head and final snapshot: `clean`, `changes-required`, or `evidence-blocked`.
 12. State explicitly that the result is an independent Codex review and not a separate-account GitHub approval.
+13. Do not turn ordinary findings against the implementation into agent mistake-log incidents. If this read-only reviewer makes or recognizes its own qualifying mistake, include a copy-ready `Pending mistake-log entry`, clearly state it was not persisted, and leave append/correction to an authorized plan/delivery workflow.
+14. End with exactly one plain-English next action derived from the verdict: route `changes-required` to the owning delivery remediation loop, name the single evidence acquisition needed for `evidence-blocked`, or state the genuine human/merge-authority action or waiting condition for `clean`. Do not mutate state or manufacture work.
 
 ## Result schema
 
@@ -136,6 +146,14 @@ If the user explicitly requests fixes, review first and hand the findings to `$d
 ### Review identity
 
 Fresh Codex review context; read-only; not a human or separate-account GitHub approval.
+
+### Recommended next action
+
+<one verdict-derived human/owner action, or explicit waiting/no-action state>
+
+### Pending mistake-log entry
+
+<conditional copy-ready entry only for the review context's own qualifying mistake; explicitly not persisted>
 ```
 
 When clean, write `No blocker or required findings.` Advisories remain visible but do not change the clean verdict. Any evidence blocker prevents `clean`.
@@ -189,6 +207,9 @@ This reference owns command/query examples and field mappings only. It does not 
 ## Reviewer isolation and read-only boundary
 ## Required inputs and authority order
 ## Complete-change checklist
+## Supplied-material permission/licensing assumption and excluded unsolicited findings
+## Semantic documentation agreement and mechanical-evidence limits
+## Mistake-log admission and read-only pending-entry boundary
 ## Finding severities and evidence requirements
 ## Existing-feedback classification
 ## Verdict and result schema

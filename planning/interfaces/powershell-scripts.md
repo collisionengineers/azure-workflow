@@ -31,7 +31,7 @@ Behavior:
 - Set status from `-Status`, PR to `none`, and preserve the supplied issue string or URL. The plan-only route passes `-Status planned`; delivery passes `-Status active`.
 - Refuse to overwrite an existing file.
 - Reject path traversal and slugs outside the declared pattern.
-- Print a compact JSON result containing `path`, `slug`, `type`, and `status`.
+- Print a compact JSON result containing `path`, `slug`, `type`, and `status`; `path` is a forward-slash repository-relative path such as `docs/changes/YYYY-MM-DD-<slug>.md`, never the resolved workstation path.
 
 Exit codes: `0` success, `1` validation/refusal, `2` unexpected runtime failure.
 
@@ -92,6 +92,7 @@ Interface:
 ```powershell
 param(
     [Parameter(Mandatory)][string]$RepositoryPath,
+    [string]$BaseRef,
     [switch]$Json
 )
 ```
@@ -101,15 +102,18 @@ Checks:
 - Required files and directories use exact casing.
 - `AGENTS.md` contains the required routing sections and an exact canonical verification command.
 - Every required onboarding/planning/delivery/explanation/review/operation route names the supported plugin skill and no mandatory route points to a missing repository-local plugin, skill, agent, hook, task-state, or marketplace path.
-- `AGENTS.md` declares Windows/PowerShell, the active mode, `operator-notes/` authority, every other declared human-owned root/mutation rule, product/data constraints, and path-aware validation routing.
+- `AGENTS.md` declares Windows/PowerShell, the active mode, actual protected-root mutation boundaries, the supplied-material permission/licensing assumption, exclusion of unsolicited PII/DPA/DPIA/privacy/retention/licensing work, non-synthetic examples, low-cognitive-load collaboration, the agent-mistake-log rule, and path-aware validation routing. It contains no default `operator-notes/` authority rule.
+- `docs/index.md` assigns separate content roles and mutation rules to every declared human-authored source/protected root; no filename establishes authority. `docs/product/index.md` contains the living PRD fields, while functional area files and retained controlled requirements are conditional.
 - `docs/index.md` declares an authority order and routes every canonical document.
-- `docs/product/index.md` declares exactly one valid mode (`development` or `released`), one maturity stage, the versioning scheme, current version, supported-contract boundary, and release authority.
+- `docs/product/index.md` declares exactly one valid mode (`development` or `released`), one maturity stage, the versioning scheme, current version, release authority, purpose/problem, users/outcomes, success measures, scope, requirements/invariants, quality constraints, supported contracts, limitations, and open decisions.
 - `docs/product/index.md` declares exactly one `Visual UI` value (`present` or `absent`). When present, the required `design/` headings/files/routes exist; when absent, an existing design directory is validated if retained but is not required.
 - `docs/roadmap.md` uses only `Now`, `Next`, `Later`, and `Not planned`, and allocations name an exact version or `unallocated`.
 - Product-area, architecture, and operations documents contain their required sections. Architecture includes current rule/configuration ownership and source-role/generated-material headings; operations includes technology toolchains/supported platforms and the canonical command.
 - `docs/product/capabilities.md`, when present, has unique stable IDs, one canonical product link per row, and an exact target release or `unallocated`; migrated `V1/V2/V3+` allocation values fail.
 - ADR filenames and headings follow the decision contract.
 - Every change record follows the filename, metadata, status, and section contract.
+- Every change record declares documentation impact with affected owners or a specific reason for none; structural validation does not claim to prove semantic agreement with code.
+- `docs/agent-mistakes.md` has the exact title/purpose/What-to-record/What-not-to-record/template/Entries structure; real incident IDs are unique, workflow-package provenance and other fields/classifications are valid, links are relative/resolving, and follow-up IDs are valid. When `BaseRef` is supplied, parse the base blob through Git and require all existing incident IDs/order/bodies to remain unchanged with new entries appended. Without `BaseRef`, report append-history proof as unavailable rather than claiming it passed.
 - All relative Markdown links inside the canonical spine resolve.
 - Declared source-backed human views preserve semantic values through parsing and generation; quoted/special-character metadata cannot be silently truncated, and generated status/progress cannot contradict its declared members without a finding.
 - Declared architecture/source-role mappings use resolving relative repository paths. Released compatibility/replay rows include named contract, owner, activation/observability, removal trigger, and target version/date; a declared generated/materialized row names one canonical source and command.
@@ -120,19 +124,19 @@ Checks:
 - Forbidden legacy roots such as `.repoplugin/` are reported.
 - Superseded repository-local workflow packages, source hooks/agents, and their active ADR/validator/documentation routes are reported after conversion; checking that a route string exists without resolving its supported owner is insufficient.
 
-The script does not run the canonical check it discovers. Execution belongs to the delivery workflow after the user request and repository commands have been inspected.
+The script does not run the canonical check it discovers. Execution belongs to the delivery workflow after the user request and repository commands have been inspected. The root wrapper passes `BaseRef` whenever Auto/CI or a PR comparison supplies one.
 
 Output:
 
 ```text
 Repository standard: PASS
-Checked: <absolute path>
+Checked: . (selected repository root)
 Documents: <count>
 Change records: <count>
 Warnings: <count>
 ```
 
-With `-Json`, return `valid`, `repository_path`, `errors`, `warnings`, and `counts`.
+With `-Json`, return `valid`, `repository_path`, `errors`, `warnings`, and `counts`. `repository_path` is `.` for the selected root; the validator uses a resolved absolute root internally for containment but never emits or persists it.
 
 Exit codes: `0` valid, `1` findings, `2` invocation/runtime error.
 
@@ -184,8 +188,8 @@ This repository-specific wrapper:
 
 1. In `Auto`, computes changed paths from `BaseRef...HeadRef` and uses the exact classifier in the testing workflow. Missing or invalid comparison data selects `Full`.
 2. In `Docs`, fails if any supplied changed path is outside the docs-only allowlist.
-3. Always runs `Test-AzureWorkflowRepository.ps1` and `git diff --check`.
-4. In `Docs`, runs only Markdown links, authority/ADR/change-record schemas, and documentation command probes affected by the diff.
+3. Always runs `Test-AzureWorkflowRepository.ps1`, passing `BaseRef` when available, `git diff --check`, and a first-party portability scan across development commands, package content, templates, and generated-document assets. Quarantined `ref-files/` inputs and explicit negative path fixtures are excluded; other drive-root, UNC, user-home, or workstation-specific filesystem literals fail.
+4. In `Docs`, runs only Markdown links, authority/ADR/change-record/mistake-log schemas and append-history checks, plus documentation command probes affected by the diff.
 5. In `Full`, runs `Test-AzureWorkflowPlugin.ps1`, repository-root `Test-PluginPackage.ps1` clean-room/allowlist tests, fixture tests, plugin-creator validation when available, and all six skill quick validations when available.
 6. Prints selected scope and changed paths before executing checks.
 
@@ -210,6 +214,7 @@ resolve absolute root
 
 - Never use an unresolved environment variable as a write target.
 - Never recurse outside the explicit repository or plugin root.
+- Use resolved absolute roots only for in-process containment. Emit and persist repository-relative paths with `/` separators.
 - Never write secrets or full environment variables to output.
 - Never perform `git add`, commit, push, PR, Azure CLI, or MCP operations.
 - Never stage as a side effect of generation or validation; the owning workflow alone stages reviewed literal paths.

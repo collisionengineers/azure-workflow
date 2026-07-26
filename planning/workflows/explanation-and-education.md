@@ -2,7 +2,7 @@
 
 ## Goal
 
-Help a technical or non-technical user understand repository behavior, architecture, terminology, plans, pull requests, review feedback, or check failures accurately in plain English, then stop without changing anything.
+Help a technical or non-technical user understand repository behavior, architecture, terminology, plans, pull requests, review feedback, check failures, current project position, and the next sensible action accurately in plain English, then stop without changing anything.
 
 Owner: `$explain-repository`.
 
@@ -23,7 +23,9 @@ resolve repository authority and evidence class
          |
          +--> PR/feedback -------> exact PR/item -> diff/thread/check context
          |
-         `--> current/intended --> separate authority/code/plan/guidance
+         +--> current/intended --> separate authority/code/plan/guidance
+         |
+         `--> where/what next ---> live state + dependencies -> one recommendation
          |
          v
 current Microsoft fact needed? -- yes --> Learn gate
@@ -43,7 +45,7 @@ answer and STOP
 
 ## Step 1: classify the requested endpoint
 
-The endpoint is explanation only when the user wants to know what something means, how it works, why it matters, or what another person/tool is asking.
+The endpoint is explanation when the user wants to know what something means, how it works, why it matters, what another person/tool is asking, where the repository currently stands, what matters now, or the next sensible action without persisting a decision or organization change.
 
 Do not silently turn it into:
 
@@ -53,6 +55,7 @@ Do not silently turn it into:
 - a reply to a reviewer;
 - a thread resolution;
 - a documentation edit; or
+- persistent backlog/Project/document organization; or
 - an Azure operation.
 
 If the request combines explanation with an explicitly requested action, explain first, then hand the evidence to the owning skill for the authorized action. Never use the educational tone as implied permission to mutate.
@@ -65,7 +68,7 @@ If multiple subjects match and choosing one could materially change the answer, 
 
 ## Step 3: establish authority and evidence type
 
-Read root/nearest instructions, relevant `operator-notes/`, and the minimum canonical product/architecture/operations/ADR/change-record material needed for the subject.
+Read root/nearest instructions, `docs/index.md`, applicable declared product/external authorities and relevant discovery/evidence sources, and the minimum canonical architecture/operations/ADR/change-record material needed for the subject. Apply each source's recorded content role rather than inferring authority from its name.
 
 Classify every material claim:
 
@@ -79,6 +82,8 @@ Classify every material claim:
 | Current Microsoft behavior/guidance | Microsoft Learn gate and official source |
 
 Documentation alone does not prove that a feature is implemented or called. Code alone does not prove that current behavior is intended.
+
+For broad orientation, also read the minimum README/docs index, roadmap/capability allocation, active GitHub Project/Issues, active change record/PR, dependencies, and required human decisions. Do not dump the full backlog.
 
 ## Step 4A: explain code, features, and system behavior
 
@@ -128,6 +133,18 @@ Return:
 
 Do not decide whether the reviewer is correct unless the user asks for a review. Do not reply, resolve, dismiss, request review, or change PR state.
 
+## Step 4D: orient and recommend one next action
+
+For “where are we?” or “what next?” synthesize rather than persist:
+
+1. state the current outcome/change and whether it is `In progress`, `In review`, blocked, ready, or absent;
+2. separate what matters now from ideas safely left in Next/Later/unallocated;
+3. recommend finishing/unblocking active work first, then any genuine human review action, then a blocking Decision, then one unblocked Ready/Now item;
+4. use recorded priority, target release, dependencies, and the user's goal rather than issue age or volume; and
+5. when two candidates remain materially tied, recommend a default and ask one concrete question.
+
+Do not auto-activate Triage/Next/Later work, create a plan, change GitHub state, or turn the answer into a giant ordered backlog.
+
 ## Step 5: apply external-evidence gates
 
 Call Microsoft Learn when the user explicitly asks for Microsoft guidance or when the explanation materially depends on a current Microsoft-controlled version, support state, API, host, service, limit, migration, security, reliability, deployment, or tooling fact. Reuse valid scoped evidence for the same active question; do not call it merely because the repository contains C# or Azure-related files.
@@ -140,6 +157,9 @@ Use this shape, omitting sections that add no value:
 
 ```markdown
 # Plain-English explanation
+
+## Current position
+<conditional orientation>
 
 ## Short answer
 <one to three direct sentences>
@@ -156,15 +176,21 @@ Use this shape, omitting sections that add no value:
 ## Current, intended, and proposed
 <conditional comparison when they differ>
 
+## What matters now
+<conditional current concern and what can wait>
+
 ## Evidence
 - `<relative/path:line>` — <claim supported>
 - <GitHub or official URL> — <claim supported>
 
-## What happens next
-<only a genuine decision/action, or state that no action is required>
+## Recommended next action
+<one genuine evidence-based action and why, one decision question, or no action required>
+
+## Pending mistake-log entry
+<conditional copy-ready entry; explicitly not persisted>
 ```
 
-Lead with outcome rather than implementation mechanics. Define jargon once. Prefer concrete nouns and actual component names. Use an analogy only after the real mechanism and label its limits when those limits matter.
+Lead with current position/outcome rather than implementation mechanics. Define jargon once, put deeper mechanics later, and prefer concrete nouns and actual component names. Use an analogy only after the real mechanism and label its limits when those limits matter. Do not patronize a non-coder or hide architecture, failure, security, cost, migration, or uncertainty consequences.
 
 ## Step 7: accuracy and stop check
 
@@ -175,7 +201,9 @@ Before returning:
 - simplification has not removed a material branch, failure mode, permission, or consequence;
 - no secret, unnecessary personal content, or large source/document excerpt is exposed;
 - no repository, Git, GitHub, Azure, or external state was changed; and
-- the answer does not manufacture a plan or next task.
+- any recommended next action follows current evidence and is not persisted, represented as decided, or expanded into manufactured work;
+- at most one material decision question is asked; and
+- any qualifying mistake made/recognized by this read-only context is returned as a pending entry rather than silently written.
 
 Stop after the explanation. If the user subsequently asks to decide correctness, plan, fix, persist, or operate, route that new endpoint to review, plan, deliver, or operate respectively.
 

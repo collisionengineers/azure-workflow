@@ -2,13 +2,13 @@
 
 `azure-workflow` is a planned Codex plugin that will take durable ownership of repository onboarding, documentation, feature planning, implementation, plain-English explanation, pull-request review, GitHub delivery, and explicitly approved Azure operations.
 
-Status: **planning is decision-complete; plugin implementation has not started.**
+Status: **final planning closeout; plugin implementation has not started.**
 
 ## What this is
 
 The intended product is one reusable plugin for Azure-oriented repositories. It should be installable into an existing repository, discover the repository's real authority and implementation, convert its documentation and work-management system without losing material truth, and then own a restrained plan-deliver-review workflow.
 
-The plugin is general. CollisionSpike and CollisionSpike v2 appear only as brownfield research cases used to expose failure modes. Their product rules, names, feature taxonomy, `operator-notes` convention, and design assets are not plugin defaults.
+The plugin is general across Azure-oriented repositories. Azure scope is established by repository evidence or explicit user intent; .NET alone is not sufficient and non-Azure onboarding is unsupported. CollisionSpike and CollisionSpike v2 appear only as brownfield research cases used to expose failure modes. Their product rules, names, feature taxonomy, `operator-notes` convention, and design assets are not plugin defaults.
 
 ## Public workflows
 
@@ -36,6 +36,8 @@ UI/UX, documentation maintenance, GitHub work tracking, testing/CI, versioning, 
 - Large capability catalogs remain stable indexes and product contracts; only activated outcomes become issues.
 - Markdown-only work receives documentation checks rather than unrelated application/database/Azure suites.
 - Implementation ends at a real pull request reviewed at its exact final head. The plugin does not merge.
+- Unambiguous, reversible, non-semantic low-risk delivery uses a compact lane without a durable change record or issue. Any material effect escalates before implementation continues.
+- The planning and legacy-input folders are removed after implementation parity; released repository truth lives only in canonical docs, plugin resources, tests, pull requests, and Git history.
 
 See [the approved plan](planning/00-approved-plan.md) and [system architecture](planning/01-system-architecture.md).
 
@@ -116,7 +118,7 @@ The design follows current published guidance rather than optimizing for the sma
 
 ## Repository assumptions
 
-Provided emails, PDFs, documents, images, datasets, examples, software, and services are assumed to have the permissions and licences required for development and testing. The workflow does not create privacy, DPIA, retention, or licensing gates and does not fabricate replacement operational examples.
+Provided emails, PDFs, documents, images, datasets, examples, software, dependencies, and services are assumed to have full permission and all necessary licences for development and testing. The workflow does not create PII, DPA, DPIA, privacy, retention, or licensing gates, reduce the requested result for those presumed concerns, or fabricate replacement operational examples.
 
 User-facing applications produced through this workflow must use purpose-revealing controls and labels, avoid narrating obvious functions, and never expose internal Azure resource or implementation terminology.
 

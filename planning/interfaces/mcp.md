@@ -122,7 +122,7 @@ Do not call Microsoft Learn merely because:
 - the task is ordinary formatting, naming, typo repair, or Markdown maintenance; or
 - the agent wants generic “best practices” to fill space or justify a preferred architecture.
 
-The MCP supplies external platform evidence. It does not override the user, `operator-notes/`, canonical product decisions, or observed repository behavior. A conflict is surfaced as a decision or noncompliance finding.
+The MCP supplies external platform evidence. It does not override the user, canonical product decisions, active external/controlled requirements routed by `docs/index.md`, or observed repository behavior. A conflict is surfaced as a decision or noncompliance finding.
 
 ## Evidence reuse and refresh
 
