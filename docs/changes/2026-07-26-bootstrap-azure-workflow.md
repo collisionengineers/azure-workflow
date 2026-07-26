@@ -131,6 +131,7 @@ Parity conditions before retirement:
 | plugin/skill creator scaffolds | Full | valid initial package shape | passed; scaffolders created plugin and six skills |
 | canonical Full check | Full | all package/docs/scripts/fixtures valid | passed: repository/package/tests plus official plugin and six skill validators |
 | installed plugin/MCP smoke | Full | plugin discovered; two MCP routes tested | passed in fresh read-only Codex processes: installed `0.1.0-alpha.1+codex.20260726232543`; `azure-workflow-microsoft-learn` called `microsoft_docs_search`; `azure-workflow-azure` called read-only `subscription_list` successfully |
+| bootstrap-source retirement | Full | 1,043 inputs untracked/removed after parity; local editor files preserved | passed: no retired path remains tracked, dependency scan is clean, Full validation passes, and the local `.obsidian/workspace.json` hash was unchanged by untracking |
 | actual PR CI/review | Full | green and clean exact final head | pending |
 
 ## Independent review
