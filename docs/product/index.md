@@ -60,7 +60,8 @@ Users can:
 - Testing is proportional to plausible regressions and real callers.
 - Supplied materials/software/services are assumed fully permitted/licensed; repository-provided domain examples are the only test examples.
 - UI work uses a root design authority, clear controls/labels, no interface narration, and no internal Azure wording in user-facing areas.
-- Delivery stops before merge with a clean independent review and green CI for the exact final PR head.
+- Standard/high-risk delivery stops before merge with a clean independent review and green CI for the exact final PR head; compact delivery stops with proportional green proof when its classification still holds.
+- Review is proportional: compact work does not create a mandatory review loop; standard work permits one batched remediation round and high-risk work two. Only defects tied to the request, acceptance criteria, or established repository contract block completion; every material comment is classified, but advisories do not silently expand scope.
 - Azure mutations require an exact apply card followed by explicit approval and readback.
 - Tracked/template paths are portable and repository-relative.
 

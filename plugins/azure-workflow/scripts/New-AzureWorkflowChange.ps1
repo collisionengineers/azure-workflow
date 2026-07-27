@@ -60,6 +60,22 @@ function Get-DeclaredRepositoryMode {
 }
 
 try {
+    $normalizedTitle = $Title.Trim()
+    if ([string]::IsNullOrWhiteSpace($normalizedTitle) -or $normalizedTitle -match '[\r\n]') {
+        Write-ValidationFailure 'Title must contain non-whitespace text on one line.'
+    }
+
+    $normalizedIssue = $Issue.Trim()
+    if ([string]::IsNullOrWhiteSpace($normalizedIssue) -or $normalizedIssue -match '[\r\n]') {
+        Write-ValidationFailure 'Issue must be none, pending, or one absolute HTTPS URL.'
+    }
+    if ($normalizedIssue -cnotin @('none', 'pending')) {
+        $issueUri = $null
+        if (-not [System.Uri]::TryCreate($normalizedIssue, [System.UriKind]::Absolute, [ref]$issueUri) -or $issueUri.Scheme -cne 'https') {
+            Write-ValidationFailure 'Issue must be none, pending, or one absolute HTTPS URL.'
+        }
+    }
+
     $resolvedRepository = Resolve-Path -LiteralPath $RepositoryPath -ErrorAction Stop
     $repositoryRoot = [System.IO.Path]::GetFullPath($resolvedRepository.Path)
     $changesDirectory = Join-Path $repositoryRoot 'docs\changes'
@@ -107,12 +123,12 @@ try {
 
     $content = Get-Content -LiteralPath $templatePath -Raw
     $replacements = [ordered]@{
-        '{{TITLE}}' = $Title.Trim()
+        '{{TITLE}}' = $normalizedTitle
         '{{DATE}}' = $utcDate
         '{{SLUG}}' = $Slug
         '{{TYPE}}' = $Type
         '{{STATUS}}' = $Status
-        '{{ISSUE}}' = $Issue.Trim()
+        '{{ISSUE}}' = $normalizedIssue
         '{{BASELINE}}' = $baseline
         '{{MODE}}' = $productMode
     }

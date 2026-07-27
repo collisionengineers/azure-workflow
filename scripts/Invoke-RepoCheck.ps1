@@ -61,6 +61,9 @@ try {
         } elseif ($Scope -eq 'Auto') {
             $Scope = 'Full'
             'Auto classification fell back to Full because BaseRef was not supplied.'
+        } elseif ($Scope -eq 'Docs') {
+            $Scope = 'Full'
+            'Docs scope fell back to Full because BaseRef was not supplied.'
         }
 
         if ($Scope -eq 'Auto') {
@@ -87,9 +90,12 @@ try {
             }
         }
 
-        Invoke-Checked 'Git diff whitespace' {
-            if ([string]::IsNullOrWhiteSpace($BaseRef)) { & git diff --check }
-            else { & git diff --check "$BaseRef...$HeadRef" }
+        if ([string]::IsNullOrWhiteSpace($BaseRef)) {
+            Invoke-Checked 'Unstaged whitespace' { & git diff --check }
+            Invoke-Checked 'Staged whitespace' { & git diff --cached --check }
+            Invoke-Checked 'Current commit whitespace' { & git show --check --format= $HeadRef }
+        } else {
+            Invoke-Checked 'Comparison whitespace' { & git diff --check "$BaseRef...$HeadRef" }
         }
 
         "CHECK: Markdown links and fences"

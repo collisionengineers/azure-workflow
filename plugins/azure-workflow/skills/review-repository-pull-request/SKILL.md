@@ -81,12 +81,14 @@ Use this shape:
 - Evidence snapshot: <UTC>; fingerprint `<value>`
 - Verdict: clean | changes-required | evidence-blocked
 - Existing review decision: <value or none>
-- Unresolved threads: <count>
+- Unresolved blocker/required findings: <count>
+- Other unresolved feedback: <count>
 - Evidence limits: <none or exact limits>
 
 ### Findings
 #### RVW-NNN: <title>
 - Severity: blocker | required | advisory
+- Blocking basis: <exact request, acceptance criterion, or established contract clause; `not applicable` for advisory>
 - Evidence: `relative/path:line`, command result, or GitHub URL
 - Impact: <observable consequence>
 - Required outcome: <testable correction>

@@ -132,6 +132,15 @@ try {
     Assert-ExitCode 1 'duplicate conflicting repository modes'
     [System.IO.File]::WriteAllText($productPath, $savedProduct, [System.Text.UTF8Encoding]::new($false))
 
+    $agentsPath = Join-Path $tempRoot 'AGENTS.md'
+    $savedAgents = Get-Content -LiteralPath $agentsPath -Raw
+    [System.IO.File]::WriteAllText($productPath, $savedProduct.Replace('Repository mode: `development`', 'Repository mode: `Development`'), [System.Text.UTF8Encoding]::new($false))
+    [System.IO.File]::WriteAllText($agentsPath, $savedAgents.Replace('Repository mode: `development`', 'Repository mode: `Development`'), [System.Text.UTF8Encoding]::new($false))
+    & $validator -RepositoryPath $tempRoot | Out-Null
+    Assert-ExitCode 1 'repository mode requires canonical lowercase value'
+    [System.IO.File]::WriteAllText($productPath, $savedProduct, [System.Text.UTF8Encoding]::new($false))
+    [System.IO.File]::WriteAllText($agentsPath, $savedAgents, [System.Text.UTF8Encoding]::new($false))
+
     $wrongCaseHoldingPath = Join-Path $tempRoot 'docs\index-case-holding.md'
     $wrongCaseIndexPath = Join-Path $tempRoot 'docs\Index.md'
     Move-Item -LiteralPath $indexPath -Destination $wrongCaseHoldingPath
@@ -190,6 +199,12 @@ exit 0
         & (Join-Path $harnessRoot 'scripts\Invoke-RepoCheck.ps1') -Scope Auto -BaseRef 'missing-comparison-ref' -HeadRef HEAD | Out-Null
         Assert-ExitCode 0 'invalid comparison falls back to unscoped Full validation'
 
+        $pluginStubPath = Join-Path $harnessRoot 'plugins\azure-workflow\scripts\Test-AzureWorkflowPlugin.ps1'
+        [System.IO.File]::WriteAllText($pluginStubPath, "exit 1`n", [System.Text.UTF8Encoding]::new($false))
+        & (Join-Path $harnessRoot 'scripts\Invoke-RepoCheck.ps1') -Scope Docs | Out-Null
+        Assert-ExitCode 1 'Docs scope without BaseRef falls back to Full validation'
+        [System.IO.File]::WriteAllText($pluginStubPath, $successStub, [System.Text.UTF8Encoding]::new($false))
+
         [System.IO.File]::WriteAllText($harnessPullRequestTemplate, "# Pull request`n`n[Missing](../missing.md)`n", [System.Text.UTF8Encoding]::new($false))
         & (Join-Path $harnessRoot 'scripts\Invoke-RepoCheck.ps1') -Scope Full | Out-Null
         Assert-ExitCode 1 'root check rejects broken pull-request template link'
@@ -212,6 +227,20 @@ exit 0
         & (Join-Path $harnessRoot 'scripts\Invoke-RepoCheck.ps1') -Scope Full | Out-Null
         Assert-ExitCode 1 'profile user-home path portability mutation'
         [System.IO.File]::WriteAllText($harnessReadme, $savedHarnessReadme, [System.Text.UTF8Encoding]::new($false))
+
+        [System.IO.File]::WriteAllText($harnessReadme, "# Harness  `n", [System.Text.UTF8Encoding]::new($false))
+        & (Join-Path $harnessRoot 'scripts\Invoke-RepoCheck.ps1') -Scope Full | Out-Null
+        Assert-ExitCode 1 'Full validation rejects unstaged whitespace'
+
+        & git -C $harnessRoot add README.md | Out-Null
+        if ($LASTEXITCODE -ne 0) { $failures.Add('Whitespace harness could not stage its mutation.') }
+        & (Join-Path $harnessRoot 'scripts\Invoke-RepoCheck.ps1') -Scope Full | Out-Null
+        Assert-ExitCode 1 'Full validation rejects staged whitespace'
+
+        & git -C $harnessRoot commit -m 'whitespace mutation' 2>$null | Out-Null
+        if ($LASTEXITCODE -ne 0) { $failures.Add('Whitespace harness could not commit its mutation.') }
+        & (Join-Path $harnessRoot 'scripts\Invoke-RepoCheck.ps1') -Scope Full | Out-Null
+        Assert-ExitCode 1 'Full validation rejects current-commit whitespace'
     }
     finally {
         if ($null -eq $savedCodexHome) { Remove-Item Env:\CODEX_HOME -ErrorAction SilentlyContinue }

@@ -1,6 +1,6 @@
 ---
 name: deliver-azure-repository-change
-description: Implement, fix, refactor, document, verify, and remediate one change in an onboarded Azure-oriented repository through a green pull request independently reviewed at its exact final head. Use for feature delivery, bug fixes, requested refactors, documentation persistence, failing CI, unresolved PR comments, requested changes, or resuming a named plan/PR. Use a compact no-record lane only for unambiguous reversible non-semantic work; otherwise reuse or invoke planning. Do not use for planning only, explanation only, read-only PR review, onboarding, merge, or unapproved Azure mutation.
+description: Implement, fix, refactor, document, verify, and remediate one change in an onboarded Azure-oriented repository through a green pull request, with independent exact-head review for standard/high-risk work. Use for feature delivery, bug fixes, requested refactors, documentation persistence, failing CI, unresolved PR comments, requested changes, or resuming a named plan/PR. Use a compact no-record lane only for unambiguous reversible non-semantic work; otherwise reuse or invoke planning. Do not use for planning only, explanation only, read-only PR review, onboarding, merge, or unapproved Azure mutation.
 ---
 
 # Deliver Azure Repository Change
@@ -63,26 +63,26 @@ Set Project Status `In review` only when an item exists. Monitor checks for the 
 
 ## Actual PR review and feedback remediation
 
-Invoke `$review-repository-pull-request` in a fresh context against the actual PR after push. Supply the request, authorities, record when present, stable base/head, complete diff, relevant unchanged callers, raw checks, reviews, comments, and threads. A local pre-push inspection or same-context self-review does not satisfy this gate.
+For standard/high-risk work, invoke `$review-repository-pull-request` in a fresh context against the actual PR after push. Supply the request, authorities, record when present, stable base/head, complete diff, relevant unchanged callers, raw checks, reviews, comments, and threads. A local pre-push inspection or same-context self-review does not satisfy this gate. Compact work stops after proportional green proof unless the user/repository requires review or a promotion signal appears.
 
 If fresh context is unavailable, retain draft/`do-not-merge`, emit a copy-ready review packet, and stop. Otherwise:
 
 ```text
 fresh exact-head review
-   +-- changes-required -> record/classify -> fix -> prove -> push -> full re-review
+   +-- changes-required -> classify -> one batched fix round -> prove -> push -> full re-review
    +-- evidence-blocked -> acquire named evidence or remain under review
-   `-- clean            -> final record commit when required -> final exact-head review
+   `-- clean            -> publish/read back -> review complete
 ```
 
-Reconcile every external submitted review, general comment, inline comment, and review thread. Classify each as actionable, already addressed, clarification needed, contradictory, scope-expanding, incorrect, or non-actionable. Fix actionable in-scope feedback; reply with commit/path/check evidence; resolve only after readback; re-request the distinct reviewer when applicable. Ask about ambiguous or expanding feedback. Never dismiss reviews or change correct code for agreement theatre.
+Reconcile every external submitted review, general comment, inline comment, and review thread. Classify each as blocker/required against current authority, advisory, already addressed, clarification needed, contradictory, scope-expanding, incorrect, or non-actionable. Fix blocker/required feedback; reply with commit/path/check evidence; resolve only after readback; re-request the distinct reviewer when applicable. Answer or defer advisory/expanding feedback with reasons. Never dismiss reviews or change correct code for agreement theatre.
 
-Any tracked change invalidates the prior verdict. After a clean candidate review, finalize a required record and push that commit; compact work skips this commit. Wait for checks and obtain one complete final review of the resulting exact head. Publish its exact result as a labelled COMMENT review (fall back to a normal comment only if GitHub rejects a same-author COMMENT review), refresh the head/check/review/thread state, transition draft/`do-not-merge`, and make no later tracked edit.
+Any tracked change invalidates the prior verdict. Finalize a required record in the candidate/remediation commit before the decisive review; never add a post-clean bookkeeping commit. Follow the risk-scaled remediation-round budget. Wait for checks and obtain one complete final review of the resulting standard/high-risk head. Publish its exact result as a labelled COMMENT review (fall back to a normal comment only if GitHub rejects a same-author COMMENT review), refresh the head/check/review/thread state, transition draft/`do-not-merge`, and make no later tracked edit.
 
 Log a qualifying agent mistake only for violated available authority, false completion/evidence, scope/authorization crossing, a defect that escaped a required gate, or a reusable workflow gap. Ordinary findings caught by the intended gate are not incidents. A mistake-log edit promotes compact work and invalidates prior review evidence.
 
 ## Completion and failure behavior
 
-Complete only when scope/acceptance, real-caller behavior, proportional checks, canonical documentation, all feedback, required CI, and the independent review all agree on the exact final head. A required record must be `ready`; a compact PR must contain its scope/proof declaration. Stop before merge or issue `Done`.
+Complete only when scope/acceptance, real-caller behavior, proportional checks, canonical documentation, classified feedback with zero unresolved blocker/required findings, and required CI agree on the exact final head. Standard/high-risk work also requires a clean independent review of that head. A required record must be `ready`; a compact PR must contain its scope/proof declaration. Stop before merge or issue `Done`.
 
 Return `done / now / next / waiting` in plain English with exactly one next human action, or an explicit waiting/no-action state.
 

@@ -6,7 +6,7 @@ type: onboarding
 status: ready
 risk: high
 created: 2026-07-26
-updated: 2026-07-26
+updated: 2026-07-27
 issue: https://github.com/collisionengineers/azure-workflow/issues/1
 pull_request: https://github.com/collisionengineers/azure-workflow/pull/2
 baseline: 3be34e8e586178945dd2cbf330b9c6ecfb79f5fa
@@ -95,6 +95,9 @@ The plugin registers a local Azure MCP process but deploys/mutates no Azure reso
 - Recovery actions: removed the invalid prior `collisionspike-v2` marketplace registration that prevented every Codex plugin list/install command; no repository or plugin files at that source path were removed.
 - Review remediation: rejected change-record reparse traversal and used atomic creation; derived each record's mode from agreeing repository policy; made invalid comparison refs fall back safely; enforced exact canonical casing/directories, one policy-consistent repository mode, parsed issue forms, full change-record/capability/ADR/mistake schemas, portable path forms, and PR-template links; required explicit PR identity, all-attempt check evidence, requested-reviewer pagination, and stable-ID evidence deduplication; added caller-level negative mutations; corrected the documented reinstall sequence; and reconciled the original six review threads. Five later threads are addressed by this record-bearing commit and remain open only until pushed evidence is read back.
 - CI maintenance: upgraded the checkout action from v4 to the current Node 24-based v6 after GitHub emitted a Node 20 deprecation annotation on an otherwise successful exact-head run.
+- Lean review correction: compact delivery no longer requires independent review; standard/high-risk review uses one/two batched remediation rounds; only findings grounded in the request, acceptance criteria, or established repository contract block; advisories are dispositioned without automatic implementation; and the record is finalized before the decisive review so bookkeeping cannot invalidate a clean verdict.
+- Final functional fixes: Full validation now checks unstaged, staged, and current-commit whitespace when no comparison ref is supplied; Docs scope without a comparison fails safe to Full; repository modes use the canonical lowercase values accepted by the record helper; the helper validates both title and issue before creating a target; and durable planning no longer exposes an unrepresentable low-risk record route.
+- Advisory disposition: fragment-anchor validation, duplicate canonical headings/ADR numbers, semantic custom-version-scheme validation, real-instant timestamp parsing, creator-validator provisioning, and supersession-reference resolution are broader structural hardening. They do not replace current acceptance criteria or an established alpha guarantee and are not implemented automatically in this closure batch.
 
 ## Source retirement parity
 
@@ -132,7 +135,7 @@ Parity conditions before retirement:
 | planning checkpoint validation | Docs | links/fences/diff valid | passed before `3be34e8`; no broken relative links or unbalanced fences |
 | plugin/skill creator scaffolds | Full | valid initial package shape | passed; scaffolders created plugin and six skills |
 | canonical Full check | Full | all package/docs/scripts/fixtures valid | passed: repository/package/tests plus official plugin and six skill validators |
-| installed plugin/MCP smoke | Full | reviewed plugin discovered; two MCP routes tested | passed after the final third-remediation reinstall at `0.1.0-alpha.1+codex.20260727015805`; fresh ephemeral read-only processes loaded the installed skills, called Microsoft Learn search and Azure subscription discovery, returned PASS, and performed no mutation or identifier output |
+| installed plugin/MCP smoke | Full | reviewed plugin discovered; two MCP routes tested | passed after the closure-batch reinstall at `0.1.0-alpha.1+codex.20260727012309`; fresh ephemeral read-only processes loaded the installed skills, called Microsoft Learn search and Azure subscription discovery, returned PASS, and performed no mutation or identifier output |
 | bootstrap-source retirement | Full | 1,043 inputs untracked/removed after parity; local editor files preserved | passed: no retired path remains tracked, dependency scan is clean, Full validation passes, and the local `.obsidian/workspace.json` hash was unchanged by untracking |
 | candidate PR remediation | Full | all findings fixed, green CI, stable complete evidence, zero unresolved threads | passed at `a2b696ae76a3c59df45c687d56819352986609fd`; CI `verify` succeeded; evidence fingerprint `4c646f8c8599a28b31d308edef7f67ab2d11c69764baaa2d75d343541bf2553b`; 1,164 files, five commits, six resolved/zero unresolved threads |
 | first final whole-PR review | Full | clean exact record-bearing head | `changes-required` at `aa4d8a6e9e12891cc6042fc9d46f350e548856e1`; fingerprint `d6efbf84148ae10ab2a63e683e64d3f3cf3d6c32402d825564937a966f1cc824`; CI green and threads resolved, but declared repository schemas/path portability were under-enforced |
@@ -145,7 +148,7 @@ Parity conditions before retirement:
 - Candidate PR review: `changes-required` at `3cb10d39ba664527ea2d2bcda89640d9d163b930`; it found reparse escape, invalid-ref fallback, repository-standard enforcement, evidence identity/deduplication, and stale live-review reconciliation defects. The existing GitHub review also contained six unresolved threads, including the already-fixed optional file-property defect.
 - First final exact-head review: `changes-required` at `aa4d8a6e9e12891cc6042fc9d46f350e548856e1`; it found that the structural validator claimed more change-record, capability, ADR, mistake-entry, and portability enforcement than it implemented.
 - Final exact-head review: pending on the new record-bearing head.
-- Remediation rounds: three. Commit `a2b696ae76a3c59df45c687d56819352986609fd` fixed the candidate and original live-thread findings; focused/Full checks and exact-head CI passed; each original thread received an evidence reply, was read back, and was resolved. The second round added field-level schemas and caller-level negative mutations for every reported repository-standard gap and corrected the mistake-log append marker. This third round exhausts all check-run attempts and requested-reviewer pages, derives change mode from policy, scans PR-template links, and directly tests both required documentation directories. This commit invalidates the earlier verdicts and creates the head for another fresh whole-PR review after live feedback reconciliation.
+- Remediation history: three rounds under the superseded unbounded policy produced escalating hardening and review churn. The owner explicitly authorized one closure batch: correct the review policy itself, fix the remaining defects that directly violate declared behavior, disposition broader hardening as advisory, then obtain one decisive exact-head review. This is a bounded recovery exception, not the default workflow for future PRs.
 
 ## Documentation and work tracking
 

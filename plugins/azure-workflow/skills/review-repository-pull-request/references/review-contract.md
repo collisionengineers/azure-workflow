@@ -10,11 +10,13 @@ Apply current user request, declared product/controlled requirements, ADR/design
 
 ## Findings
 
-- `blocker`: unsafe/destructive, authorization/scope violation, data/contract break, or result cannot meet the request.
-- `required`: observable correctness, maintainability, test, documentation, UX, operation, or review-state defect that must be fixed.
+- `blocker`: unsafe/destructive, authorization/scope violation, data/contract break, or result cannot meet the request or an established repository contract.
+- `required`: an observable defect against the request, acceptance criteria, or established repository contract, including evidence needed to prove that endpoint.
 - `advisory`: useful improvement that does not block the stated endpoint.
 
-Each finding has ID, path/line or GitHub evidence, observable impact, testable outcome, and exact recheck. Avoid style preference without repo authority or impact.
+Each finding has ID, path/line or GitHub evidence, observable impact, testable outcome, and exact recheck. New hardening, broader guarantees, speculative edge cases, and style preferences are advisory unless current authority makes them part of the endpoint. A reviewer cannot silently enlarge scope by labelling a suggestion required.
+
+Every blocker/required finding must cite the exact request, acceptance criterion, or established repository-contract clause that makes it blocking. Report unresolved blocker/required findings separately from other unresolved feedback; raw comment or thread counts never determine the verdict.
 
 ## Complete-change checklist
 

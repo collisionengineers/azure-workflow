@@ -76,9 +76,9 @@ Personal-account Projects have a portable CLI/GraphQL core, while saved views, c
 2. Record source-to-destination mappings and counts for claims, identifiers, active work, design assets, GitHub taxonomy, and removed paths.
 3. Run structure, link, YAML, path, change-record, mistake-log, generated-view, and proportional native checks. Mechanical checks cannot prove semantic agreement.
 4. Remove or relocate superseded tracked material only after identifier, material-claim, link/authority, history, and executable-route parity pass. Keep Git recovery available.
-5. Commit literal owned paths, push, and create the actual PR using native draft when supported or normal PR plus `do-not-merge` when not.
+5. Finalize the onboarding record, commit literal owned paths, push, and create the actual PR using native draft when supported or normal PR plus `do-not-merge` when not.
 6. Invoke `$review-repository-pull-request` in a fresh context against the complete actual PR. If no fresh context exists, keep the PR under review, provide a copy-ready review packet, and stop.
-7. Remediate all blocker/required findings, re-prove, push, and re-review the whole PR. After the final record commit, obtain a clean review and green checks for that exact head, publish it as a labelled COMMENT review, read state back, and stop before merge.
+7. Remediate blocker/required findings within the high-risk two-batch budget, updating the record in the same commit, then re-prove/push/re-review the whole PR. After a clean review and green checks for that exact head, publish it as a labelled COMMENT review, read state back, and stop before merge.
 
 Keep detailed inventory, parity, verification, and review evidence in the onboarding record. At every pause and at completion, return only a concise plain-English handoff in this shape: `Done`, `Now`, `Next`, and `Waiting`. `Next` must contain exactly one recommended action; when blocked, `Waiting` must contain exactly one focused question and dependent work must remain stopped.
 

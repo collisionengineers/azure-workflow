@@ -70,4 +70,4 @@ Do not split the lifecycle across many plugins or micro-skills; add a task-state
 
 ## Completion
 
-Implementation work is complete only when requested behavior, canonical documentation, proportional checks, CI, feedback reconciliation, and an independent review all agree on the exact final PR head. Do not merge.
+Implementation work is complete only when requested behavior, canonical documentation, proportional checks, CI, and classified feedback with no unresolved blocker/required finding agree on the exact final PR head. Standard/high-risk work also needs a clean independent review; compact work does not unless policy or a promotion signal requires it. Do not merge.

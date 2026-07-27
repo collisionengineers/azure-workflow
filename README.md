@@ -10,7 +10,7 @@ Current version: `0.1.0-alpha.1`.
 | --- | --- |
 | `onboard-azure-repository` | Convert an existing Azure repository to the documentation/GitHub/workflow standard through a reviewed PR |
 | `plan-azure-repository-change` | Create a repository-grounded, decision-complete plan and stop before implementation |
-| `deliver-azure-repository-change` | Implement or remediate one change through a green exact-head-reviewed PR |
+| `deliver-azure-repository-change` | Implement or remediate one change through a green PR with risk-proportional exact-head review |
 | `explain-repository` | Explain code, architecture, failures, GitHub feedback, current position, and one next action in plain English |
 | `review-repository-pull-request` | Independently review the complete actual PR without fixing or mutating it |
 | `operate-azure-repository` | Inspect live Azure and apply only a separately approved exact mutation |

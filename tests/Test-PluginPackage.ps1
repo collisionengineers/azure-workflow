@@ -72,6 +72,16 @@ try {
     Assert-ExitCode 1 'change-record repository-mode conflict refusal'
     [System.IO.File]::WriteAllText($recordProductPath, "# Product`n`n- Repository mode: ``released```n", [System.Text.UTF8Encoding]::new($false))
 
+    $invalidIssueRecord = Join-Path $recordRepository ("docs\changes\$([DateTime]::UtcNow.ToString('yyyy-MM-dd'))-invalid-issue.md")
+    & $recordCreator -RepositoryPath $recordRepository -Slug 'invalid-issue' -Title 'Invalid issue' -Type 'documentation' -Status 'planned' -Issue 'not-a-url' 2>$null | Out-Null
+    Assert-ExitCode 1 'change-record invalid issue refusal'
+    if (Test-Path -LiteralPath $invalidIssueRecord) { $failures.Add('Change-record creator wrote a file for an invalid issue value.') }
+
+    $invalidTitleRecord = Join-Path $recordRepository ("docs\changes\$([DateTime]::UtcNow.ToString('yyyy-MM-dd'))-invalid-title.md")
+    & $recordCreator -RepositoryPath $recordRepository -Slug 'invalid-title' -Title " `n " -Type 'documentation' -Status 'planned' -Issue 'none' 2>$null | Out-Null
+    Assert-ExitCode 1 'change-record invalid title refusal'
+    if (Test-Path -LiteralPath $invalidTitleRecord) { $failures.Add('Change-record creator wrote a file for an invalid title value.') }
+
     $junctionRepository = Join-Path $tempRoot 'junction-repository'
     $junctionDocs = Join-Path $junctionRepository 'docs'
     $outsideChanges = Join-Path $tempRoot 'outside-changes'

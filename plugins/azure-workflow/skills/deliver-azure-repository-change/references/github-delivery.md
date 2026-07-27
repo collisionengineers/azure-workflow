@@ -18,7 +18,8 @@ Delivery stops at In review. Merge/closure automation or a human performs Done.
 
 Collect submitted reviews, general comments, inline comments, and all GraphQL review threads/replies with resolved/outdated state. Deduplicate by GitHub ID. Before replying/resolving, verify viewer capability and current thread identity.
 
-- actionable in-scope: fix, prove, reply with path/commit/check evidence, read back, then resolve;
+- blocker/required against current request, acceptance, or established contract: fix, prove, reply with path/commit/check evidence, read back, then resolve;
+- advisory: answer or defer with a concise reason; implement only when explicitly requested;
 - already addressed: reply with current evidence; resolve only when unambiguous;
 - clarification/contradiction: ask and leave open;
 - scope expansion: propose separate issue/decision;
@@ -26,6 +27,8 @@ Collect submitted reviews, general comments, inline comments, and all GraphQL re
 - non-actionable: no reply required.
 
 Resolution does not clear a distinct reviewer's `CHANGES_REQUESTED`; re-request that reviewer after the remediation commit. Never dismiss a review or impersonate approval.
+
+Completion requires every material item to be classified and zero unresolved blocker/required findings. It does not require zero comments or implementation of every automated suggestion.
 
 ## Personal-account capability
 

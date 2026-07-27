@@ -49,6 +49,6 @@ This is an Azure-oriented repository using the Azure Workflow plugin. Read `docs
 
 - Preserve unrelated work. Never stash, reset, clean, force-push, or merge unless explicitly authorized by the owning workflow.
 - Material changes use one issue/change record; a truly mechanical non-semantic change may use the compact lane.
-- Delivery stops at a green PR independently reviewed at its exact final head; it does not merge.
+- Delivery stops at a green exact-head PR with every material feedback item classified and no unresolved blocker/required finding; standard/high-risk work also needs clean independent review. It does not merge.
 - Append only qualifying agent mistakes to `docs/agent-mistakes.md`; do not rewrite prior incidents or log routine findings caught by intended gates.
 - Communicate in plain English: what is done, what matters now, what is next, and what is waiting. Ask one material question at a time.

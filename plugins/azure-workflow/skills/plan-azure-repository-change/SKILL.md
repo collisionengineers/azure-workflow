@@ -77,10 +77,10 @@ Review the plan content in a fresh context for missing decisions, contradictions
 
 1. Update only settled canonical product/roadmap/architecture/design/ADR facts; do not change implementation, runtime configuration, IaC, migrations, or executable CI.
 2. Run the repository's Docs check, validate links/YAML/record schema, and check the diff.
-3. Create/reuse an issue for standard/high-risk plans when GitHub is available. A low-risk plan need not create one unless requested or required. Never create an issue per capability row.
-4. Commit literal owned paths, push, and create a documentation-only PR. Use `Refs #N`, never a closing keyword.
-5. Keep it under review using native draft when supported or `do-not-merge` otherwise. Invoke `$review-repository-pull-request` in a fresh context against the actual complete PR; remediate documentation findings and repeat.
-6. After the final record commit, require green Docs CI and a clean exact-head review, publish the result as a labelled COMMENT review, read back state, set a linked Project item to `Ready` when applicable, and stop. Do not implement or merge.
+3. Create/reuse an issue for the material plan when GitHub is available. Compact mechanical delivery does not invoke this skill. Never create an issue per capability row.
+4. Finalize the record, commit literal owned paths, push, and create a documentation-only PR. Use `Refs #N`, never a closing keyword.
+5. Keep it under review using native draft when supported or `do-not-merge` otherwise. Invoke `$review-repository-pull-request` in a fresh context against the actual complete PR.
+6. Remediate blocker/required documentation findings in one risk-scaled batch, updating the record in the same commit, then re-prove/push/re-review. After a clean exact-head review and green Docs CI, publish the result as a labelled COMMENT review, read back state, set a linked Project item to `Ready` when applicable, and stop. Do not implement or merge.
 
 Return a compact handoff: what was decided, what remains excluded, where the record/PR lives, proof status, and exactly one next action.
 

@@ -158,7 +158,7 @@ try {
             if ($values.Count -ne 1) { Add-Finding "docs/product/index.md must declare exactly one $field field." }
             else { $metadata[$field] = $values[0] }
         }
-        if ($metadata.Contains('Repository mode') -and $metadata['Repository mode'] -notin @('development', 'released')) {
+        if ($metadata.Contains('Repository mode') -and $metadata['Repository mode'] -cnotin @('development', 'released')) {
             Add-Finding 'Repository mode must be development or released.'
         }
         if ($metadata.Contains('Maturity stage') -and $metadata['Maturity stage'] -notin @('prototype', 'alpha', 'beta', 'release-candidate', 'stable', 'maintenance', 'retired')) {

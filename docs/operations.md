@@ -19,14 +19,14 @@ CI uses `-Scope Auto` with explicit base/head revisions. Missing or invalid comp
 ## Local run, build, and test
 
 ```powershell
-pwsh -NoLogo -NoProfile -File ./scripts/Invoke-RepoCheck.ps1 -Scope Docs
+pwsh -NoLogo -NoProfile -File ./scripts/Invoke-RepoCheck.ps1 -Scope Docs -BaseRef origin/main -HeadRef HEAD
 pwsh -NoLogo -NoProfile -File ./scripts/Invoke-RepoCheck.ps1 -Scope Full
 pwsh -NoLogo -NoProfile -File ./tests/Test-RepositoryStandard.ps1
 pwsh -NoLogo -NoProfile -File ./tests/Test-PullRequestEvidence.ps1
 pwsh -NoLogo -NoProfile -File ./tests/Test-PluginPackage.ps1
 ```
 
-The wrapper discovers plugin-creator and skill-creator validators when installed. Issue forms use YAML's strict JSON subset for dependency-free parsing and schema checks. Tests use contained temporary fixtures and do not alter the working repository, GitHub, or Azure.
+Docs scope requires a usable base/head comparison; without one it fails safe to Full. The wrapper discovers plugin-creator and skill-creator validators when installed. Issue forms use YAML's strict JSON subset for dependency-free parsing and schema checks. Tests use contained temporary fixtures and do not alter the working repository, GitHub, or Azure.
 
 ## Deploy
 
