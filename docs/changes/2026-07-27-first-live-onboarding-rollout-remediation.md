@@ -37,7 +37,7 @@ workflow.
 
 - Add an explicit pre-mutation onboarding scope gate covering every material
   source's role, mutation rule, intended disposition, and user-owned Git
-  ancestry.
+  commits in the selected baseline-to-`HEAD` onboarding delta.
 - Tie progress and publication language to observable gates so inventory,
   conversion, local proof, exact-head CI, and independent review cannot be
   collapsed into one “complete” claim.
@@ -129,7 +129,11 @@ workflow.
   mutation, the onboarding record exists and lists every material source with
   content role, mutation rule, disposition
   (`preserve/link`, `convert in place`, `relocate/merge`, or `retain as
-  history`), and any user-owned commits already in branch ancestry.
+  history`), and user-owned commits in `<selected-baseline>..HEAD`. The selected
+  baseline is the resolved default-branch/base commit already recorded for the
+  onboarding change. Uncertain authorship is recorded as `unknown`; ask one
+  focused question only when the uncertainty changes mutation, retirement, or
+  attribution decisions.
 - Any disposition that conflicts with current authority is resolved through one
   focused user question before dependent work. Protected sources are preserved
   when no change is needed; onboarding never treats invocation alone as
@@ -148,13 +152,22 @@ workflow.
   paths/counts where available.
 - GitHub setup resolves the authenticated login explicitly, probes supported
   CLI/API fields before mutation, updates the built-in Status field in place,
-  treats command success without readback as unproved, and stops on a mismatch.
+  treats command success without readback as unproved, and compares each
+  mutation's expected IDs/values with observed state. An empty list is valid
+  when no item was expected; a missing expected item/value is a mismatch and
+  stops that setup slice.
 - CI monitoring uses bounded polling/readback intervals under 60 seconds and
   can resume by exact run/head identity after interruption.
-- The representative fresh-context onboarding scenario completes without a
-  context compaction, avoids failures from known static CLI/Project behavior,
-  preserves the supplied user-owned commits, and stops before a false
-  completion claim when Full proof or review is absent.
+- A mutation-free fresh-context onboarding scenario completes without context
+  compaction; exercises scope closure, bounded provenance, communication,
+  blocked-local-proof, interruption, and modular-monolith routing; generates but
+  does not execute GitHub mutations; and stops before a false completion claim.
+- A separate mutation-backed caller scenario, run only against an explicitly
+  authorized disposable GitHub repository and personal Project, proves actual
+  record-before-edit/publication ordering, draft-PR publication, built-in Status
+  update, item creation, and expected-versus-observed readback. If no such caller
+  is authorized and identified during delivery, this evidence remains unproved
+  and blocks the `0.1.0-alpha.2` release rather than being simulated.
 - `plugins/azure-workflow/references/modular-monoliths.md` is the single shared
   owner for this conditional style and is directly linked from onboarding,
   planning, delivery, explanation, and review. It is loaded only when repository
@@ -182,37 +195,57 @@ workflow.
    `plugins/azure-workflow/skills/onboard-azure-repository/SKILL.md`, make the
    order explicit: call `update_plan`; perform read-only repository/GitHub
    inventory; resolve the change identity; create the onboarding record; write
-   the source-disposition table and user-owned ancestry into that record; close
+   the source-disposition table and user-owned commits from the resolved
+   `<selected-baseline>..HEAD` delta into that record; record uncertain
+   authorship as `unknown` and ask only when it affects an action; close
    or block every material scope decision; only then permit target-content
    conversion or GitHub mutation. Add evidence-bound progress terms and a
    publication gate that cannot be described as completion. Creation and
    completion of the onboarding record are the gate mechanism, not prohibited
    target-content edits.
-2. In `references/authority-and-conflicts.md` and
-   `references/documentation-conversion.md`, add the disposition field and
+2. In
+   `plugins/azure-workflow/skills/onboard-azure-repository/references/authority-and-conflicts.md`
+   and
+   `plugins/azure-workflow/skills/onboard-azure-repository/references/documentation-conversion.md`,
+   add the disposition field and
    rules for protected sources: preserve/link is the safe default, but ask one
    early question when conversion intent materially depends on edit/relocation
    authority. Require claim-ledger closure before source retirement or PR
    publication.
-3. In `references/github-onboarding.md`, specify the recovered personal-account
+3. In
+   `plugins/azure-workflow/skills/onboard-azure-repository/references/github-onboarding.md`,
+   specify the recovered personal-account
    sequence: resolve the actual login, probe supported fields, inventory current
    Project and built-in fields, present the bounded intended mutation, update
    Status in place, and read back labels/project/items/options after every
-   mutation. Treat empty readback as failure and use bounded polling for CI.
+   mutation. Compare expected IDs/values with observed state, allow empty state
+   only when nothing was expected, stop on missing/mismatched expected state,
+   and use bounded polling for CI.
 4. Add explicit communication and verification semantics to the onboarding
    skill: disambiguate Azure Workflow from GitHub workflow/Project automation;
    report path existence, authority, diff, and proof independently; distinguish
    the canonical Full command from direct substitute checks and remote CI.
-5. Extend `tests/scenarios.md` with one generic first-use regression containing
+5. Extend `tests/scenarios.md` with a mutation-free generic first-use regression
+   containing
    protected operator notes, an approved external design source, user-owned
    commits, a missing local Full prerequisite, personal-account Project edge
-   cases, and an interruption. The expected trace must meet every acceptance
-   criterion without using case-study names inside the plugin package.
+   cases, and an interruption. Its expected trace covers only mutation-free
+   acceptance criteria and generated command/expected-state contracts without
+   using case-study names inside the plugin package. Separately run the owning
+   skill through an explicitly authorized disposable repository and personal
+   Project to prove record-before-edit/publication, draft PR, Status, item-add,
+   and readback behavior through real callers. Record both evidence classes;
+   absence of an authorized disposable caller blocks release.
 6. Add `plugins/azure-workflow/references/modular-monoliths.md` as the one
    conditional owner for the selected architecture style. Directly link it from
-   onboarding, planning, delivery, explanation, and review; keep the existing
-   .NET profile as the technology-routing owner and link the two without
-   duplicating Microsoft guidance. The new profile must route agents through
+   `plugins/azure-workflow/skills/onboard-azure-repository/SKILL.md`,
+   `plugins/azure-workflow/skills/plan-azure-repository-change/SKILL.md`,
+   `plugins/azure-workflow/skills/deliver-azure-repository-change/SKILL.md`,
+   `plugins/azure-workflow/skills/explain-repository/SKILL.md`, and
+   `plugins/azure-workflow/skills/review-repository-pull-request/SKILL.md`. Keep
+   `plugins/azure-workflow/references/dotnet-projects.md` as the
+   technology-routing owner and link the two without duplicating Microsoft
+   guidance. The new profile must route agents through
    local evidence for domain/module boundaries, dependency direction, public
    seams, composition root, persistence/migration ownership, transactions,
    background work, external integrations, deployment/scaling/failure/rollback
@@ -222,11 +255,16 @@ workflow.
 7. Add narrowly scoped package assertions only for stable structural contracts
    introduced by the change; do not create brittle tests for exact prose or a
    new state engine. Require the new shared file and its direct links from the
-   five consuming skills. Run the scenario in a fresh Codex context and record
-   its trace-level pass/fail in this record.
-8. Update product, architecture, and roadmap authority, package/install
-   cachebuster and prerelease
-   metadata as required for `0.1.0-alpha.2`; reinstall into a new thread, run
+   five consuming skills. Record deterministic package/scenario results
+   separately from the authorized mutation-backed caller result.
+8. Update every current-version owner to `0.1.0-alpha.2`: both declarations in
+   `AGENTS.md`, `README.md`, `docs/product/index.md`, the version plus cachebuster
+   in `plugins/azure-workflow/.codex-plugin/plugin.json`, and the accepted-version
+   assertion/message in
+   `plugins/azure-workflow/scripts/Test-AzureWorkflowPlugin.ps1`. Retain the
+   capability introduction versions, completed `0.1.0-alpha.1` roadmap entry,
+   historical change record, and fixture transformation string as historical
+   evidence rather than rewriting them. Reinstall into a new thread, run
    Docs then Full checks, publish one PR, wait for exact-head CI, and invoke a
    fresh independent review. Stop before merge.
 
@@ -235,8 +273,9 @@ workflow.
 - Data/schema: not applicable; the change affects instructions, references,
   scenarios, tests, documentation, and package metadata only.
 - Failure behavior: unresolved source disposition blocks dependent conversion;
-  unsupported GitHub capability or mismatched readback blocks only that GitHub
-  setup slice; a local Full prerequisite remains an explicit proof blocker and
+  unsupported GitHub capability or missing/mismatched expected readback blocks
+  only that GitHub setup slice; a local Full prerequisite remains an explicit
+  proof blocker and
   never becomes green by substitution; changed PR head invalidates prior CI and
   review evidence.
 - Recovery/rollback: revert the scoped remediation commit/PR to baseline
@@ -258,15 +297,16 @@ this planning or later implementation authority.
 
 ## Microsoft research
 
-Research was performed through the plugin's Microsoft Learn MCP on 2026-07-27.
-These sources are current external recommendation/example evidence; they inform
-the neutral profile but do not override an onboarded repository's authority.
+Research was fetched through the plugin's Microsoft Learn MCP at
+`2026-07-27T02:39:42Z`. These sources are current external
+recommendation/example evidence; they inform the neutral profile but do not
+override an onboarded repository's authority.
 
-| Source | Claim type | Decision effect |
-| --- | --- | --- |
-| [Common web application architectures](https://learn.microsoft.com/dotnet/architecture/modern-web-apps-azure/common-web-application-architectures) | .NET architecture guidance and examples | A monolith is normally one deployed unit, but it can contain multiple projects, libraries, layers, and explicit dependency rules. The profile therefore tests deployment and dependency reality instead of equating one project with a monolith or many projects with services. |
-| [Architecture styles](https://learn.microsoft.com/azure/architecture/guide/architecture-styles/) | Azure Architecture Center recommendation | Style selection follows business drivers, architecture characteristics, constraints, and trade-offs; complexity should match the domain. The modular-monolith route is conditional and records its deployment/scaling/failure consequences instead of presenting it as universal Azure policy. |
-| [Use domain analysis to model microservices](https://learn.microsoft.com/azure/architecture/microservices/model/domain-analysis) | Azure Architecture Center method and example | Domain analysis, bounded contexts, cohesive responsibility, ubiquitous language, and context maps identify useful business boundaries before technology selection. The profile reuses those boundary concepts inside one process without assuming that every bounded context becomes a microservice. |
+| Source | Retrieval UTC | Scope/version | Claim type | Decision effect |
+| --- | --- | --- | --- | --- |
+| [Common web application architectures](https://learn.microsoft.com/dotnet/architecture/modern-web-apps-azure/common-web-application-architectures) | `2026-07-27T02:39:42Z` | Conceptual ASP.NET Core/.NET web-application architecture on Azure; version-independent page, no service/API version | .NET architecture guidance and examples | A monolith is normally one deployed unit, but it can contain multiple projects, libraries, layers, and explicit dependency rules. The profile therefore tests deployment and dependency reality instead of equating one project with a monolith or many projects with services. |
+| [Architecture styles](https://learn.microsoft.com/azure/architecture/guide/architecture-styles/) | `2026-07-27T02:39:42Z` | Azure Architecture Center style-selection guidance; version-independent page, no service/API version | Azure Architecture Center recommendation | Style selection follows business drivers, architecture characteristics, constraints, and trade-offs; complexity should match the domain. The modular-monolith route is conditional and records its deployment/scaling/failure consequences instead of presenting it as universal Azure policy. |
+| [Use domain analysis to model microservices](https://learn.microsoft.com/azure/architecture/microservices/model/domain-analysis) | `2026-07-27T02:39:42Z` | Azure Architecture Center strategic domain-analysis method; version-independent page, no service/API version | Azure Architecture Center method and example | Domain analysis, bounded contexts, cohesive responsibility, ubiquitous language, and context maps identify useful business boundaries before technology selection. The profile reuses those boundary concepts inside one process without assuming that every bounded context becomes a microservice. |
 
 The source pages do not define a Microsoft product named “modular monolith.” The
 planned profile is an explicit synthesis: retain the simple single deployment
@@ -312,9 +352,10 @@ architecture guidance.
 | live corroboration | target branch/PR read-only | distinguish later continuation from snapshot | complete: later head `4ac1cf2` exists; PR 2 remained draft with no review when inspected |
 | user provenance correction | commits `8c3919c` and `9af3733` | exclude both from failure attribution | complete by explicit user direction |
 | planning validation | Docs | valid record, links, schema, and documentation-only diff | green: repository standard, links/fences, path portability, and comparison whitespace passed |
-| planning PR CI | exact head `82c93f7ad802bfdc955b3a997aac507308eedf3a` | green Docs workflow | green: `verify` completed successfully |
+| planning PR CI | user-expanded candidate head `e23fc2ab3be530ed92dbe51f90d1796409fafca7` | green Docs workflow | green: `verify` completed successfully; superseded by review remediation |
 | implementation Full check | package/repository | `pwsh -NoLogo -NoProfile -File ./scripts/Invoke-RepoCheck.ps1 -Scope Full` green | not run — planning only |
-| fresh-context regression | onboarding trace | all acceptance criteria pass without target-repository/Azure mutation | not run — implementation only |
+| mutation-free fresh-context regression | onboarding trace | deterministic acceptance criteria pass without target-repository/GitHub/Azure mutation | not run — implementation only |
+| mutation-backed caller regression | explicitly authorized disposable GitHub repository and personal Project | real mutation ordering and expected-state readback pass; no Azure mutation | not run — implementation only; release-blocking until authorized and proved |
 
 ## Independent review
 
@@ -323,9 +364,15 @@ architecture guidance.
   record creation and the pre-mutation gate. The plan now explicitly orders
   read-only inventory, record creation/population, scope closure, then
   target-content/GitHub mutation.
+- User-expanded-scope review: exact head
+  `e23fc2ab3be530ed92dbe51f90d1796409fafca7` returned `changes-required` with
+  seven required findings covering bounded ancestry, expected-state readback,
+  complete paths, version owners, evidence classes, Microsoft provenance, and
+  PR-description agreement. This candidate addresses them as one batch.
 - Candidate PR review: not run — planning only.
 - Final exact-head review: not run — planning only.
-- Remediation rounds: one planning-review batch; no implementation remediation.
+- Remediation rounds: one original-plan batch and one user-expanded-scope batch;
+  no implementation remediation.
 
 ## Documentation and work tracking
 
@@ -342,7 +389,10 @@ architecture guidance.
 - Design system/assets: not applicable; the plugin has no visual UI and the
   user-owned target design commit is not changed.
 - Roadmap/release: [roadmap](../roadmap.md) adds `0.1.0-alpha.2` first-use
-  hardening to `Now`; package version/cachebuster updates occur during delivery.
+  hardening to `Now`; delivery updates `AGENTS.md`, `README.md`,
+  `docs/product/index.md`, the manifest version/cachebuster, and the package
+  validator's accepted version. Historical introduction/version evidence stays
+  unchanged.
 - Architecture/ADR: [architecture](../architecture.md) expands the existing
   shared-profile component to own conditional architectural-style policy. No new
   runtime component, helper category, authorization boundary, or hard-to-reverse

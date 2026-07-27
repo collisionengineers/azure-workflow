@@ -56,9 +56,9 @@ Users can:
 - Onboarding, planning, delivery, explanation, review, and operation retain distinct stopping/authorization boundaries.
 - Durable truth has one owner per fact; filenames do not infer authority.
 - Onboarding settles each material source's role, mutation rule, intended
-  disposition, and user-owned Git ancestry before dependent conversion or
-  publication; protected sources default to preservation unless broader
-  authority is explicitly resolved.
+  disposition, and user-owned commits in the selected baseline-to-`HEAD` delta
+  before dependent conversion or publication; protected sources default to
+  preservation unless broader authority is explicitly resolved.
 - Planning uses the real `update_plan` tool, repository evidence first, one material question at a time, and one change record for onboarding/standard/high risk.
 - Development mode contains no unreleased legacy/fallback/shim/dual behavior; future scope creates only exercised seams.
 - Architectural styles are conditional repository decisions grounded in business
