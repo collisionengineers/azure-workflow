@@ -48,6 +48,9 @@ workflow.
   commits, GitHub CLI/API capability differences, and interruption recovery.
 - Reduce avoidable context and command churn through targeted inventory,
   bounded patching, and short polling/readback cycles.
+- Add one conditional modular-monolith reference, backed by current Microsoft
+  guidance, for repositories whose authority or resolved plan selects that
+  architecture style.
 
 ### Excluded
 
@@ -58,6 +61,9 @@ workflow.
   schema, runtime, IaC, or GitHub repository visibility.
 - Adding a rollout database, session journal, task engine, background process,
   new public skill, or a fifth package helper solely to summarize JSONL.
+- Imposing modular-monolith, Clean Architecture, DDD, CQRS, mediator,
+  repository-pattern, container, or microservice choices on repositories that
+  have not selected them.
 - Treating ordinary red checks caught and repaired during the run as incidents.
 
 ## Authorities, current state, and constraints
@@ -75,6 +81,10 @@ workflow.
   single explicit scope-closure gate before dependent conversion or publication,
   nor prescribe the recovered personal-Project command path precisely enough
   to avoid known failed mutations.
+- Current architecture guidance: the shared .NET profile correctly forbids
+  imposing an architecture pattern, but the package has no directly loadable
+  profile for preserving a user-selected modular monolith across onboarding,
+  planning, delivery, explanation, and review.
 - Evidence boundary: the local JSONL contains 706 rows from 01:41:06 through
   02:17:11 UTC and was copied at 02:17:13 UTC. Later repository state includes a
   02:20:59 UTC commit absent from the snapshot. The JSONL therefore proves the
@@ -145,6 +155,24 @@ workflow.
   context compaction, avoids failures from known static CLI/Project behavior,
   preserves the supplied user-owned commits, and stops before a false
   completion claim when Full proof or review is absent.
+- `plugins/azure-workflow/references/modular-monoliths.md` is the single shared
+  owner for this conditional style and is directly linked from onboarding,
+  planning, delivery, explanation, and review. It is loaded only when repository
+  authority or a resolved change selects a modular monolith; operation does not
+  choose application architecture.
+- The profile defines the style as one deployment/scaling/rollback boundary with
+  cohesive business modules, explicit allowed dependency directions and public
+  seams, documented module data/schema/migration ownership, in-process
+  interaction by default, and one composition boundary. Project count alone is
+  not accepted as proof of modularity.
+- The profile distinguishes a modular monolith from an unstructured layered
+  monolith and a distributed monolith. It requires evidence before introducing
+  network calls, brokers, independently deployed services, or per-service data
+  stores, and records the operational cost when a module is intentionally split.
+- The profile treats Microsoft material as recommendation or example evidence,
+  not repository authority. It does not prescribe App Service, containers,
+  AKS, Service Bus, DDD tactical patterns, Clean Architecture, CQRS, mediator,
+  repositories, or one database layout without repository-specific need.
 - The plugin remains one generic six-skill package with four read-only or local
   deterministic helpers, and the canonical Full repository check is green.
 
@@ -180,11 +208,24 @@ workflow.
    commits, a missing local Full prerequisite, personal-account Project edge
    cases, and an interruption. The expected trace must meet every acceptance
    criterion without using case-study names inside the plugin package.
-6. Add narrowly scoped package assertions only for stable structural contracts
+6. Add `plugins/azure-workflow/references/modular-monoliths.md` as the one
+   conditional owner for the selected architecture style. Directly link it from
+   onboarding, planning, delivery, explanation, and review; keep the existing
+   .NET profile as the technology-routing owner and link the two without
+   duplicating Microsoft guidance. The new profile must route agents through
+   local evidence for domain/module boundaries, dependency direction, public
+   seams, composition root, persistence/migration ownership, transactions,
+   background work, external integrations, deployment/scaling/failure/rollback
+   unit, observability, and module-level regression proof. It must also define
+   evidence-based criteria for later extracting a module rather than prebuilding
+   dormant distributed architecture.
+7. Add narrowly scoped package assertions only for stable structural contracts
    introduced by the change; do not create brittle tests for exact prose or a
-   new state engine. Run the scenario in a fresh Codex context and record its
-   trace-level pass/fail in this record.
-7. Update product/roadmap authority, package/install cachebuster and prerelease
+   new state engine. Require the new shared file and its direct links from the
+   five consuming skills. Run the scenario in a fresh Codex context and record
+   its trace-level pass/fail in this record.
+8. Update product, architecture, and roadmap authority, package/install
+   cachebuster and prerelease
    metadata as required for `0.1.0-alpha.2`; reinstall into a new thread, run
    Docs then Full checks, publish one PR, wait for exact-head CI, and invoke a
    fresh independent review. Stop before merge.
@@ -215,6 +256,24 @@ None. No Azure read, deployment, credential action, resource mutation, cost, or
 live-state claim is included. Availability of the Azure MCP does not broaden
 this planning or later implementation authority.
 
+## Microsoft research
+
+Research was performed through the plugin's Microsoft Learn MCP on 2026-07-27.
+These sources are current external recommendation/example evidence; they inform
+the neutral profile but do not override an onboarded repository's authority.
+
+| Source | Claim type | Decision effect |
+| --- | --- | --- |
+| [Common web application architectures](https://learn.microsoft.com/dotnet/architecture/modern-web-apps-azure/common-web-application-architectures) | .NET architecture guidance and examples | A monolith is normally one deployed unit, but it can contain multiple projects, libraries, layers, and explicit dependency rules. The profile therefore tests deployment and dependency reality instead of equating one project with a monolith or many projects with services. |
+| [Architecture styles](https://learn.microsoft.com/azure/architecture/guide/architecture-styles/) | Azure Architecture Center recommendation | Style selection follows business drivers, architecture characteristics, constraints, and trade-offs; complexity should match the domain. The modular-monolith route is conditional and records its deployment/scaling/failure consequences instead of presenting it as universal Azure policy. |
+| [Use domain analysis to model microservices](https://learn.microsoft.com/azure/architecture/microservices/model/domain-analysis) | Azure Architecture Center method and example | Domain analysis, bounded contexts, cohesive responsibility, ubiquitous language, and context maps identify useful business boundaries before technology selection. The profile reuses those boundary concepts inside one process without assuming that every bounded context becomes a microservice. |
+
+The source pages do not define a Microsoft product named “modular monolith.” The
+planned profile is an explicit synthesis: retain the simple single deployment
+model described by .NET guidance, apply domain boundaries inside it, and require
+separate evidence before paying the distributed-system costs described by Azure
+architecture guidance.
+
 ## Decisions and conflicts
 
 - Selected `0.1.0-alpha.2` in `Now`: this is a correction to the existing alpha
@@ -230,6 +289,13 @@ this planning or later implementation authority.
 - Selected exact readback and phase vocabulary rather than a numeric universal
   tool-call cap. The rollout metrics remain a regression signal; correctness
   gates must not be traded for fewer calls.
+- Selected one shared conditional modular-monolith profile rather than parallel
+  skill-local architecture checklists. This preserves direct skill routing and
+  a single rule owner while keeping the six-skill/four-helper surface unchanged.
+- Selected one deployment boundary plus explicit business-module boundaries as
+  the profile's invariant. Bounded-context techniques are permitted as a way to
+  discover modules, but tactical DDD or any particular .NET framework is not a
+  default requirement.
 - Unresolved decisions: none.
 
 ## Implementation
@@ -264,20 +330,23 @@ this planning or later implementation authority.
 ## Documentation and work tracking
 
 - Documentation impact declared before implementation: product requirements,
-  roadmap, onboarding skill, authority/conflict conversion references, GitHub
-  onboarding reference, and fresh-context scenarios. Architecture changes are
-  not expected because the six-skill/four-helper boundary remains unchanged.
+  architecture, roadmap, onboarding skill, authority/conflict conversion
+  references, GitHub onboarding reference, the new shared modular-monolith
+  profile, direct links from its five consuming skills, package structural
+  checks, and fresh-context scenarios.
 - Agent mistake entries: none; this planning agent did not cause the reported
   rollout events, and ordinary findings belong in this evidence record.
 - Product/capabilities: [product requirements](../product/index.md) require an
-  explicit scope/verification invariant; AW-CAP-001 remains the stable owner and
-  needs no new capability ID.
+  explicit scope/verification invariant and conditional architecture-style
+  selection; existing lifecycle capabilities remain stable and need no new ID.
 - Design system/assets: not applicable; the plugin has no visual UI and the
   user-owned target design commit is not changed.
 - Roadmap/release: [roadmap](../roadmap.md) adds `0.1.0-alpha.2` first-use
   hardening to `Now`; package version/cachebuster updates occur during delivery.
-- Architecture/ADR: no change expected; no new component, helper category,
-  authorization boundary, or hard-to-reverse decision is introduced.
+- Architecture/ADR: [architecture](../architecture.md) expands the existing
+  shared-profile component to own conditional architectural-style policy. No new
+  runtime component, helper category, authorization boundary, or hard-to-reverse
+  decision is introduced, so no ADR is warranted.
 - Operations: no current procedure changes planned outside bounded CI polling
   language in the owning onboarding reference.
 - GitHub issue/Project/milestone: [issue 3](https://github.com/collisionengineers/azure-workflow/issues/3)
@@ -289,8 +358,10 @@ this planning or later implementation authority.
 ## Outcome
 
 The first-use problems are classified, corrected for user-owned provenance, and
-converted into a decision-complete `0.1.0-alpha.2` remediation plan. No plugin
-implementation or target-repository/Azure change has been made.
+converted into a decision-complete `0.1.0-alpha.2` remediation plan. The plan now
+also specifies a Microsoft-grounded conditional modular-monolith profile without
+turning that style into a universal repository default. No plugin implementation
+or target-repository/Azure change has been made.
 
 ## Blocker or follow-ups
 

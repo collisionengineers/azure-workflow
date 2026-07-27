@@ -27,7 +27,7 @@ The plugin is an instruction/tool bundle executed by Codex. It has no daemon, da
 | MCP registration | `plugins/azure-workflow/.mcp.json` | namespaced `azure-workflow-azure` pinned Azure MCP and `azure-workflow-microsoft-learn` remote Microsoft Learn MCP |
 | six skill entry points | `plugins/azure-workflow/skills/*/SKILL.md` | routing, authorization, sequence, endpoint |
 | skill references/assets | each owning skill | conditional procedures and neutral output material |
-| shared lifecycle profiles | `plugins/azure-workflow/references/` | risk, version/release, and conditional .NET policy |
+| shared lifecycle profiles | `plugins/azure-workflow/references/` | risk, version/release, and conditional .NET and architectural-style policy |
 | deterministic helpers | `plugins/azure-workflow/scripts/` | record creation, package/repository validation, PR evidence collection |
 | repository development check | `scripts/Invoke-RepoCheck.ps1` | Docs/Full path classification and test orchestration |
 | fixtures/tests | `tests/` | deterministic contract regression evidence |
