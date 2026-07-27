@@ -372,7 +372,9 @@ try {
         } else { Add-WarningMessage 'Agent mistake-log append history was not checked because BaseRef was not supplied.' }
     }
 
-    $markdownFiles = @(Get-ChildItem -LiteralPath (Join-Path $root 'docs') -Recurse -File -Filter *.md) + @(Get-Item -LiteralPath $agentsPath -ErrorAction SilentlyContinue)
+    $pullRequestTemplatePath = Resolve-ExactRelativePath -Root $root -RelativePath '.github\pull_request_template.md'
+    $pullRequestTemplateFiles = if ($null -ne $pullRequestTemplatePath) { @(Get-Item -LiteralPath $pullRequestTemplatePath -ErrorAction SilentlyContinue) } else { @() }
+    $markdownFiles = @(Get-ChildItem -LiteralPath (Join-Path $root 'docs') -Recurse -File -Filter *.md) + @(Get-Item -LiteralPath $agentsPath -ErrorAction SilentlyContinue) + $pullRequestTemplateFiles
     if (Test-Path -LiteralPath (Join-Path $root 'design')) { $markdownFiles += @(Get-ChildItem -LiteralPath (Join-Path $root 'design') -Recurse -File -Filter *.md) }
     foreach ($file in $markdownFiles) {
         $content = Get-Content -LiteralPath $file.FullName -Raw

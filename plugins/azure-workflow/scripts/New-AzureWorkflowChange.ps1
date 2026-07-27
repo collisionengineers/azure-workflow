@@ -41,6 +41,24 @@ function Assert-NoReparseTraversal {
     }
 }
 
+function Get-DeclaredRepositoryMode {
+    param(
+        [Parameter(Mandatory)][string]$Path,
+        [Parameter(Mandatory)][string]$Owner
+    )
+
+    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) {
+        Write-ValidationFailure "Required repository-mode authority does not exist: $Owner"
+    }
+    $content = Get-Content -LiteralPath $Path -Raw
+    $matches = [regex]::Matches($content, '(?m)^(?:-\s*)?Repository mode:\s*(?:`(?<quoted>development|released)`|(?<plain>development|released))\.?\s*$')
+    if ($matches.Count -ne 1) {
+        Write-ValidationFailure "$Owner must declare exactly one Repository mode: development or released."
+    }
+    $quotedMode = $matches[0].Groups['quoted'].Value
+    return $(if ([string]::IsNullOrWhiteSpace($quotedMode)) { $matches[0].Groups['plain'].Value } else { $quotedMode })
+}
+
 try {
     $resolvedRepository = Resolve-Path -LiteralPath $RepositoryPath -ErrorAction Stop
     $repositoryRoot = [System.IO.Path]::GetFullPath($resolvedRepository.Path)
@@ -61,6 +79,12 @@ try {
     $templatePath = Join-Path (Split-Path -Parent $PSScriptRoot) 'skills\plan-azure-repository-change\assets\change-record-template.md'
     if (-not (Test-Path -LiteralPath $templatePath -PathType Leaf)) {
         Write-ValidationFailure 'The packaged change-record template is missing.'
+    }
+
+    $productMode = Get-DeclaredRepositoryMode -Path (Join-Path $repositoryRoot 'docs\product\index.md') -Owner 'docs/product/index.md'
+    $agentMode = Get-DeclaredRepositoryMode -Path (Join-Path $repositoryRoot 'AGENTS.md') -Owner 'AGENTS.md'
+    if ($productMode -cne $agentMode) {
+        Write-ValidationFailure 'AGENTS.md and docs/product/index.md declare different repository modes.'
     }
 
     $utcDate = [DateTime]::UtcNow.ToString('yyyy-MM-dd')
@@ -90,6 +114,7 @@ try {
         '{{STATUS}}' = $Status
         '{{ISSUE}}' = $Issue.Trim()
         '{{BASELINE}}' = $baseline
+        '{{MODE}}' = $productMode
     }
     foreach ($entry in $replacements.GetEnumerator()) {
         $content = $content.Replace([string]$entry.Key, [string]$entry.Value)
@@ -112,6 +137,7 @@ try {
         slug = $Slug
         type = $Type
         status = $Status
+        mode = $productMode
     } | ConvertTo-Json -Compress
     exit 0
 }

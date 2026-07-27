@@ -12,7 +12,7 @@ pull_request: none
 baseline: {{BASELINE}}
 target_release: unallocated
 roadmap_horizon: unallocated
-mode: development
+mode: {{MODE}}
 supersedes: none
 superseded_by: none
 ```

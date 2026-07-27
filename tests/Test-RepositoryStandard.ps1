@@ -40,6 +40,15 @@ try {
     Assert-ExitCode 1 'missing authority index'
     [System.IO.File]::WriteAllText($indexPath, $savedIndex, [System.Text.UTF8Encoding]::new($false))
 
+    foreach ($requiredDirectory in @('decisions', 'changes')) {
+        $requiredDirectoryPath = Join-Path $tempRoot "docs\$requiredDirectory"
+        $holdingDirectoryPath = Join-Path $tempRoot "docs\$requiredDirectory-holding"
+        Move-Item -LiteralPath $requiredDirectoryPath -Destination $holdingDirectoryPath
+        & $validator -RepositoryPath $tempRoot | Out-Null
+        Assert-ExitCode 1 "missing docs/$requiredDirectory directory"
+        Move-Item -LiteralPath $holdingDirectoryPath -Destination $requiredDirectoryPath
+    }
+
     $recordPath = Join-Path $tempRoot 'docs\changes\2026-07-26-bootstrap-azure-workflow.md'
     $savedRecord = Get-Content -LiteralPath $recordPath -Raw
     $recordMutations = @(
@@ -142,10 +151,18 @@ try {
     Assert-ExitCode 1 'invalid issue form schema'
     [System.IO.File]::WriteAllText($featureFormPath, $savedFeatureForm, [System.Text.UTF8Encoding]::new($false))
 
+    $pullRequestTemplatePath = Join-Path $tempRoot '.github\pull_request_template.md'
+    $savedPullRequestTemplate = Get-Content -LiteralPath $pullRequestTemplatePath -Raw
+    [System.IO.File]::WriteAllText($pullRequestTemplatePath, ($savedPullRequestTemplate.TrimEnd() + "`n`n[Missing evidence](../docs/missing-evidence.md)`n"), [System.Text.UTF8Encoding]::new($false))
+    & $validator -RepositoryPath $tempRoot | Out-Null
+    Assert-ExitCode 1 'broken pull-request template link'
+    [System.IO.File]::WriteAllText($pullRequestTemplatePath, $savedPullRequestTemplate, [System.Text.UTF8Encoding]::new($false))
+
     $harnessRoot = Join-Path $tempRoot 'repo-check-harness'
     New-Item -ItemType Directory -Path (Join-Path $harnessRoot 'scripts') -Force | Out-Null
     New-Item -ItemType Directory -Path (Join-Path $harnessRoot 'plugins\azure-workflow\scripts') -Force | Out-Null
     New-Item -ItemType Directory -Path (Join-Path $harnessRoot 'tests') -Force | Out-Null
+    New-Item -ItemType Directory -Path (Join-Path $harnessRoot '.github') -Force | Out-Null
     New-Item -ItemType Directory -Path (Join-Path $harnessRoot 'codex-home') -Force | Out-Null
     Copy-Item -LiteralPath (Join-Path $repositoryRoot 'scripts\Invoke-RepoCheck.ps1') -Destination (Join-Path $harnessRoot 'scripts\Invoke-RepoCheck.ps1')
     $repositoryStub = @'
@@ -160,6 +177,8 @@ exit 0
         [System.IO.File]::WriteAllText((Join-Path $harnessRoot "tests\$testName"), $successStub, [System.Text.UTF8Encoding]::new($false))
     }
     [System.IO.File]::WriteAllText((Join-Path $harnessRoot 'README.md'), "# Harness`n", [System.Text.UTF8Encoding]::new($false))
+    $harnessPullRequestTemplate = Join-Path $harnessRoot '.github\pull_request_template.md'
+    [System.IO.File]::WriteAllText($harnessPullRequestTemplate, "# Pull request`n", [System.Text.UTF8Encoding]::new($false))
     & git -C $harnessRoot init --initial-branch main 2>$null | Out-Null
     & git -C $harnessRoot config user.name 'Azure Workflow Test' | Out-Null
     & git -C $harnessRoot config user.email 'azure-workflow-test@example.invalid' | Out-Null
@@ -170,6 +189,11 @@ exit 0
         $env:CODEX_HOME = Join-Path $harnessRoot 'codex-home'
         & (Join-Path $harnessRoot 'scripts\Invoke-RepoCheck.ps1') -Scope Auto -BaseRef 'missing-comparison-ref' -HeadRef HEAD | Out-Null
         Assert-ExitCode 0 'invalid comparison falls back to unscoped Full validation'
+
+        [System.IO.File]::WriteAllText($harnessPullRequestTemplate, "# Pull request`n`n[Missing](../missing.md)`n", [System.Text.UTF8Encoding]::new($false))
+        & (Join-Path $harnessRoot 'scripts\Invoke-RepoCheck.ps1') -Scope Full | Out-Null
+        Assert-ExitCode 1 'root check rejects broken pull-request template link'
+        [System.IO.File]::WriteAllText($harnessPullRequestTemplate, "# Pull request`n", [System.Text.UTF8Encoding]::new($false))
 
         $harnessReadme = Join-Path $harnessRoot 'README.md'
         $savedHarnessReadme = Get-Content -LiteralPath $harnessReadme -Raw

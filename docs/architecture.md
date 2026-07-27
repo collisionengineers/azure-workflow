@@ -76,7 +76,7 @@ The retired planning/reference corpus remains recoverable in Git history only an
 
 ## Deployment topology
 
-The repository is the private source marketplace. Codex installs a local cached plugin copy. Azure MCP starts locally through pinned `npx`; Microsoft Learn uses remote streamable HTTP. The plugin itself deploys no Azure resource.
+The repository is the public source marketplace. Codex installs a local cached plugin copy. Azure MCP starts locally through pinned `npx`; Microsoft Learn uses remote streamable HTTP. The plugin itself deploys no Azure resource.
 
 ## Architecture boundaries
 

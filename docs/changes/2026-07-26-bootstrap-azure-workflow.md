@@ -42,7 +42,7 @@ Implement the approved Azure Workflow design as one installable Codex plugin, co
 
 - Authorities: the approved planning checkpoint at `3be34e8` and current user request to implement; material decisions are now mapped into canonical docs/package/tests.
 - Current implementation: package, skills, references, assets, helpers, canonical documentation, GitHub intake/CI, and source retirement are complete on `workflow/20260726-bootstrap-azure-workflow`; final exact-head review remains.
-- Constraints: Windows/PowerShell 7; preserve unrelated `.obsidian/workspace.json`; private personal GitHub account; stop before merge; live Azure validation depends on working local credentials.
+- Constraints: Windows/PowerShell 7; preserve unrelated `.obsidian/workspace.json`; personal GitHub account; public source repository as explicitly requested after private Actions billing blocked job startup; stop before merge; live Azure validation depends on working local credentials.
 - Conflicts: none unresolved.
 
 ## Acceptance criteria
@@ -56,7 +56,7 @@ Implement the approved Azure Workflow design as one installable Codex plugin, co
 
 ## Plan
 
-1. Freeze/commit planning and create the private repository/implementation branch.
+1. Freeze/commit planning and create the repository/implementation branch.
 2. Scaffold via plugin-creator and skill-creator; implement six skill entry points, shared/skill references, and neutral assets.
 3. Implement deterministic PowerShell helpers and canonical repository docs/GitHub/CI/tests.
 4. Validate package/skills/scripts/fixtures/routing and forward-test skills in fresh contexts.
@@ -93,7 +93,7 @@ The plugin registers a local Azure MCP process but deploys/mutates no Azure reso
 - Status: complete and ready for final exact-head review.
 - Deviations: the two MCP server IDs were namespaced after installation proved that a pre-existing global `azure` registration could shadow the plugin's pinned definition. The services and two-server boundary did not change.
 - Recovery actions: removed the invalid prior `collisionspike-v2` marketplace registration that prevented every Codex plugin list/install command; no repository or plugin files at that source path were removed.
-- Review remediation: rejected change-record reparse traversal and used atomic creation; made invalid comparison refs fall back safely; enforced exact canonical casing, one policy-consistent repository mode, parsed issue forms, full change-record/capability/ADR/mistake schemas, and portable path forms; required explicit PR identity and stable-ID evidence deduplication; added caller-level negative mutations; corrected the documented reinstall sequence; and reconciled all six existing review threads.
+- Review remediation: rejected change-record reparse traversal and used atomic creation; derived each record's mode from agreeing repository policy; made invalid comparison refs fall back safely; enforced exact canonical casing/directories, one policy-consistent repository mode, parsed issue forms, full change-record/capability/ADR/mistake schemas, portable path forms, and PR-template links; required explicit PR identity, all-attempt check evidence, requested-reviewer pagination, and stable-ID evidence deduplication; added caller-level negative mutations; corrected the documented reinstall sequence; and reconciled the original six review threads. Five later threads are addressed by this record-bearing commit and remain open only until pushed evidence is read back.
 
 ## Source retirement parity
 
@@ -131,10 +131,11 @@ Parity conditions before retirement:
 | planning checkpoint validation | Docs | links/fences/diff valid | passed before `3be34e8`; no broken relative links or unbalanced fences |
 | plugin/skill creator scaffolds | Full | valid initial package shape | passed; scaffolders created plugin and six skills |
 | canonical Full check | Full | all package/docs/scripts/fixtures valid | passed: repository/package/tests plus official plugin and six skill validators |
-| installed plugin/MCP smoke | Full | reviewed plugin discovered; two MCP routes tested | passed again after both remediation rounds in fresh read-only Codex processes: installed `0.1.0-alpha.1+codex.20260727003808`; `azure-workflow-microsoft-learn` called official documentation search; `azure-workflow-azure` called read-only `subscription_list` successfully |
+| installed plugin/MCP smoke | Full | reviewed plugin discovered; two MCP routes tested | passed after the final third-remediation reinstall at `0.1.0-alpha.1+codex.20260727015805`; fresh ephemeral read-only processes loaded the installed skills, called Microsoft Learn search and Azure subscription discovery, returned PASS, and performed no mutation or identifier output |
 | bootstrap-source retirement | Full | 1,043 inputs untracked/removed after parity; local editor files preserved | passed: no retired path remains tracked, dependency scan is clean, Full validation passes, and the local `.obsidian/workspace.json` hash was unchanged by untracking |
 | candidate PR remediation | Full | all findings fixed, green CI, stable complete evidence, zero unresolved threads | passed at `a2b696ae76a3c59df45c687d56819352986609fd`; CI `verify` succeeded; evidence fingerprint `4c646f8c8599a28b31d308edef7f67ab2d11c69764baaa2d75d343541bf2553b`; 1,164 files, five commits, six resolved/zero unresolved threads |
 | first final whole-PR review | Full | clean exact record-bearing head | `changes-required` at `aa4d8a6e9e12891cc6042fc9d46f350e548856e1`; fingerprint `d6efbf84148ae10ab2a63e683e64d3f3cf3d6c32402d825564937a966f1cc824`; CI green and threads resolved, but declared repository schemas/path portability were under-enforced |
+| later live-review feedback | Full | complete evidence and zero unresolved threads | five actionable threads observed before final review; one was already satisfied at `9bfb6107bcf345efd50a8778118b3e72e20741a8`, while this commit adds the four remaining fixes and direct regressions; reply/readback/resolution pending after push |
 | final PR CI/review | Full | green and clean exact final head | pending after this required record commit |
 
 ## Independent review
@@ -143,7 +144,7 @@ Parity conditions before retirement:
 - Candidate PR review: `changes-required` at `3cb10d39ba664527ea2d2bcda89640d9d163b930`; it found reparse escape, invalid-ref fallback, repository-standard enforcement, evidence identity/deduplication, and stale live-review reconciliation defects. The existing GitHub review also contained six unresolved threads, including the already-fixed optional file-property defect.
 - First final exact-head review: `changes-required` at `aa4d8a6e9e12891cc6042fc9d46f350e548856e1`; it found that the structural validator claimed more change-record, capability, ADR, mistake-entry, and portability enforcement than it implemented.
 - Final exact-head review: pending on the new record-bearing head.
-- Remediation rounds: two. Commit `a2b696ae76a3c59df45c687d56819352986609fd` fixed all candidate and live-thread findings; focused/Full checks and exact-head CI passed; each thread received an evidence reply, was read back, and was resolved. The second round added field-level schemas and caller-level negative mutations for every reported repository-standard gap, corrected the append marker so first and later mistake incidents remain genuinely append-only, and passed the canonical Full suite before this new record commit. This commit invalidates the earlier verdicts and creates the head for another fresh whole-PR review.
+- Remediation rounds: three. Commit `a2b696ae76a3c59df45c687d56819352986609fd` fixed the candidate and original live-thread findings; focused/Full checks and exact-head CI passed; each original thread received an evidence reply, was read back, and was resolved. The second round added field-level schemas and caller-level negative mutations for every reported repository-standard gap and corrected the mistake-log append marker. This third round exhausts all check-run attempts and requested-reviewer pages, derives change mode from policy, scans PR-template links, and directly tests both required documentation directories. This commit invalidates the earlier verdicts and creates the head for another fresh whole-PR review after live feedback reconciliation.
 
 ## Documentation and work tracking
 

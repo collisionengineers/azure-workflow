@@ -72,6 +72,75 @@ function Get-RestArray {
     throw "Pagination did not terminate for $Endpoint"
 }
 
+function Get-CountedRestArray {
+    param(
+        [Parameter(Mandatory)][string]$Endpoint,
+        [Parameter(Mandatory)][string]$Property,
+        [Parameter(Mandatory)][string[]]$KeyProperties,
+        [scriptblock]$RequestJson = { param([string[]]$Arguments) Invoke-GhJson -Arguments $Arguments }
+    )
+
+    $items = [System.Collections.Generic.List[object]]::new()
+    $expectedCount = $null
+    $retrievedCount = 0
+    $pageCount = 0
+    for ($page = 1; $page -le 1000; $page++) {
+        $separator = if ($Endpoint.Contains('?')) { '&' } else { '?' }
+        $response = & $RequestJson -Arguments @('api', "$Endpoint${separator}per_page=100&page=$page")
+        $totalCountProperty = $response.PSObject.Properties['total_count']
+        if ($null -eq $totalCountProperty -or $null -eq $totalCountProperty.Value) { throw "$Endpoint response lacks total_count." }
+        $pageExpectedCount = [int]$totalCountProperty.Value
+        if ($null -eq $expectedCount) { $expectedCount = $pageExpectedCount }
+        elseif ($expectedCount -ne $pageExpectedCount) { throw "$Endpoint total_count changed during pagination." }
+
+        $propertyValue = Get-OptionalPropertyValue -InputObject $response -Name $Property
+        $pageItems = @($propertyValue | Where-Object { $null -ne $_ })
+        foreach ($item in $pageItems) { $items.Add($item) }
+        $retrievedCount += $pageItems.Count
+        $pageCount = $page
+        if ($retrievedCount -ge $expectedCount -or $pageItems.Count -lt 100) { break }
+    }
+
+    $uniqueItems = @(Select-UniqueEvidenceItems -Items @($items) -EvidenceClass $Endpoint -KeyProperties $KeyProperties)
+    return [pscustomobject][ordered]@{
+        items = $uniqueItems
+        expected_count = [int]$expectedCount
+        collected_count = $uniqueItems.Count
+        page_count = $pageCount
+        complete = $uniqueItems.Count -eq [int]$expectedCount
+    }
+}
+
+function Get-RequestedReviewers {
+    param(
+        [Parameter(Mandatory)][string]$Endpoint,
+        [scriptblock]$RequestJson = { param([string[]]$Arguments) Invoke-GhJson -Arguments $Arguments }
+    )
+
+    $users = [System.Collections.Generic.List[object]]::new()
+    $teams = [System.Collections.Generic.List[object]]::new()
+    for ($page = 1; $page -le 1000; $page++) {
+        $separator = if ($Endpoint.Contains('?')) { '&' } else { '?' }
+        $response = & $RequestJson -Arguments @('api', "$Endpoint${separator}per_page=100&page=$page")
+        $pageUsers = @(Get-OptionalPropertyValue -InputObject $response -Name 'users' | Where-Object { $null -ne $_ })
+        $pageTeams = @(Get-OptionalPropertyValue -InputObject $response -Name 'teams' | Where-Object { $null -ne $_ })
+        foreach ($user in $pageUsers) { $users.Add($user) }
+        foreach ($team in $pageTeams) { $teams.Add($team) }
+        if (($pageUsers.Count + $pageTeams.Count) -lt 100) {
+            $uniqueUsers = @(Select-UniqueEvidenceItems -Items @($users) -EvidenceClass 'requested user reviewer' -KeyProperties @('node_id', 'id', 'login'))
+            $uniqueTeams = @(Select-UniqueEvidenceItems -Items @($teams) -EvidenceClass 'requested team reviewer' -KeyProperties @('node_id', 'id', 'slug'))
+            return [pscustomobject][ordered]@{
+                items = @($uniqueUsers + $uniqueTeams)
+                user_count = $uniqueUsers.Count
+                team_count = $uniqueTeams.Count
+                page_count = $page
+                complete = $true
+            }
+        }
+    }
+    throw "Pagination did not terminate for $Endpoint"
+}
+
 function Get-CappedRestArray {
     param(
         [Parameter(Mandatory)][string]$Endpoint,
@@ -278,6 +347,8 @@ function Get-EvidenceFingerprint {
         statuses = $statuses
         review_decision = $Snapshot.review_decision
         review_requests = $requests
+        check_inventory = $Snapshot.inventory.checks
+        review_request_inventory = $Snapshot.inventory.review_requests
         file_inventory = $Snapshot.inventory.files
         commit_inventory = $Snapshot.inventory.commits
         files = $files
@@ -305,12 +376,11 @@ function Get-Snapshot {
     $reviews = Get-RestArray -Endpoint "repos/$Repository/pulls/$Number/reviews" -KeyProperties @('id', 'node_id')
     $inlineComments = Get-RestArray -Endpoint "repos/$Repository/pulls/$Number/comments" -KeyProperties @('id', 'node_id')
     $issueComments = Get-RestArray -Endpoint "repos/$Repository/issues/$Number/comments" -KeyProperties @('id', 'node_id')
-    $checks = Get-RestArray -Endpoint "repos/$Repository/commits/$($pr.head.sha)/check-runs" -Property 'check_runs' -KeyProperties @('id', 'node_id')
+    $checkInventory = Get-CountedRestArray -Endpoint "repos/$Repository/commits/$($pr.head.sha)/check-runs?filter=all" -Property 'check_runs' -KeyProperties @('id', 'node_id')
+    $checks = @($checkInventory.items)
     $statuses = Get-RestArray -Endpoint "repos/$Repository/statuses/$($pr.head.sha)" -KeyProperties @('id', 'node_id')
-    $requestResponse = Invoke-GhJson -Arguments @('api', "repos/$Repository/pulls/$Number/requested_reviewers")
-    $requestedUsers = @(Select-UniqueEvidenceItems -Items @($requestResponse.users) -EvidenceClass 'requested user reviewer' -KeyProperties @('node_id', 'id', 'login'))
-    $requestedTeams = @(Select-UniqueEvidenceItems -Items @($requestResponse.teams) -EvidenceClass 'requested team reviewer' -KeyProperties @('node_id', 'id', 'slug'))
-    $reviewRequests = @($requestedUsers + $requestedTeams)
+    $reviewRequestInventory = Get-RequestedReviewers -Endpoint "repos/$Repository/pulls/$Number/requested_reviewers"
+    $reviewRequests = @($reviewRequestInventory.items)
     $reviewState = Invoke-GhJson -Arguments @('pr', 'view', "$Number", '--repo', $Repository, '--json', 'reviewDecision')
     $threads = Get-ReviewThreads -Owner $parts[0] -Name $parts[1] -Number $Number
 
@@ -337,6 +407,18 @@ function Get-Snapshot {
         inline_comments = $inlineComments
         review_threads = $threads
         inventory = [pscustomobject][ordered]@{
+            checks = [pscustomobject][ordered]@{
+                expected_count = $checkInventory.expected_count
+                collected_count = $checkInventory.collected_count
+                page_count = $checkInventory.page_count
+                complete = $checkInventory.complete
+            }
+            review_requests = [pscustomobject][ordered]@{
+                user_count = $reviewRequestInventory.user_count
+                team_count = $reviewRequestInventory.team_count
+                page_count = $reviewRequestInventory.page_count
+                complete = $reviewRequestInventory.complete
+            }
             files = [pscustomobject][ordered]@{
                 expected_count = $fileInventory.expected_count
                 collected_count = $fileInventory.collected_count
@@ -381,12 +463,14 @@ function Invoke-AzureWorkflowPullRequestEvidence {
 
     $stableHead = $first.base_oid -eq $second.base_oid -and $first.head_oid -eq $second.head_oid -and $first.pr_updated_at -eq $second.pr_updated_at
     $stableEvidence = $first.fingerprint -eq $second.fingerprint
-    $paginationComplete = [bool]$first.inventory.files.complete -and [bool]$first.inventory.commits.complete -and [bool]$second.inventory.files.complete -and [bool]$second.inventory.commits.complete
+    $paginationComplete = [bool]$first.inventory.files.complete -and [bool]$first.inventory.commits.complete -and [bool]$first.inventory.checks.complete -and [bool]$first.inventory.review_requests.complete -and [bool]$second.inventory.files.complete -and [bool]$second.inventory.commits.complete -and [bool]$second.inventory.checks.complete -and [bool]$second.inventory.review_requests.complete
     $errors = [System.Collections.Generic.List[string]]::new()
     if (-not $stableHead) { $errors.Add('pull_request_changed_during_collection') }
     if (-not $stableEvidence) { $errors.Add('pull_request_evidence_changed_during_collection') }
     if (-not [bool]$second.inventory.commits.complete) { $errors.Add("commit_inventory_incomplete:$($second.inventory.commits.collected_count)/$($second.inventory.commits.expected_count)") }
     if (-not [bool]$second.inventory.files.complete) { $errors.Add("file_inventory_incomplete:$($second.inventory.files.collected_count)/$($second.inventory.files.expected_count)") }
+    if (-not [bool]$second.inventory.checks.complete) { $errors.Add("check_inventory_incomplete:$($second.inventory.checks.collected_count)/$($second.inventory.checks.expected_count)") }
+    if (-not [bool]$second.inventory.review_requests.complete) { $errors.Add('review_request_inventory_incomplete') }
 
     $baseObject = & git -C $gitRoot cat-file -e "$($second.base_oid)^{commit}" 2>$null
     $baseAvailable = $LASTEXITCODE -eq 0

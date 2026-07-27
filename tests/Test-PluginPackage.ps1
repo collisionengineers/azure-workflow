@@ -50,6 +50,11 @@ try {
 
     $recordRepository = Join-Path $tempRoot 'record-repository'
     New-Item -ItemType Directory -Path (Join-Path $recordRepository 'docs\changes') -Force | Out-Null
+    New-Item -ItemType Directory -Path (Join-Path $recordRepository 'docs\product') -Force | Out-Null
+    $recordAgentsPath = Join-Path $recordRepository 'AGENTS.md'
+    $recordProductPath = Join-Path $recordRepository 'docs\product\index.md'
+    [System.IO.File]::WriteAllText($recordAgentsPath, "# Repository`n`nRepository mode: ``released```n", [System.Text.UTF8Encoding]::new($false))
+    [System.IO.File]::WriteAllText($recordProductPath, "# Product`n`n- Repository mode: ``released```n", [System.Text.UTF8Encoding]::new($false))
     $recordCreator = Join-Path $pluginRoot 'scripts\New-AzureWorkflowChange.ps1'
     $recordJson = & $recordCreator -RepositoryPath $recordRepository -Slug 'helper-contract' -Title 'Helper contract' -Type 'documentation' -Status 'planned' -Issue 'none'
     Assert-ExitCode 0 'change-record creation'
@@ -57,8 +62,15 @@ try {
     if ($recordResult.path -notmatch '^docs/changes/\d{4}-\d{2}-\d{2}-helper-contract\.md$') { $failures.Add('Change-record creator did not emit a portable repository-relative path.') }
     $createdRecord = Join-Path $recordRepository ($recordResult.path.Replace('/', '\'))
     if (-not (Test-Path -LiteralPath $createdRecord -PathType Leaf)) { $failures.Add('Change-record creator did not create the declared file.') }
+    $createdRecordContent = Get-Content -LiteralPath $createdRecord -Raw
+    if ($recordResult.mode -cne 'released' -or $createdRecordContent -cnotmatch '(?m)^mode: released\s*$') { $failures.Add('Change-record creator did not derive released mode from repository policy.') }
     & $recordCreator -RepositoryPath $recordRepository -Slug 'helper-contract' -Title 'Helper contract' -Type 'documentation' -Status 'planned' -Issue 'none' 2>$null | Out-Null
     Assert-ExitCode 1 'change-record overwrite refusal'
+
+    [System.IO.File]::WriteAllText($recordProductPath, "# Product`n`n- Repository mode: ``development```n", [System.Text.UTF8Encoding]::new($false))
+    & $recordCreator -RepositoryPath $recordRepository -Slug 'mode-conflict' -Title 'Mode conflict' -Type 'documentation' -Status 'planned' -Issue 'none' 2>$null | Out-Null
+    Assert-ExitCode 1 'change-record repository-mode conflict refusal'
+    [System.IO.File]::WriteAllText($recordProductPath, "# Product`n`n- Repository mode: ``released```n", [System.Text.UTF8Encoding]::new($false))
 
     $junctionRepository = Join-Path $tempRoot 'junction-repository'
     $junctionDocs = Join-Path $junctionRepository 'docs'

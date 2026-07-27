@@ -63,7 +63,7 @@ Treat supplied materials/software/services as permitted and licensed. Do not add
 
 ## Write and review the change record
 
-Create the record using `../../scripts/New-AzureWorkflowChange.ps1` and [the packaged template](assets/change-record-template.md). It must be decision-complete and include:
+Create the record using `../../scripts/New-AzureWorkflowChange.ps1` and [the packaged template](assets/change-record-template.md). The helper derives `mode` from the agreeing declarations in `AGENTS.md` and `docs/product/index.md` and refuses missing, invalid, duplicate, or conflicting policy. The record must be decision-complete and include:
 
 - problem/outcome, included/excluded scope, authorities, baseline, constraints, risk, mode, version/horizon;
 - observable acceptance, implementation order by owner/caller, affected files/components, data/failure/recovery, UI/UX and Azure impact;

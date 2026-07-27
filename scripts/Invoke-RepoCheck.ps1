@@ -93,7 +93,7 @@ try {
         }
 
         "CHECK: Markdown links and fences"
-        $markdownRoots = @('AGENTS.md', 'README.md', 'docs', 'plugins\azure-workflow\skills', 'plugins\azure-workflow\references')
+        $markdownRoots = @('AGENTS.md', 'README.md', '.github\pull_request_template.md', 'docs', 'plugins\azure-workflow\skills', 'plugins\azure-workflow\references')
         $markdownFiles = [System.Collections.Generic.List[System.IO.FileInfo]]::new()
         foreach ($relative in $markdownRoots) {
             $path = Join-Path $repositoryRoot $relative

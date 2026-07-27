@@ -15,7 +15,7 @@ $parseErrors = $null
 foreach ($error in @($parseErrors)) { $failures.Add("Collector parse error: $($error.Message)") }
 
 $collector = Get-Content -LiteralPath $collectorPath -Raw
-foreach ($required in @('/files', '/commits', '/reviews', '/comments', '/issues/', '/check-runs', '/statuses/', 'reviewThreads', 'comments(first: 100', 'fingerprint', 'cat-file', 'Get-Snapshot', 'changed_files', 'commit_inventory_incomplete', 'file_inventory_incomplete')) {
+foreach ($required in @('/files', '/commits', '/reviews', '/comments', '/issues/', '/check-runs?filter=all', '/statuses/', 'requested_reviewers', 'reviewThreads', 'comments(first: 100', 'fingerprint', 'cat-file', 'Get-Snapshot', 'changed_files', 'commit_inventory_incomplete', 'file_inventory_incomplete', 'check_inventory_incomplete', 'Get-RequestedReviewers')) {
     if ($collector -notmatch [regex]::Escape($required)) { $failures.Add("Collector contract marker missing: $required") }
 }
 if ([regex]::Matches($collector, 'Get-Snapshot -Repository').Count -lt 2) { $failures.Add('Collector must take two complete snapshots for stability comparison.') }
@@ -88,6 +88,49 @@ $duplicateRestRequest = {
 $duplicateRest = @(Get-RestArray -Endpoint 'duplicate-rest-fixture' -KeyProperties @('id') -RequestJson $duplicateRestRequest)
 if ($duplicateRest.Count -ne 101 -or @($duplicateRest | Where-Object { $_.id -eq 100 }).Count -ne 1) { $failures.Add('Generic REST pagination must deduplicate stable IDs across pages.') }
 
+$countedUris = [System.Collections.Generic.List[string]]::new()
+$countedRequest = {
+    param([string[]]$Arguments)
+    $uri = $Arguments[-1]
+    $countedUris.Add($uri)
+    $page = [int]([regex]::Match($uri, '[?&]page=(\d+)').Groups[1].Value)
+    $pageItems = if ($page -eq 1) { @(1..100 | ForEach-Object { [pscustomobject]@{ id = $_ } }) } else { @([pscustomobject]@{ id = 101 }) }
+    return [pscustomobject]@{ total_count = 101; check_runs = $pageItems }
+}.GetNewClosure()
+$countedInventory = Get-CountedRestArray -Endpoint 'counted-fixture?filter=all' -Property 'check_runs' -KeyProperties @('id') -RequestJson $countedRequest
+if (-not $countedInventory.complete -or $countedInventory.collected_count -ne 101 -or $countedInventory.page_count -ne 2) { $failures.Add('Counted REST pagination must collect every declared item.') }
+if (@($countedUris | Where-Object { $_ -notmatch '[?&]filter=all(?:&|$)' }).Count -ne 0) { $failures.Add('Check-run pagination must retain filter=all on every page.') }
+
+$duplicateCountedRequest = {
+    param([string[]]$Arguments)
+    $uri = $Arguments[-1]
+    $page = [int]([regex]::Match($uri, '[?&]page=(\d+)').Groups[1].Value)
+    $pageItems = if ($page -eq 1) { @(1..100 | ForEach-Object { [pscustomobject]@{ id = $_ } }) } else { @([pscustomobject]@{ id = 100 }) }
+    return [pscustomobject]@{ total_count = 101; check_runs = $pageItems }
+}
+$duplicateCounted = Get-CountedRestArray -Endpoint 'counted-fixture?filter=all' -Property 'check_runs' -KeyProperties @('id') -RequestJson $duplicateCountedRequest
+if ($duplicateCounted.complete -or $duplicateCounted.collected_count -ne 100) { $failures.Add('Counted REST pagination must block a duplicate-truncated inventory.') }
+
+$requestedReviewerRequest = {
+    param([string[]]$Arguments)
+    $uri = $Arguments[-1]
+    $page = [int]([regex]::Match($uri, '[?&]page=(\d+)').Groups[1].Value)
+    if ($page -eq 1) {
+        return [pscustomobject]@{
+            users = @(1..100 | ForEach-Object { [pscustomobject]@{ id = $_; node_id = "user-$_"; login = "user-$_"; type = 'User' } })
+            teams = @()
+        }
+    }
+    return [pscustomobject]@{
+        users = @([pscustomobject]@{ id = 100; node_id = 'user-100'; login = 'user-100'; type = 'User' })
+        teams = @([pscustomobject]@{ id = 1; node_id = 'team-1'; slug = 'team-1' })
+    }
+}
+$requestedReviewers = Get-RequestedReviewers -Endpoint 'requested-reviewer-fixture' -RequestJson $requestedReviewerRequest
+if (-not $requestedReviewers.complete -or $requestedReviewers.page_count -ne 2 -or $requestedReviewers.user_count -ne 100 -or $requestedReviewers.team_count -ne 1 -or @($requestedReviewers.items).Count -ne 101) {
+    $failures.Add('Requested-reviewer pagination must exhaust pages and deduplicate users and teams independently.')
+}
+
 $originalInvokeGhJson = (Get-Item -LiteralPath Function:\Invoke-GhJson).ScriptBlock
 function Invoke-GhJson {
     param([Parameter(Mandatory)][string[]]$Arguments)
@@ -116,6 +159,8 @@ $optionalPropertySnapshot = [pscustomobject]@{
     inline_comments = @()
     review_threads = @()
     inventory = [pscustomobject]@{
+        checks = [pscustomobject]@{ expected_count = 0; collected_count = 0; page_count = 1; complete = $true }
+        review_requests = [pscustomobject]@{ user_count = 1; team_count = 0; page_count = 1; complete = $true }
         files = [pscustomobject]@{ expected_count = 1; collected_count = 1; endpoint_limit = 3000; complete = $true }
         commits = [pscustomobject]@{ expected_count = 1; collected_count = 1; endpoint_limit = 250; complete = $true }
     }
