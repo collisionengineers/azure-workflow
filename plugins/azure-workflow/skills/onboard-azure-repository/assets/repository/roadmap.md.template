@@ -1,0 +1,19 @@
+# Roadmap
+
+Roadmap entries are outcome-level. Use an exact target release or `unallocated`; GitHub owns task state.
+
+## Now
+
+{{CURRENT_RELEASE_OUTCOMES_OR_NONE}}
+
+## Next
+
+{{NEXT_OUTCOMES_WITH_DEPENDENCIES_OR_NONE}}
+
+## Later
+
+{{RETAINED_OUTCOMES_WITH_PROMOTION_CONDITIONS_OR_NONE}}
+
+## Not planned
+
+{{EXPLICIT_PRODUCT_BOUNDARIES_OR_NONE}}

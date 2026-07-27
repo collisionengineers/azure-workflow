@@ -1,0 +1,19 @@
+# Brand style
+
+## Purpose and governed surfaces
+
+{{REAL_BRAND_PURPOSE_AND_SURFACES}}
+
+## Principles
+
+{{APPROVED_STYLE_PRINCIPLES}}
+
+## Voice and UI language
+
+{{APPROVED_TERMINOLOGY_AND_TONE}}
+
+Controls and labels must communicate purpose without narrating obvious actions. User-facing areas must not expose internal Azure resource/function/service terms.
+
+## Source and runtime mapping
+
+{{CANONICAL_SOURCE_AND_RUNTIME_PATHS}}

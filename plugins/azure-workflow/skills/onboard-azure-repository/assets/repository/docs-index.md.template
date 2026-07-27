@@ -1,0 +1,40 @@
+# Repository documentation
+
+## Start here
+
+- [Product requirements](product/index.md)
+- [Roadmap](roadmap.md)
+- [Architecture](architecture.md)
+- [Operations](operations.md)
+- [Agent mistake log](agent-mistakes.md)
+- [Decisions](decisions/)
+- [Change records](changes/)
+- {{DESIGN_ROUTE_OR_ABSENT}}
+
+## Authority order
+
+1. Current explicit user direction.
+2. Declared active product/operator authority and controlled external requirements.
+3. Accepted ADR/design authority within scope.
+4. Current architecture and operations.
+5. Code/config/tests/CI/IaC/live reads as current-state evidence.
+6. Draft/discovery sources.
+7. History/superseded material.
+
+## Source roles and mutation rules
+
+| Path | Content role | Mutation rule | Scope |
+| --- | --- | --- | --- |
+| `docs/product/` | approved product authority | agent-editable through reviewed changes | product requirements and capabilities |
+| `docs/decisions/` | accepted decision authority | append/supersede through reviewed ADRs | durable decisions |
+| {{SOURCE_PATH}} | {{CONTENT_ROLE}} | {{MUTATION_RULE}} | {{SCOPE}} |
+
+Record every active human-authored/protected/controlled source here. Folder names do not imply authority.
+
+## Document ownership
+
+Product owns intended behavior; roadmap owns horizons/releases; GitHub owns actionable work/live state; change records own one change's plan/evidence; architecture owns current system/owners; operations owns procedures; design owns durable UI rules/assets when present.
+
+## Drift prevention
+
+Every material change declares affected owners and updates them in the same PR. Structural checks prove links/schema/routing only. Independent exact-head review compares canonical claims with real implementation/configuration/callers.

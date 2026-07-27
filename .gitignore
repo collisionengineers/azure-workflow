@@ -1,0 +1,6 @@
+.codex/
+.obsidian/
+.azure/
+.cache/
+test-results/
+*.tmp

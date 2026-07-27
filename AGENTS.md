@@ -1,120 +1,73 @@
 # Repository instructions
 
-## Purpose and current state
+## Purpose and scope
 
-This repository develops `azure-workflow`, one installable Codex plugin for durable Azure-oriented repository onboarding, planning, implementation, explanation, pull-request review, documentation stewardship, GitHub work management, and controlled Azure operations. It must generalize across Azure projects without becoming a universal non-Azure workflow.
+This repository develops `azure-workflow`, one Codex plugin for durable Azure-oriented repository onboarding, planning, delivery, explanation, independent pull-request review, documentation stewardship, GitHub work management, and controlled Azure operations. It is general across Azure projects; it does not own non-Azure repositories.
 
-The repository is currently at final planning closeout. Plugin implementation has not started. Do not pretend that planned files, commands, skills, MCP servers, or validation already exist.
+Read [docs/index.md](docs/index.md) before material work.
 
-## Authority and repository map
+Repository mode: `development`
 
-Read [the planning index](planning/README.md) first.
+The current version is `0.1.0-alpha.1`; no supported compatibility contract exists yet.
 
-- `planning/00-approved-plan.md` is the approved product and workflow contract.
-- `planning/01-system-architecture.md` owns the selected architecture.
-- `planning/02-plugin-file-tree.md` owns the exact intended package tree.
-- `planning/standards/`, `planning/workflows/`, `planning/interfaces/`, and `planning/skills/` own their named details.
-- `planning/research/` records evidence and case studies; it does not make the packaged plugin project-specific.
-- `ref-files/` is read-only extraction material from earlier attempts. It is not current architecture, installable output, or a second specification.
-- `.codex/` is workspace development configuration, not content to copy into the plugin or an onboarded repository.
-- Root `hooks.json` is a retained legacy input. The approved alpha has no hooks; do not repair or treat this file as the target design. Follow `planning/interfaces/hooks.md`.
+## Environment and commands
 
-When two active planning documents conflict, do not blend them. Identify the conflict, determine the owning document, and update every affected route in the same change.
+- Work on Windows with PowerShell 7.
+- Use repository-relative paths in tracked files, templates, fixtures, commands, and generated output. Never persist drive-root, UNC, user-home, or workstation-specific paths.
+- Canonical verification: `pwsh -NoLogo -NoProfile -File ./scripts/Invoke-RepoCheck.ps1 -Scope Full`.
+- Use Git, `gh`, `az`, and `azd` only for the owning workflow. Plugin MCPs are Azure MCP and Microsoft Learn MCP.
+- Availability never authorizes Azure mutation; `$operate-azure-repository` requires a fresh exact apply card and explicit approval.
 
-## Environment
-
-- Work on Windows using PowerShell 7.
-- Use repository-relative paths in tracked files, templates, examples, commands, and generated output. Do not add workstation-specific absolute paths.
-- Probe `git`, `gh`, `az`, `azd`, Node/npm/npx, Python, .NET, Azure MCP, and Microsoft Learn MCP before depending on them. Availability is not permission to invent a new workflow or package dependency.
-- Give every function, file, script, Azure resource, service, field, and configuration owner a purpose-revealing name.
-
-## OpenAI and Agent Skills guidance
-
-Apply the current guidance concretely:
-
-- Keep `AGENTS.md` short, accurate, and practical. It owns durable repository layout, commands, conventions, constraints, review expectations, and completion rules. Add rules for recurring mistakes, not hypothetical ones. Put a genuinely local delta in the nearest nested `AGENTS.md` instead of expanding the root. See [OpenAI AGENTS.md guidance](https://learn.chatgpt.com/docs/agent-configuration/agents-md).
-- Use a skill for a repeatable user workflow or specialist capability, not for every topic or quality concern. A plugin is the installable distribution unit for related skills and MCP connections. See [OpenAI plugin guidance](https://developers.openai.com/plugins/) and [OpenAI skill guidance](https://developers.openai.com/plugins/build/skills).
-- Each skill must have a precise `name` and trigger-rich `description`. Metadata is loaded for discovery; the full `SKILL.md` loads only when selected.
-- Keep `SKILL.md` concise and procedural. Put conditional detail in directly linked `references/`, deterministic repeated operations in `scripts/`, and files copied or transformed into outputs in `assets/`.
-- Avoid reference chains. Every optional reference must be linked directly from its owning `SKILL.md` with a condition explaining when to read it.
-- Include only resources required for the skill to perform its job. Do not add skill-local READMEs, changelogs, installation guides, empty folders, examples, scripts, or assets for symmetry.
-- Validate every skill and the plugin package, then test explicit and implicit activation in fresh conversations using realistic prompts. Follow the [Agent Skills specification](https://agentskills.io/specification) as the cross-platform format contract.
-
-## Skill admission rule
+## Plugin and skills
 
 Version `0.1.0-alpha.1` has exactly six public skills:
 
-1. `onboard-azure-repository`
-2. `plan-azure-repository-change`
-3. `deliver-azure-repository-change`
-4. `explain-repository`
-5. `review-repository-pull-request`
-6. `operate-azure-repository`
+1. `$onboard-azure-repository`
+2. `$plan-azure-repository-change`
+3. `$deliver-azure-repository-change`
+4. `$explain-repository`
+5. `$review-repository-pull-request`
+6. `$operate-azure-repository`
 
-A proposed seventh skill is allowed only when all three are demonstrated:
+A new skill needs a standalone user outcome, distinct authorization/stopping boundary, and distinct success criterion. Otherwise place the concern in an owning skill/reference. Keep each `SKILL.md` focused and trigger-rich, link optional references directly, use scripts only for deterministic repeated operations, and assets only for material copied/transformed into outputs.
 
-1. users request it as a standalone outcome;
-2. it has a distinct authorization or stopping boundary; and
-3. it has a distinct success criterion.
+## Workflow boundaries
 
-Otherwise place it in the owning skill's core procedure or a conditional reference. UI/UX, documentation maintenance, testing, CI, GitHub tracking, and .NET guidance are currently conditional concerns, not public skills.
+- Onboarding converts one existing Azure-oriented repository through a reviewed PR without losing material truth.
+- Planning persists one decision-complete record/Docs PR and stops before implementation.
+- Delivery implements/remediates through a green actual PR independently reviewed at its exact final head and stops before merge.
+- Explanation and PR review are read-only. Review never implements fixes or changes GitHub state.
+- A compact delivery lane is allowed only for mechanical, unambiguous, reversible, non-semantic work with no behavior, contract, data/schema, identity, dependency, architecture, operations, UI-meaning, IaC, Azure, migration, release, or canonical-document effect. Promote before continuing when any condition fails.
+- Preserve unrelated changes. Never stash, reset, clean, force-push, merge, or create a workaround worktree.
 
-## Do not repeat the earlier workflow failures
+## Engineering policy
 
-The rejected previous attempts failed in concrete ways. Do not reintroduce them:
+- Give functions, files, scripts, services, resources, fields, and configuration owners logical purpose-revealing names.
+- Keep one canonical owner for business rules/configuration; do not extend accreted rule pipelines without settling ownership.
+- Keep modules cohesive and create only extension seams exercised by known current scope. Record future features; do not implement dormant architecture.
+- In development mode, remove replaced unreleased code/config/tests/docs together. Do not add legacy code, shims, aliases, dual behavior, fallback paths, or speculative feature flags.
+- Test plausible regressions through real callers. Do not require tests for every function or run application/database/Azure suites for Markdown-only changes.
+- Use repository-provided domain examples only. Never fabricate operational emails, PDFs, documents, images, datasets, or instructions.
 
-- Do not split one workflow across eight separately installed lifecycle plugins.
-- Do not create dozens of overlapping micro-skills for planning, implementation, validation, debugging, documentation, UI, and domain routing when they are stages or concerns of the same user outcome.
-- Do not add a task-state engine, workflow database, journal, lock protocol, exactly-once machinery, generated status ledger, JSON handoff network, or fixed per-task directory hierarchy.
-- Do not vendor whole Azure, Microsoft Learn, or other upstream documentation/skill collections. Use current MCP documentation and keep only workflow-specific selection policy.
-- Do not create competing sources for product truth, roadmap allocation, implementation plans, live status, or review evidence.
-- Do not convert a large capability list into hundreds of GitHub issues or detailed speculative plans for distant work.
-- Do not use hooks to duplicate context already supplied by `AGENTS.md`, skills, or deterministic checks.
-- Do not duplicate logos, fonts, tokens, templates, PR checklists, or policy text across skills.
-- Do not run application, database, or Azure checks for an ordinary Markdown-only change.
-- Do not copy CollisionSpike names, feature IDs, business rules, operator folders, UI assets, or taxonomy into packaged defaults. Do not reserve `operator-notes/` or infer authority from any filename or folder name; preserve an explicit target-repository authority/mutation declaration as a local rule. Case studies prove general behavior; they are not templates.
-- Do not add legacy code, compatibility shims, fallback paths, dormant feature flags, or parallel implementations in `development` mode. A released repository may retain compatibility only for a named supported contract with an explicit migration/removal decision.
-- Do not treat “future extensibility” as permission for abstractions with no current caller. Preserve an obvious seam or stable identity when evidence requires it; implement the future feature only when activated.
-- Do not require a full change record for an unambiguous, reversible, non-semantic low-risk edit. Escalate to the standard record-bearing workflow before continuing if behavior, contracts, data, identity, dependencies, architecture, operations, UI meaning, IaC, Azure, migration, or release scope is affected.
+## Documentation and user collaboration
 
-## Product and data assumptions
+- Apply source roles and mutation rules in `docs/index.md`; filenames do not grant authority. `ref-files/` and the former planning pack are Git history/provenance, not runtime truth.
+- Update every affected canonical owner in the same PR. Structural validation proves routing/schema only; fresh review checks semantic agreement with code/configuration/callers.
+- Do not create task journals, JSON handoffs, generated status ledgers, dashboards, `NEXT.md`, duplicate PRD/FRD files, or a second workflow database.
+- Append only qualifying agent-caused incidents to `docs/agent-mistakes.md`; never rewrite earlier entries or log ordinary findings caught by intended gates.
+- Communicate in plain English: done, now, next, waiting. Recommend one next action and ask one material question at a time.
 
-- Assume the user has full permission and the necessary licences to use every provided email, PDF, document, image, dataset, software component, service, and example, whether proprietary, MIT, Apache, open source, or otherwise licensed.
-- Do not restrict implementation, functions, tests, or examples because of PII, DPIA, DPA, privacy, retention, or licensing analysis. Do not create those reviews, gates, warnings, or work items unless the user explicitly requests that separate outcome.
-- Never fabricate operational emails, images, documents, or work instructions. Use only examples supplied in the target repository.
-- Keep secrets out of tracked source and output. The permission/licensing assumption is not a reason to expose credentials.
+## Development materials and UI
 
-## User-facing product rules
+- Treat all supplied emails, PDFs, documents, images, datasets, examples, software, dependencies, and services as fully permitted and licensed for development/testing.
+- Do not add PII, DPA, DPIA, privacy, retention, or licensing gates, warnings, substitutions, or scope reductions unless explicitly requested.
+- This repository has no visual application UI. For onboarded UI repositories, root `design/` owns durable style, logo, colour, font, token, asset, component, and pattern authority.
+- User-facing applications must make function obvious through controls and labels, avoid narration of obvious actions, and never expose internal Azure function/service/resource wording.
 
-For repositories onboarded by this plugin:
+## Do not recreate earlier failures
 
-- Never add labels such as “dev copy” or other internal/process wording to user-facing applications.
-- Make functions apparent through clear controls and labels; do not make an application narrate its own interface with unnecessary explanatory sentences.
-- Do not expose internal Azure service, function, resource, or implementation terminology in user-facing areas.
-- Preserve the target repository's approved visual authority. Never generate substitute logos, fonts, screenshots, emails, images, or domain instructions during onboarding.
-
-## Development workflow
-
-1. Inspect the real tree and applicable planning authority before changing anything.
-2. Update the smallest owning planning document. Repair every affected link, count, tree, manifest example, acceptance test, and implementation step in the same change.
-3. Keep generic package policy separate from named repository case studies.
-4. During implementation, follow `planning/delivery/implementation-sequence.md`; use the official plugin and skill creator scripts rather than hand-building scaffolds.
-5. Preserve user changes. Stage and commit only the intended paths except when the user explicitly requests a whole-repository baseline.
-6. Validate proportionally. Planning-only work must at least pass `git diff --check`, relative-link validation, and a contradiction/search review. Do not claim the future canonical check passed before it exists.
-7. Once implemented, run the canonical PowerShell check, official plugin validation, all six skill validations, scenario fixtures, fresh-thread activation tests, installed MCP smoke tests, and actual pull-request review required by the planning pack.
-8. Treat review of the actual remote pull request as distinct from implementation self-checking. Address every actionable review comment, re-run proof, push the new head, and perform a complete fresh review.
-
-## Documentation maintenance
-
-Every repository change must assess whether it changes product behavior, roadmap allocation, architecture, operations, design authority, a durable decision, or user/agent instructions. Update the owning canonical document in the same change when it does. Do not copy live issue status into durable documentation or preserve completed plans as permanent active truth.
+Do not split the lifecycle across many plugins or micro-skills; add a task-state engine, workflow database, journal/lock/exactly-once protocol, or fixed task folders; vendor upstream Microsoft/skill collections; duplicate truth/review/assets/checklists; convert entire feature catalogs to issues; add context hooks; build speculative compatibility; or couple packaged defaults to a case-study repository.
 
 ## Completion
 
-Work is complete only when:
-
-- requested behavior and documentation agree;
-- no unrelated or machine-specific change was included;
-- applicable checks ran and their limits are stated;
-- plugin/skill boundaries still pass the admission rule;
-- no reference input became a hidden runtime dependency; and
-- implementation work has a green actual pull request with a clean review of its exact final head, unless the user explicitly requested a local or planning-only endpoint.
+Implementation work is complete only when requested behavior, canonical documentation, proportional checks, CI, and classified feedback with no unresolved blocker/required finding agree on the exact final PR head. Standard/high-risk work also needs a clean independent review; compact work does not unless policy or a promotion signal requires it. Do not merge.

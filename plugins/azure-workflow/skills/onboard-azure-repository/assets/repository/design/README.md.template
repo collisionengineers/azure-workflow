@@ -1,0 +1,26 @@
+# Design system
+
+## Governed surfaces
+
+{{PRODUCT_SURFACES}}
+
+## Authority and source map
+
+| Concern | Canonical design source | Runtime consumer/output |
+| --- | --- | --- |
+| brand/style | `brand/style.md` | {{RUNTIME_PATHS}} |
+| tokens | `tokens/README.md` | {{RUNTIME_PATHS_OR_NONE}} |
+| components/patterns | `components/index.md`, `patterns/index.md` | {{RUNTIME_PATHS}} |
+
+## Navigation
+
+- [Brand style](brand/style.md) and [imagery](brand/imagery.md)
+- [Logos](brand/logos/README.md)
+- Foundations: [colour](foundations/colour.md), [typography](foundations/typography.md), [spacing/layout](foundations/spacing-and-layout.md), [motion](foundations/motion.md), [accessibility](foundations/accessibility.md)
+- [Tokens](tokens/README.md)
+- Assets: [icons](assets/icons/README.md), [fonts](assets/fonts/README.md)
+- [Components](components/index.md), [patterns](patterns/index.md), and [references](references/README.md)
+
+## Change rule
+
+Update approved design authority, source/runtime mappings, and affected implementation in one reviewed change. Do not add synthetic brand/assets/copy or duplicate generated outputs.

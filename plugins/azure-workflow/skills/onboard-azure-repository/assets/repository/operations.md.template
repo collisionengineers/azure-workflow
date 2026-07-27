@@ -1,0 +1,45 @@
+# Operations
+
+## Supported environment and prerequisites
+
+- Platform: Windows
+- Shell: PowerShell 7
+- Toolchains: {{TOOLCHAINS_AND_SUPPORTED_VERSIONS}}
+
+## Canonical verification
+
+```powershell
+{{CANONICAL_VERIFICATION_COMMAND}}
+```
+
+## Local run, build, and test
+
+{{EXACT_COMMANDS_AND_PREREQUISITES}}
+
+## Deploy
+
+{{IAC_AZD_DEPLOYMENT_OWNER_AND_COMMANDS}}
+
+Azure mutation requires the `$operate-azure-repository` apply card and explicit approval after the exact scope/operation is shown.
+
+## Configuration and secrets boundary
+
+{{CONFIGURATION_OWNERS_AND_SECRET_LOCATIONS_WITHOUT_VALUES}}
+
+## Monitoring and diagnosis
+
+{{SIGNALS_LOGS_METRICS_AND_RUNBOOKS}}
+
+## Recovery
+
+{{ROLLBACK_FORWARD_RECOVERY_BACKUP_RESTORE_AS_APPLICABLE}}
+
+## GitHub work taxonomy
+
+- Work kinds: Feature, Bug, Task, Decision (one per workflow-owned issue).
+- Registered project-specific categories: {{REGISTERED_CATEGORIES_OR_NONE}}.
+- Project capability/manual setup limitations: {{LIMITATIONS_OR_NONE}}.
+
+## Supported platforms and release operations
+
+{{SUPPORTED_PLATFORMS_RELEASE_AND_RETIREMENT_PROCEDURES}}

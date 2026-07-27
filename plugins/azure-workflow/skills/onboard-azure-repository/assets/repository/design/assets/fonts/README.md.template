@@ -1,0 +1,7 @@
+# Fonts
+
+| Relative source path or system stack | Weight/style | Runtime destination/consumer |
+| --- | --- | --- |
+| {{SOURCE_OR_STACK}} | {{WEIGHT_STYLE}} | {{RELATIVE_PATH_OR_CONSUMER}} |
+
+Do not download, generate, or substitute fonts during onboarding.

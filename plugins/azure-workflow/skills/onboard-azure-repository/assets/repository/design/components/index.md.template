@@ -1,0 +1,7 @@
+# Components
+
+| Component | Purpose | Actions/states | Design source | Runtime owner |
+| --- | --- | --- | --- | --- |
+| {{NAME}} | {{PURPOSE}} | {{ACTIONS_AND_STATES}} | {{RELATIVE_PATH}} | {{RELATIVE_PATH}} |
+
+Document shared exercised components, accessibility behavior, and variants. Do not create a speculative component library.

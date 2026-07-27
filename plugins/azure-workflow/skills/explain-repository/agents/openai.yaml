@@ -1,0 +1,15 @@
+interface:
+  display_name: "Explain Repository"
+  short_description: "Explain repository work, position, and next actions plainly"
+  default_prompt: "Use $explain-repository to explain this repository subject, orient me to what matters now, and recommend the next sensible action without changing anything."
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "azure-workflow-microsoft-learn"
+      description: "Current official Microsoft and Azure documentation"
+      transport: "streamable_http"
+      url: "https://learn.microsoft.com/api/mcp"
+
+policy:
+  allow_implicit_invocation: true

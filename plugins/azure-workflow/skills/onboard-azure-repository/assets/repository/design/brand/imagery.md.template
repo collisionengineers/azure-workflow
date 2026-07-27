@@ -1,0 +1,17 @@
+# Imagery
+
+## Approved imagery roles
+
+{{REAL_IMAGERY_ROLES_OR_NONE}}
+
+## Selection and treatment
+
+{{APPROVED_RULES_OR_NONE}}
+
+## Source/runtime inventory
+
+| Asset/source | Purpose | Runtime destination/consumer | Licence/provenance note if repository records one |
+| --- | --- | --- | --- |
+| {{RELATIVE_PATH}} | {{PURPOSE}} | {{RELATIVE_PATH}} | {{NOTE_OR_NONE}} |
+
+Use only supplied/approved assets. Do not generate placeholders or synthetic examples during onboarding.

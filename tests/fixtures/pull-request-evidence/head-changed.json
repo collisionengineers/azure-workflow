@@ -1,0 +1,8 @@
+{
+  "start":{"base_oid":"1111111111111111111111111111111111111111","head_oid":"2222222222222222222222222222222222222222","fingerprint":"head-a"},
+  "end":{"base_oid":"1111111111111111111111111111111111111111","head_oid":"3333333333333333333333333333333333333333","fingerprint":"head-b"},
+  "pagination_complete":true,
+  "expected_valid":false,
+  "expected_reason":"pull_request_changed_during_collection",
+  "review_threads":[]
+}

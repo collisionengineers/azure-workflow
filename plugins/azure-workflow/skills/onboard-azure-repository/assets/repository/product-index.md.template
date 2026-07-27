@@ -1,0 +1,54 @@
+# Product requirements
+
+- Repository mode: `{{DEVELOPMENT_OR_RELEASED}}`
+- Maturity stage: `{{MATURITY_STAGE}}`
+- Version scheme: `{{VERSION_SCHEME}}`
+- Current version: `{{CURRENT_VERSION}}`
+- Release authority: {{RELEASE_AUTHORITY}}
+- Visual UI: `{{PRESENT_OR_ABSENT}}`
+
+## Purpose and problem
+
+{{PURPOSE_AND_PROBLEM}}
+
+## Users and outcomes
+
+{{USERS_AND_OUTCOMES}}
+
+## Success measures
+
+{{SUCCESS_MEASURES}}
+
+## Scope
+
+### Included
+
+{{INCLUDED_SCOPE}}
+
+### Excluded
+
+{{EXCLUDED_SCOPE}}
+
+## Requirements and invariants
+
+{{REQUIREMENTS_AND_INVARIANTS}}
+
+## Quality constraints
+
+{{QUALITY_CONSTRAINTS}}
+
+## Supported contracts
+
+{{SUPPORTED_CONTRACTS_OR_NONE}}
+
+## Functional areas
+
+Create `areas/<area>.md` only for a durable behavior owner that needs more detail. Link it here.
+
+## Limitations
+
+{{KNOWN_LIMITATIONS}}
+
+## Open decisions
+
+{{OPEN_DECISIONS_OR_NONE}}

@@ -1,0 +1,15 @@
+# Typography
+
+## Type roles and hierarchy
+
+{{APPROVED_TYPE_ROLES_AND_HIERARCHY}}
+
+## Font sources
+
+{{RELATIVE_APPROVED_FONT_PATHS_OR_SYSTEM_STACK}}
+
+## Runtime consumers
+
+{{RELATIVE_RUNTIME_PATHS}}
+
+Do not download or invent fonts during onboarding.

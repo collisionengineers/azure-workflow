@@ -1,0 +1,15 @@
+interface:
+  display_name: "Review Pull Request"
+  short_description: "Independently assess one GitHub pull request"
+  default_prompt: "Use $review-repository-pull-request to independently review this pull request without changing it."
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "azure-workflow-microsoft-learn"
+      description: "Current official Microsoft and Azure documentation"
+      transport: "streamable_http"
+      url: "https://learn.microsoft.com/api/mcp"
+
+policy:
+  allow_implicit_invocation: true

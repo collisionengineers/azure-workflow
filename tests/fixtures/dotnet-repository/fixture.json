@@ -1,0 +1,1 @@
+{"scenario":"Azure repository contains multiple .NET project variants","expected":"inspect exact projects hosts callers and toolchain; query Microsoft Learn only for material current facts"}
