@@ -25,6 +25,7 @@ try {
     New-Item -ItemType Directory -Path $tempRoot -Force | Out-Null
     Copy-Item -LiteralPath (Join-Path $repositoryRoot 'AGENTS.md') -Destination $tempRoot
     Copy-Item -LiteralPath (Join-Path $repositoryRoot 'docs') -Destination (Join-Path $tempRoot 'docs') -Recurse
+    Copy-Item -LiteralPath (Join-Path $repositoryRoot 'plugins') -Destination (Join-Path $tempRoot 'plugins') -Recurse
     New-Item -ItemType Directory -Path (Join-Path $tempRoot '.github') | Out-Null
     Copy-Item -LiteralPath (Join-Path $repositoryRoot '.github\ISSUE_TEMPLATE') -Destination (Join-Path $tempRoot '.github\ISSUE_TEMPLATE') -Recurse
     Copy-Item -LiteralPath (Join-Path $repositoryRoot '.github\pull_request_template.md') -Destination (Join-Path $tempRoot '.github\pull_request_template.md')
@@ -41,11 +42,74 @@ try {
 
     $recordPath = Join-Path $tempRoot 'docs\changes\2026-07-26-bootstrap-azure-workflow.md'
     $savedRecord = Get-Content -LiteralPath $recordPath -Raw
-    $invalidRecord = [regex]::new('(?m)^status:\s*\S+\s*$').Replace($savedRecord, 'status: imaginary', 1)
-    [System.IO.File]::WriteAllText($recordPath, $invalidRecord, [System.Text.UTF8Encoding]::new($false))
-    & $validator -RepositoryPath $tempRoot | Out-Null
-    Assert-ExitCode 1 'malformed change record'
+    $recordMutations = @(
+        [pscustomobject]@{ Name = 'change record id'; Pattern = '(?m)^id:\s*\S+\s*$'; Replacement = 'id: 2026-07-26-wrong-id' },
+        [pscustomobject]@{ Name = 'change record type'; Pattern = '(?m)^type:\s*\S+\s*$'; Replacement = 'type: imaginary' },
+        [pscustomobject]@{ Name = 'change record status'; Pattern = '(?m)^status:\s*\S+\s*$'; Replacement = 'status: imaginary' },
+        [pscustomobject]@{ Name = 'change record risk'; Pattern = '(?m)^risk:\s*\S+\s*$'; Replacement = 'risk: low' },
+        [pscustomobject]@{ Name = 'change record created date'; Pattern = '(?m)^created:\s*\S+\s*$'; Replacement = 'created: 2026-99-99' },
+        [pscustomobject]@{ Name = 'change record chronology'; Pattern = '(?m)^updated:\s*\S+\s*$'; Replacement = 'updated: 2025-01-01' },
+        [pscustomobject]@{ Name = 'change record issue'; Pattern = '(?m)^issue:\s*\S+\s*$'; Replacement = 'issue: relative/not-allowed' },
+        [pscustomobject]@{ Name = 'change record pull request'; Pattern = '(?m)^pull_request:\s*\S+\s*$'; Replacement = 'pull_request: relative/not-allowed' },
+        [pscustomobject]@{ Name = 'change record baseline'; Pattern = '(?m)^baseline:\s*\S+\s*$'; Replacement = 'baseline: abc123' },
+        [pscustomobject]@{ Name = 'change record release'; Pattern = '(?m)^target_release:\s*\S+\s*$'; Replacement = 'target_release: V1' },
+        [pscustomobject]@{ Name = 'change record horizon'; Pattern = '(?m)^roadmap_horizon:\s*\S.*$'; Replacement = 'roadmap_horizon: Soon' },
+        [pscustomobject]@{ Name = 'change record mode'; Pattern = '(?m)^mode:\s*\S+\s*$'; Replacement = 'mode: hybrid' },
+        [pscustomobject]@{ Name = 'change record relation'; Pattern = '(?m)^supersedes:\s*\S+\s*$'; Replacement = 'supersedes: invalid relation' }
+    )
+    foreach ($mutation in $recordMutations) {
+        $invalidRecord = [regex]::new($mutation.Pattern).Replace($savedRecord, $mutation.Replacement, 1)
+        [System.IO.File]::WriteAllText($recordPath, $invalidRecord, [System.Text.UTF8Encoding]::new($false))
+        & $validator -RepositoryPath $tempRoot | Out-Null
+        Assert-ExitCode 1 $mutation.Name
+    }
     [System.IO.File]::WriteAllText($recordPath, $savedRecord, [System.Text.UTF8Encoding]::new($false))
+
+    $capabilitiesPath = Join-Path $tempRoot 'docs\product\capabilities.md'
+    $savedCapabilities = Get-Content -LiteralPath $capabilitiesPath -Raw
+    [System.IO.File]::WriteAllText($capabilitiesPath, $savedCapabilities.Replace('AW-CAP-006', 'AW-CAP-005'), [System.Text.UTF8Encoding]::new($false))
+    & $validator -RepositoryPath $tempRoot | Out-Null
+    Assert-ExitCode 1 'duplicate capability ID'
+    [System.IO.File]::WriteAllText($capabilitiesPath, $savedCapabilities.Replace('`0.1.0-alpha.1`', '`V1`'), [System.Text.UTF8Encoding]::new($false))
+    & $validator -RepositoryPath $tempRoot | Out-Null
+    Assert-ExitCode 1 'invalid capability release'
+    [System.IO.File]::WriteAllText($capabilitiesPath, $savedCapabilities, [System.Text.UTF8Encoding]::new($false))
+
+    $decisionPath = Join-Path $tempRoot 'docs\decisions\0001-single-plugin-six-skill-architecture.md'
+    $savedDecision = Get-Content -LiteralPath $decisionPath -Raw
+    [System.IO.File]::WriteAllText($decisionPath, $savedDecision.Replace('## Consequences', '## Results'), [System.Text.UTF8Encoding]::new($false))
+    & $validator -RepositoryPath $tempRoot | Out-Null
+    Assert-ExitCode 1 'malformed ADR schema'
+    [System.IO.File]::WriteAllText($decisionPath, $savedDecision, [System.Text.UTF8Encoding]::new($false))
+
+    $mistakePath = Join-Path $tempRoot 'docs\agent-mistakes.md'
+    $savedMistakes = Get-Content -LiteralPath $mistakePath -Raw
+    $malformedIncident = $savedMistakes.TrimEnd() + "`n`n### AM-20260726-001: Missing required evidence`n- Occurred: 2026-07-26T00:00:00Z`n"
+    [System.IO.File]::WriteAllText($mistakePath, $malformedIncident, [System.Text.UTF8Encoding]::new($false))
+    & $validator -RepositoryPath $tempRoot | Out-Null
+    Assert-ExitCode 1 'malformed mistake incident'
+    [System.IO.File]::WriteAllText($mistakePath, $savedMistakes.Replace('- Follow-up: <issue/change/incident ID or none>', '- Next: <value>'), [System.Text.UTF8Encoding]::new($false))
+    & $validator -RepositoryPath $tempRoot | Out-Null
+    Assert-ExitCode 1 'malformed mistake template'
+    $validIncident = @'
+
+### AM-20260726-001: Valid fixture incident
+- Occurred: 2026-07-26T00:00:00Z
+- Detected: 2026-07-26T00:01:00Z
+- Workflow/package version: unknown
+- Change/PR: none
+- Classification: workflow-gap
+- What happened: A fixture exercised the incident schema.
+- Impact: Test-only validation evidence.
+- Recovery: Restored the temporary fixture.
+- Why the gate failed: Test fixture only.
+- Reusable prevention signal: Keep the schema regression.
+- Follow-up: none
+'@
+    [System.IO.File]::WriteAllText($mistakePath, ($savedMistakes.TrimEnd() + $validIncident + "`n"), [System.Text.UTF8Encoding]::new($false))
+    & $validator -RepositoryPath $tempRoot | Out-Null
+    Assert-ExitCode 0 'valid mistake incident'
+    [System.IO.File]::WriteAllText($mistakePath, $savedMistakes, [System.Text.UTF8Encoding]::new($false))
 
     $productPath = Join-Path $tempRoot 'docs\product\index.md'
     $savedProduct = Get-Content -LiteralPath $productPath -Raw
@@ -106,6 +170,24 @@ exit 0
         $env:CODEX_HOME = Join-Path $harnessRoot 'codex-home'
         & (Join-Path $harnessRoot 'scripts\Invoke-RepoCheck.ps1') -Scope Auto -BaseRef 'missing-comparison-ref' -HeadRef HEAD | Out-Null
         Assert-ExitCode 0 'invalid comparison falls back to unscoped Full validation'
+
+        $harnessReadme = Join-Path $harnessRoot 'README.md'
+        $savedHarnessReadme = Get-Content -LiteralPath $harnessReadme -Raw
+        $driveRootExample = 'Z:' + [System.IO.Path]::DirectorySeparatorChar + 'outside' + [System.IO.Path]::DirectorySeparatorChar + 'file.md'
+        [System.IO.File]::WriteAllText($harnessReadme, "# Harness`n$driveRootExample`n", [System.Text.UTF8Encoding]::new($false))
+        & (Join-Path $harnessRoot 'scripts\Invoke-RepoCheck.ps1') -Scope Full | Out-Null
+        Assert-ExitCode 1 'drive-root path portability mutation'
+
+        $tildeHomeExample = [char]126 + '/private/file.md'
+        [System.IO.File]::WriteAllText($harnessReadme, "# Harness`n$tildeHomeExample`n", [System.Text.UTF8Encoding]::new($false))
+        & (Join-Path $harnessRoot 'scripts\Invoke-RepoCheck.ps1') -Scope Full | Out-Null
+        Assert-ExitCode 1 'tilde user-home path portability mutation'
+
+        $profileHomeExample = '%' + 'USERPROFILE' + '%\private\file.md'
+        [System.IO.File]::WriteAllText($harnessReadme, "# Harness`n$profileHomeExample`n", [System.Text.UTF8Encoding]::new($false))
+        & (Join-Path $harnessRoot 'scripts\Invoke-RepoCheck.ps1') -Scope Full | Out-Null
+        Assert-ExitCode 1 'profile user-home path portability mutation'
+        [System.IO.File]::WriteAllText($harnessReadme, $savedHarnessReadme, [System.Text.UTF8Encoding]::new($false))
     }
     finally {
         if ($null -eq $savedCodexHome) { Remove-Item Env:\CODEX_HOME -ErrorAction SilentlyContinue }

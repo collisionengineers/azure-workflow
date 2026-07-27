@@ -33,6 +33,18 @@ function Test-DocsOnlyPath {
         $normalized.StartsWith('.github/ISSUE_TEMPLATE/', [System.StringComparison]::OrdinalIgnoreCase)
 }
 
+function Get-NonPortablePathKind {
+    param([Parameter(Mandatory)][string]$Content)
+
+    if ($Content -match '(?<![A-Za-z0-9+.-])[A-Za-z]:[\\/]') { return 'drive-root path' }
+    if ($Content -match '(?<![\\])\\\\[^\\/\s]+[\\/][^\\/\s]+') { return 'UNC path' }
+    $userHomePattern = '(?i)(?:\$(?:env:USERPROFILE|HOME)|\$\{HOME\}|%(?:USERPROFILE|HOMEDRIVE|HOMEPATH)%|~[\\/])'
+    if ($Content -match $userHomePattern) { return 'user-home path' }
+    $unixHomePattern = '(?:/' + 'home/|/' + 'Users/)[^/\s]+/'
+    if ($Content -cmatch $unixHomePattern) { return 'user-home path' }
+    return $null
+}
+
 try {
     Push-Location -LiteralPath $repositoryRoot
     try {
@@ -111,10 +123,11 @@ try {
             $path = Join-Path $repositoryRoot $relative
             $files = if (Test-Path -LiteralPath $path -PathType Leaf) { @(Get-Item -LiteralPath $path) } elseif (Test-Path -LiteralPath $path -PathType Container) { @(Get-ChildItem -LiteralPath $path -Recurse -File) } else { @() }
             foreach ($file in $files) {
-                if ($file.Extension -notin @('.md', '.json', '.yaml', '.yml', '.ps1')) { continue }
+                if ($file.Extension -notin @('.md', '.json', '.yaml', '.yml', '.ps1', '.template', '.toml')) { continue }
                 $content = Get-Content -LiteralPath $file.FullName -Raw
-                if ($content -match '(?i)(?:[A-Z]:\\Users\\[^\\\s]+|\\\\[^\\\s]+\\[^\\\s]+)') {
-                    $failures.Add("Workstation-specific path: $([System.IO.Path]::GetRelativePath($repositoryRoot, $file.FullName).Replace('\', '/'))")
+                $pathKind = Get-NonPortablePathKind -Content $content
+                if ($null -ne $pathKind) {
+                    $failures.Add("Workstation-specific $pathKind`: $([System.IO.Path]::GetRelativePath($repositoryRoot, $file.FullName).Replace('\', '/'))")
                 }
             }
         }

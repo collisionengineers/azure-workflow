@@ -11,6 +11,17 @@ $errors = [System.Collections.Generic.List[string]]::new()
 $warnings = [System.Collections.Generic.List[string]]::new()
 
 function Add-ErrorMessage { param([string]$Message) $script:errors.Add($Message) }
+function Get-NonPortablePathKind {
+    param([Parameter(Mandatory)][string]$Content)
+
+    if ($Content -match '(?<![A-Za-z0-9+.-])[A-Za-z]:[\\/]') { return 'drive-root path' }
+    if ($Content -match '(?<![\\])\\\\[^\\/\s]+[\\/][^\\/\s]+') { return 'UNC path' }
+    $userHomePattern = '(?i)(?:\$(?:env:USERPROFILE|HOME)|\$\{HOME\}|%(?:USERPROFILE|HOMEDRIVE|HOMEPATH)%|~[\\/])'
+    if ($Content -match $userHomePattern) { return 'user-home path' }
+    $unixHomePattern = '(?:/' + 'home/|/' + 'Users/)[^/\s]+/'
+    if ($Content -cmatch $unixHomePattern) { return 'user-home path' }
+    return $null
+}
 function Require-File {
     param([string]$Root, [string]$RelativePath)
     if (-not (Test-Path -LiteralPath (Join-Path $Root $RelativePath) -PathType Leaf)) {
@@ -159,12 +170,13 @@ try {
         foreach ($parseError in @($parseErrors)) { Add-ErrorMessage "$($scriptFile.Name): $($parseError.Message)" }
     }
 
-    $scanFiles = Get-ChildItem -LiteralPath $root -Recurse -File | Where-Object { $_.Extension -in @('.md', '.json', '.yaml', '.yml', '.ps1') }
+    $scanFiles = Get-ChildItem -LiteralPath $root -Recurse -File | Where-Object { $_.Extension -in @('.md', '.json', '.yaml', '.yml', '.ps1', '.template', '.toml') }
     foreach ($file in $scanFiles) {
         $content = Get-Content -LiteralPath $file.FullName -Raw
         $unfinishedMarker = 'TO' + 'DO'
         if ($content -match "(?i)\b$unfinishedMarker\b") { Add-ErrorMessage "Unfinished marker remains in $($file.FullName.Substring($root.Length + 1).Replace('\', '/'))." }
-        if ($content -match '(?i)(?:[A-Z]:\\Users\\[^\\\s]+|\\\\[^\\\s]+\\[^\\\s]+)') { Add-ErrorMessage "Workstation-specific path found in $($file.FullName.Substring($root.Length + 1).Replace('\', '/'))." }
+        $pathKind = Get-NonPortablePathKind -Content $content
+        if ($null -ne $pathKind) { Add-ErrorMessage "Workstation-specific $pathKind found in $($file.FullName.Substring($root.Length + 1).Replace('\', '/'))." }
         $caseStudyPattern = '(?i)collision' + 'spike|collision' + 'capture'
         if ($content -match $caseStudyPattern) { Add-ErrorMessage "Case-study product leakage found in $($file.FullName.Substring($root.Length + 1).Replace('\', '/'))." }
     }

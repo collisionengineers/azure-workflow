@@ -19,7 +19,7 @@ docs/
   pull_request_template.md
 ```
 
-`docs/product/capabilities.md` and `docs/product/areas/` are conditional. Root `design/` is required only for a visual UI, but an existing valid design directory may remain when UI is absent.
+`docs/product/capabilities.md` and `docs/product/areas/` are conditional. When capabilities exist, each table row has a unique stable ID, non-empty outcome, existing repository-relative canonical owner, and SemVer target release or `unallocated`. Root `design/` is required only for a visual UI, but an existing valid design directory may remain when UI is absent.
 
 ## Required document fields
 
@@ -27,13 +27,13 @@ docs/
 - Roadmap: only Now/Next/Later/Not planned; exact release or `unallocated`.
 - Architecture: system/context, components/ownership, entry points/callers, data/integrations, rule/configuration owner, generated/source roles, failure/recovery, deployment, boundaries.
 - Operations: prerequisites/toolchains, canonical check, local run/build/test, deploy, configuration/secrets boundary, monitoring/diagnosis, recovery, GitHub taxonomy/Project notes, supported platforms.
-- ADR: status/context/decision/consequences; stable numbered filename.
-- Change record: required metadata and all plan/evidence/review/documentation/outcome sections.
-- Agent mistakes: exact admission/exclusion/template/Entries shape and append-only incident bodies.
+- ADR: one numbered title matching a stable `NNNN-slug.md` filename, one ISO date, status `proposed|accepted|superseded|rejected|deprecated`, and exactly one Context/Decision/Consequences section.
+- Change record: filename-matching ID; supported type/status/risk/mode; ISO created/updated dates; HTTPS-or-state issue/PR identity; full Git baseline or `unknown`; SemVer target or `unallocated`; known horizon; valid supersession IDs; and exactly one of every plan/evidence/review/documentation/outcome section.
+- Agent mistakes: exact admission/exclusion/template/Entries shape, stable append marker, unique dated IDs, UTC timestamps, supported classification, every required non-empty evidence field, and append-only incident bodies.
 
 ## Navigation and paths
 
-All tracked Markdown links resolve relative to their file. Tracked instructions/templates/fixtures never contain workstation-specific drive roots, UNC paths, or user-home paths. Commands run from repository root and use relative paths. Generated documents emit forward-slash repository-relative paths.
+All tracked Markdown links resolve relative to their file. Tracked instructions/templates/fixtures never contain workstation-specific drive-root paths, UNC paths, tilde/profile-variable home paths, or `/home/<user>` and `/Users/<user>` paths. Commands run from repository root and use relative paths. Generated documents emit forward-slash repository-relative paths.
 
 ## Verification limits
 

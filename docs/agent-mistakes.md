@@ -31,4 +31,4 @@ Do not record expected red tests, ordinary findings caught by their intended gat
 
 ## Entries
 
-No incidents recorded.
+Append incidents below; do not edit earlier entries.

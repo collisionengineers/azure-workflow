@@ -33,11 +33,20 @@ try {
 
     Copy-Item -LiteralPath (Join-Path $pluginRoot 'references\risk-scaling.md') -Destination (Join-Path $mutant 'references\risk-scaling.md')
     $manifestPath = Join-Path $mutant '.codex-plugin\plugin.json'
-    $manifest = Get-Content -LiteralPath $manifestPath -Raw
-    $manifest = [regex]::Replace($manifest, '"version"\s*:\s*"[^"]+"', '"version": "0.1.0"', 1)
-    [System.IO.File]::WriteAllText($manifestPath, $manifest, [System.Text.UTF8Encoding]::new($false))
+    $validManifest = Get-Content -LiteralPath $manifestPath -Raw
+    $invalidManifest = [regex]::Replace($validManifest, '"version"\s*:\s*"[^"]+"', '"version": "0.1.0"', 1)
+    [System.IO.File]::WriteAllText($manifestPath, $invalidManifest, [System.Text.UTF8Encoding]::new($false))
     & $validator -PluginPath $mutant | Out-Null
     Assert-ExitCode 1 'invalid release version mutation'
+    [System.IO.File]::WriteAllText($manifestPath, $validManifest, [System.Text.UTF8Encoding]::new($false))
+
+    $portableReferencePath = Join-Path $mutant 'references\risk-scaling.md'
+    $savedPortableReference = Get-Content -LiteralPath $portableReferencePath -Raw
+    $driveRootExample = 'Z:' + [System.IO.Path]::DirectorySeparatorChar + 'private' + [System.IO.Path]::DirectorySeparatorChar + 'file.md'
+    [System.IO.File]::WriteAllText($portableReferencePath, ($savedPortableReference.TrimEnd() + "`n`n$driveRootExample`n"), [System.Text.UTF8Encoding]::new($false))
+    & $validator -PluginPath $mutant | Out-Null
+    Assert-ExitCode 1 'plugin drive-root path mutation'
+    [System.IO.File]::WriteAllText($portableReferencePath, $savedPortableReference, [System.Text.UTF8Encoding]::new($false))
 
     $recordRepository = Join-Path $tempRoot 'record-repository'
     New-Item -ItemType Directory -Path (Join-Path $recordRepository 'docs\changes') -Force | Out-Null

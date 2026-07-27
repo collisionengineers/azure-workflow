@@ -42,6 +42,15 @@ function Require-File {
         else { Add-Finding "Missing file: $display" }
     }
 }
+function Require-Directory {
+    param([string]$Root, [string]$RelativePath)
+    $path = Resolve-ExactRelativePath -Root $Root -RelativePath $RelativePath
+    if ($null -eq $path -or -not (Test-Path -LiteralPath $path -PathType Container)) {
+        $display = $RelativePath.Replace('\', '/')
+        if (Test-Path -LiteralPath (Join-Path $Root $RelativePath) -PathType Container) { Add-Finding "Path casing must be exact: $display" }
+        else { Add-Finding "Missing directory: $display" }
+    }
+}
 function Require-Headings {
     param([string]$Root, [string]$RelativePath, [string[]]$Headings)
     $path = Resolve-ExactRelativePath -Root $Root -RelativePath $RelativePath
@@ -72,6 +81,34 @@ function Get-PropertyValue {
     if ($null -eq $property) { return $null }
     return $property.Value
 }
+function Test-SemVer {
+    param([AllowNull()][string]$Value)
+    return $null -ne $Value -and $Value -match '^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$'
+}
+function ConvertFrom-SimpleMetadata {
+    param(
+        [Parameter(Mandatory)][string]$Content,
+        [Parameter(Mandatory)][string]$Owner
+    )
+
+    $metadata = [ordered]@{}
+    foreach ($line in @($Content -split "`r?`n")) {
+        if ([string]::IsNullOrWhiteSpace($line)) { continue }
+        if ($line -notmatch '^(?<key>[a-z][a-z_]*):\s*(?<value>.*\S)\s*$') {
+            Add-Finding "$Owner has invalid metadata line: $line"
+            continue
+        }
+        $key = $Matches.key
+        if ($metadata.Contains($key)) { Add-Finding "$Owner has duplicate metadata: $key"; continue }
+        $metadata[$key] = $Matches.value.Trim()
+    }
+    return $metadata
+}
+function Test-IsoDate {
+    param([AllowNull()][string]$Value)
+    $parsed = [datetime]::MinValue
+    return $null -ne $Value -and [datetime]::TryParseExact($Value, 'yyyy-MM-dd', [System.Globalization.CultureInfo]::InvariantCulture, [System.Globalization.DateTimeStyles]::None, [ref]$parsed)
+}
 
 try {
     $root = [System.IO.Path]::GetFullPath((Resolve-Path -LiteralPath $RepositoryPath).Path)
@@ -91,6 +128,7 @@ try {
         '.github\pull_request_template.md'
     )
     foreach ($relative in $requiredFiles) { Require-File $root $relative }
+    foreach ($relative in @('docs\decisions', 'docs\changes')) { Require-Directory $root $relative }
 
     Require-Headings $root 'docs\index.md' @('## Start here', '## Authority order', '## Source roles and mutation rules', '## Document ownership', '## Drift prevention')
     Require-Headings $root 'docs\product\index.md' @('## Purpose and problem', '## Users and outcomes', '## Success measures', '## Scope', '## Requirements and invariants', '## Quality constraints', '## Supported contracts', '## Limitations', '## Open decisions')
@@ -135,6 +173,9 @@ try {
         if ($metadata.Contains('Visual UI') -and $metadata['Visual UI'] -notin @('present', 'absent')) {
             Add-Finding 'Visual UI must be present or absent.'
         }
+        if ($metadata.Contains('Current version') -and -not (Test-SemVer $metadata['Current version'])) {
+            Add-Finding 'Current version must be valid Semantic Versioning.'
+        }
         $agentModes = @()
         if ($null -ne $agentsPath) {
             $agentModes = @(@(Get-MetadataValues -Content $agents -Field 'Repository mode') + @(Get-MetadataValues -Content $agents -Field 'Repository mode' -Bullet))
@@ -157,17 +198,119 @@ try {
         if ($roadmap -match '(?i)\bV[1-9][0-9]*\+?\b') { Add-Finding 'Roadmap contains a vague V1/V2-style release allocation.' }
     }
 
+    $capabilityRelativePath = 'docs\product\capabilities.md'
+    $capabilityPath = Resolve-ExactRelativePath -Root $root -RelativePath $capabilityRelativePath
+    if ($null -eq $capabilityPath -and (Test-Path -LiteralPath (Join-Path $root $capabilityRelativePath) -PathType Leaf)) {
+        Add-Finding 'Path casing must be exact: docs/product/capabilities.md'
+    }
+    if ($null -ne $capabilityPath -and (Test-Path -LiteralPath $capabilityPath -PathType Leaf)) {
+        $capabilityContent = (Get-Content -LiteralPath $capabilityPath -Raw) -replace "`r`n", "`n"
+        $capabilityLines = @($capabilityContent -split "`n")
+        $headerIndex = -1
+        for ($index = 0; $index -lt $capabilityLines.Count; $index++) {
+            if ($capabilityLines[$index] -ceq '| ID | Outcome | Canonical owner | Target release |') { $headerIndex = $index; break }
+        }
+        if ($headerIndex -lt 0 -or $headerIndex + 1 -ge $capabilityLines.Count -or $capabilityLines[$headerIndex + 1] -notmatch '^\|\s*-+\s*\|\s*-+\s*\|\s*-+\s*\|\s*-+\s*\|$') {
+            Add-Finding 'docs/product/capabilities.md has an invalid capability-table header.'
+        } else {
+            $capabilityIds = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+            $capabilityCount = 0
+            for ($index = $headerIndex + 2; $index -lt $capabilityLines.Count; $index++) {
+                $line = $capabilityLines[$index]
+                if ([string]::IsNullOrWhiteSpace($line)) { break }
+                if (-not $line.StartsWith('|', [System.StringComparison]::Ordinal)) { break }
+                $cells = @($line.Trim().Trim('|').Split('|') | ForEach-Object { $_.Trim() })
+                if ($cells.Count -ne 4) { Add-Finding "Invalid capability row: $line"; continue }
+                $capabilityCount++
+                $id, $outcome, $ownerCell, $targetRelease = $cells
+                if ($id -cnotmatch '^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*-\d{3}$') { Add-Finding "Invalid capability ID: $id" }
+                elseif (-not $capabilityIds.Add($id)) { Add-Finding "Duplicate capability ID: $id" }
+                if ([string]::IsNullOrWhiteSpace($outcome)) { Add-Finding "$id has an empty outcome." }
+
+                $owner = $ownerCell.Trim([char]96)
+                if ($owner -match '^\[[^\]]+\]\(([^)]+)\)$') { $owner = $Matches[1] }
+                $owner = ($owner.Trim('<', '>') -split '#', 2)[0]
+                if ([string]::IsNullOrWhiteSpace($owner) -or $owner -match '^(?:https?:|[A-Za-z]:[\\/]|\\\\|~[\\/])') {
+                    Add-Finding "$id must name a repository-relative canonical owner."
+                } else {
+                    $ownerPath = Resolve-ExactRelativePath -Root $root -RelativePath $owner
+                    if ($null -eq $ownerPath -or -not (Test-Path -LiteralPath $ownerPath -PathType Leaf)) { Add-Finding "$id canonical owner does not exist with exact casing: $owner" }
+                }
+                $targetReleaseValue = $targetRelease.Trim([char]96)
+                if ($targetReleaseValue -cne 'unallocated' -and -not (Test-SemVer $targetReleaseValue)) { Add-Finding "$id has an invalid target release: $targetRelease" }
+            }
+            if ($capabilityCount -eq 0) { Add-Finding 'docs/product/capabilities.md must contain at least one capability row.' }
+        }
+    }
+
+    $decisionRoot = Resolve-ExactRelativePath -Root $root -RelativePath 'docs\decisions'
+    if ($null -ne $decisionRoot -and (Test-Path -LiteralPath $decisionRoot -PathType Container)) {
+        foreach ($decision in @(Get-ChildItem -LiteralPath $decisionRoot -File)) {
+            if ($decision.Name -cnotmatch '^(?<number>\d{4})-[a-z0-9]+(?:-[a-z0-9]+)*\.md$') { Add-Finding "Invalid ADR filename: $($decision.Name)"; continue }
+            $fileNumber = $Matches.number
+            $decisionContent = Get-Content -LiteralPath $decision.FullName -Raw
+            $titleMatches = [regex]::Matches($decisionContent, '(?m)^# ADR (?<number>\d{4}):\s+\S.+$')
+            if ($titleMatches.Count -ne 1 -or $titleMatches[0].Groups['number'].Value -cne $fileNumber) { Add-Finding "$($decision.Name) must contain one matching ADR title." }
+            $statuses = @(Get-MetadataValues -Content $decisionContent -Field 'Status' -Bullet)
+            if ($statuses.Count -ne 1 -or $statuses[0] -notin @('proposed', 'accepted', 'superseded', 'rejected', 'deprecated')) { Add-Finding "$($decision.Name) has an invalid or duplicate Status." }
+            $dates = @(Get-MetadataValues -Content $decisionContent -Field 'Date' -Bullet)
+            if ($dates.Count -ne 1 -or -not (Test-IsoDate $dates[0])) { Add-Finding "$($decision.Name) has an invalid or duplicate Date." }
+            foreach ($heading in @('## Context', '## Decision', '## Consequences')) {
+                if ([regex]::Matches($decisionContent, "(?m)^$([regex]::Escape($heading))\s*$").Count -ne 1) { Add-Finding "$($decision.Name) must contain exactly one $heading section." }
+            }
+        }
+    }
+
     $changeRoot = Resolve-ExactRelativePath -Root $root -RelativePath 'docs\changes'
     $changeRecords = if ($null -ne $changeRoot -and (Test-Path -LiteralPath $changeRoot -PathType Container)) { @(Get-ChildItem -LiteralPath $changeRoot -File -Filter *.md) } else { @() }
     foreach ($record in $changeRecords) {
-        if ($record.Name -notmatch '^\d{4}-\d{2}-\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*\.md$') { Add-Finding "Invalid change-record filename: $($record.Name)" }
+        if ($record.Name -cnotmatch '^\d{4}-\d{2}-\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*\.md$') { Add-Finding "Invalid change-record filename: $($record.Name)" }
         $recordContent = Get-Content -LiteralPath $record.FullName -Raw
-        foreach ($key in @('id:', 'type:', 'status:', 'risk:', 'created:', 'updated:', 'issue:', 'pull_request:', 'baseline:', 'target_release:', 'roadmap_horizon:', 'mode:')) {
-            if ($recordContent -notmatch "(?m)^$([regex]::Escape($key))") { Add-Finding "$($record.Name) is missing metadata: $key" }
+        if ([regex]::Matches($recordContent, '(?m)^# Change:\s+\S.+$').Count -ne 1) { Add-Finding "$($record.Name) must contain exactly one change title." }
+        $metadataBlocks = [regex]::Matches($recordContent, '(?ms)^```yaml\s*\r?\n(?<metadata>.*?)\r?\n```\s*$')
+        if ($metadataBlocks.Count -ne 1) {
+            Add-Finding "$($record.Name) must contain exactly one YAML metadata block."
+            $recordMetadata = [ordered]@{}
+        } else {
+            $recordMetadata = ConvertFrom-SimpleMetadata -Content $metadataBlocks[0].Groups['metadata'].Value -Owner $record.Name
         }
-        if ($recordContent -notmatch '(?m)^status:\s*(active|blocked|planned|ready|superseded)\s*$') { Add-Finding "$($record.Name) has an invalid status." }
+
+        $requiredRecordKeys = @('id', 'type', 'status', 'risk', 'created', 'updated', 'issue', 'pull_request', 'baseline', 'target_release', 'roadmap_horizon', 'mode', 'supersedes', 'superseded_by')
+        foreach ($key in $requiredRecordKeys) {
+            if (-not $recordMetadata.Contains($key)) { Add-Finding "$($record.Name) is missing metadata: $key" }
+        }
+        foreach ($key in @($recordMetadata.Keys)) {
+            if ($key -notin $requiredRecordKeys) { Add-Finding "$($record.Name) contains unsupported metadata: $key" }
+        }
+        if ($recordMetadata.Contains('id') -and "$($recordMetadata.id).md" -cne $record.Name) { Add-Finding "$($record.Name) metadata id must match its filename." }
+        if ($recordMetadata.Contains('type') -and $recordMetadata.type -notin @('onboarding', 'feature', 'fix', 'documentation', 'operations')) { Add-Finding "$($record.Name) has an invalid type." }
+        if ($recordMetadata.Contains('status') -and $recordMetadata.status -notin @('active', 'blocked', 'planned', 'ready', 'superseded')) { Add-Finding "$($record.Name) has an invalid status." }
+        if ($recordMetadata.Contains('risk') -and $recordMetadata.risk -notin @('standard', 'high')) { Add-Finding "$($record.Name) has an invalid risk." }
+        if ($recordMetadata.Contains('mode') -and $recordMetadata.mode -notin @('development', 'released')) { Add-Finding "$($record.Name) has an invalid mode." }
+        if ($recordMetadata.Contains('created') -and -not (Test-IsoDate $recordMetadata.created)) { Add-Finding "$($record.Name) has an invalid created date." }
+        if ($recordMetadata.Contains('updated') -and -not (Test-IsoDate $recordMetadata.updated)) { Add-Finding "$($record.Name) has an invalid updated date." }
+        if ($recordMetadata.Contains('created') -and $recordMetadata.Contains('updated') -and (Test-IsoDate $recordMetadata.created) -and (Test-IsoDate $recordMetadata.updated)) {
+            if ([datetime]::ParseExact($recordMetadata.updated, 'yyyy-MM-dd', [System.Globalization.CultureInfo]::InvariantCulture) -lt [datetime]::ParseExact($recordMetadata.created, 'yyyy-MM-dd', [System.Globalization.CultureInfo]::InvariantCulture)) { Add-Finding "$($record.Name) updated date precedes created date." }
+        }
+        foreach ($linkField in @('issue', 'pull_request')) {
+            if (-not $recordMetadata.Contains($linkField)) { continue }
+            $value = $recordMetadata[$linkField]
+            if ($value -notin @('none', 'pending')) {
+                $uri = $null
+                if (-not [uri]::TryCreate($value, [System.UriKind]::Absolute, [ref]$uri) -or $uri.Scheme -ne 'https') { Add-Finding "$($record.Name) has an invalid $linkField value." }
+            }
+        }
+        if ($recordMetadata.Contains('baseline') -and $recordMetadata.baseline -cne 'unknown' -and $recordMetadata.baseline -cnotmatch '^[0-9a-f]{40}$') { Add-Finding "$($record.Name) has an invalid baseline." }
+        if ($recordMetadata.Contains('target_release') -and $recordMetadata.target_release -cne 'unallocated' -and -not (Test-SemVer $recordMetadata.target_release)) { Add-Finding "$($record.Name) has an invalid target release." }
+        if ($recordMetadata.Contains('roadmap_horizon') -and $recordMetadata.roadmap_horizon -notin @('Now', 'Next', 'Later', 'Not planned', 'unallocated')) { Add-Finding "$($record.Name) has an invalid roadmap horizon." }
+        foreach ($relationField in @('supersedes', 'superseded_by')) {
+            if ($recordMetadata.Contains($relationField) -and $recordMetadata[$relationField] -cne 'none' -and $recordMetadata[$relationField] -cnotmatch '^\d{4}-\d{2}-\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*$') { Add-Finding "$($record.Name) has an invalid $relationField value." }
+        }
+        if ($recordMetadata.Contains('status') -and $recordMetadata.status -eq 'superseded' -and $recordMetadata.Contains('superseded_by') -and $recordMetadata.superseded_by -eq 'none') {
+            Add-Finding "$($record.Name) is superseded but has no superseded_by record."
+        }
         foreach ($heading in @('## Summary', '## Scope', '## Authorities, current state, and constraints', '## Acceptance criteria', '## Plan', '## Data, failure, and recovery', '## UI/UX contract', '## Azure impact', '## Decisions and conflicts', '## Implementation', '## Verification', '## Independent review', '## Documentation and work tracking', '## Outcome', '## Blocker or follow-ups')) {
-            if ($recordContent -notmatch "(?m)^$([regex]::Escape($heading))\s*$") { Add-Finding "$($record.Name) is missing heading: $heading" }
+            if ([regex]::Matches($recordContent, "(?m)^$([regex]::Escape($heading))\s*$").Count -ne 1) { Add-Finding "$($record.Name) must contain exactly one heading: $heading" }
         }
         if ($recordContent -notmatch '(?m)^- Documentation impact declared before implementation:\s*\S') { Add-Finding "$($record.Name) lacks a documentation-impact declaration." }
     }
@@ -175,6 +318,48 @@ try {
     $mistakePath = Resolve-ExactRelativePath -Root $root -RelativePath 'docs\agent-mistakes.md'
     if ($null -ne $mistakePath -and (Test-Path -LiteralPath $mistakePath -PathType Leaf)) {
         $mistakes = (Get-Content -LiteralPath $mistakePath -Raw) -replace "`r`n", "`n"
+        $templateSection = [regex]::Match($mistakes, '(?ms)^## Incident template\s*\n(?<template>.*?)^## Entries\s*$')
+        if (-not $templateSection.Success) {
+            Add-Finding 'docs/agent-mistakes.md has an invalid Incident template/Entries boundary.'
+        } else {
+            $templateCode = [regex]::Match($templateSection.Groups['template'].Value, '(?ms)^```markdown\s*\n(?<body>.*?)\n```\s*$')
+            if (-not $templateCode.Success) { Add-Finding 'docs/agent-mistakes.md must contain one fenced Markdown incident template.' }
+            else {
+                $templateBody = $templateCode.Groups['body'].Value
+                if ($templateBody -notmatch '(?m)^### AM-YYYYMMDD-NNN:\s+<short factual title>\s*$') { Add-Finding 'docs/agent-mistakes.md has an invalid incident ID/title template.' }
+                foreach ($field in @('Occurred', 'Detected', 'Workflow/package version', 'Change/PR', 'Classification', 'What happened', 'Impact', 'Recovery', 'Why the gate failed', 'Reusable prevention signal', 'Follow-up')) {
+                    if ([regex]::Matches($templateBody, "(?m)^- $([regex]::Escape($field)):\s*\S.+$").Count -ne 1) { Add-Finding "docs/agent-mistakes.md incident template must contain exactly one $field field." }
+                }
+            }
+        }
+
+        $entriesMatch = [regex]::Match($mistakes, '(?ms)^## Entries\s*\n(?<entries>.*)\z')
+        if (-not $entriesMatch.Success) { Add-Finding 'docs/agent-mistakes.md has no valid Entries body.' }
+        else {
+            $entries = $entriesMatch.Groups['entries'].Value.Trim()
+            $entryMarker = 'Append incidents below; do not edit earlier entries.'
+            if (-not $entries.StartsWith($entryMarker, [System.StringComparison]::Ordinal)) { Add-Finding 'docs/agent-mistakes.md is missing its append marker.' }
+            $incidentText = if ($entries.Length -gt $entryMarker.Length) { $entries.Substring($entryMarker.Length).Trim() } else { '' }
+            $incidentMatches = @([regex]::Matches($incidentText, '(?m)^###\s+(?<id>AM-\d{8}-\d{3}):\s+(?<title>\S.+)$'))
+            $allEntryHeadings = @([regex]::Matches($incidentText, '(?m)^###\s+'))
+            if ($allEntryHeadings.Count -ne $incidentMatches.Count) { Add-Finding 'docs/agent-mistakes.md contains an invalid incident heading.' }
+            for ($index = 0; $index -lt $incidentMatches.Count; $index++) {
+                $incident = $incidentMatches[$index]
+                $nextIndex = if ($index + 1 -lt $incidentMatches.Count) { $incidentMatches[$index + 1].Index } else { $incidentText.Length }
+                $incidentBody = $incidentText.Substring($incident.Index, $nextIndex - $incident.Index)
+                $values = [ordered]@{}
+                foreach ($field in @('Occurred', 'Detected', 'Workflow/package version', 'Change/PR', 'Classification', 'What happened', 'Impact', 'Recovery', 'Why the gate failed', 'Reusable prevention signal', 'Follow-up')) {
+                    $fieldMatches = [regex]::Matches($incidentBody, "(?m)^- $([regex]::Escape($field)):\s*(\S.*)$")
+                    if ($fieldMatches.Count -ne 1) { Add-Finding "$($incident.Groups['id'].Value) must contain exactly one non-empty $field field." }
+                    else { $values[$field] = $fieldMatches[0].Groups[1].Value.Trim() }
+                }
+                foreach ($timestampField in @('Occurred', 'Detected')) {
+                    if ($values.Contains($timestampField) -and $values[$timestampField] -notmatch '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$') { Add-Finding "$($incident.Groups['id'].Value) has an invalid UTC $timestampField timestamp." }
+                }
+                if ($values.Contains('Classification') -and $values['Classification'] -notin @('authority', 'false-evidence', 'scope', 'escaped-defect', 'workflow-gap')) { Add-Finding "$($incident.Groups['id'].Value) has an invalid Classification." }
+                if ($values.Contains('Occurred') -and $values['Occurred'] -match '^(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})' -and $incident.Groups['id'].Value.Substring(3, 8) -cne "$($Matches.year)$($Matches.month)$($Matches.day)") { Add-Finding "$($incident.Groups['id'].Value) date does not match Occurred." }
+            }
+        }
         $ids = @([regex]::Matches($mistakes, '(?m)^###\s+(AM-\d{8}-\d{3}):') | ForEach-Object { $_.Groups[1].Value })
         if (@($ids | Sort-Object -Unique).Count -ne $ids.Count) { Add-Finding 'docs/agent-mistakes.md contains duplicate incident IDs.' }
         if (-not [string]::IsNullOrWhiteSpace($BaseRef)) {
