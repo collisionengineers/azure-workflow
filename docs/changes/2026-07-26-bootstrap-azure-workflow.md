@@ -94,6 +94,7 @@ The plugin registers a local Azure MCP process but deploys/mutates no Azure reso
 - Deviations: the two MCP server IDs were namespaced after installation proved that a pre-existing global `azure` registration could shadow the plugin's pinned definition. The services and two-server boundary did not change.
 - Recovery actions: removed the invalid prior `collisionspike-v2` marketplace registration that prevented every Codex plugin list/install command; no repository or plugin files at that source path were removed.
 - Review remediation: rejected change-record reparse traversal and used atomic creation; derived each record's mode from agreeing repository policy; made invalid comparison refs fall back safely; enforced exact canonical casing/directories, one policy-consistent repository mode, parsed issue forms, full change-record/capability/ADR/mistake schemas, portable path forms, and PR-template links; required explicit PR identity, all-attempt check evidence, requested-reviewer pagination, and stable-ID evidence deduplication; added caller-level negative mutations; corrected the documented reinstall sequence; and reconciled the original six review threads. Five later threads are addressed by this record-bearing commit and remain open only until pushed evidence is read back.
+- CI maintenance: upgraded the checkout action from v4 to the current Node 24-based v6 after GitHub emitted a Node 20 deprecation annotation on an otherwise successful exact-head run.
 
 ## Source retirement parity
 
