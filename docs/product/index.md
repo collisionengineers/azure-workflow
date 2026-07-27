@@ -55,8 +55,17 @@ Users can:
 - The public surface remains one plugin and six goal-based skills unless a new standalone outcome, authorization boundary, and success criterion are proven.
 - Onboarding, planning, delivery, explanation, review, and operation retain distinct stopping/authorization boundaries.
 - Durable truth has one owner per fact; filenames do not infer authority.
+- Onboarding settles each material source's role, mutation rule, intended
+  disposition, and user-owned commits in the selected baseline-to-`HEAD` delta
+  before dependent conversion or publication; protected sources default to
+  preservation unless broader authority is explicitly resolved.
 - Planning uses the real `update_plan` tool, repository evidence first, one material question at a time, and one change record for onboarding/standard/high risk.
 - Development mode contains no unreleased legacy/fallback/shim/dual behavior; future scope creates only exercised seams.
+- Architectural styles are conditional repository decisions grounded in business
+  drivers, non-functional requirements, and current evidence. When a repository
+  selects a modular monolith, the plugin preserves one deployment boundary while
+  making business-module, dependency, data-ownership, and evolution boundaries
+  explicit; it does not introduce distributed services merely for style purity.
 - Testing is proportional to plausible regressions and real callers.
 - Supplied materials/software/services are assumed fully permitted/licensed; repository-provided domain examples are the only test examples.
 - UI work uses a root design authority, clear controls/labels, no interface narration, and no internal Azure wording in user-facing areas.
@@ -72,6 +81,8 @@ Users can:
 - Deterministic scripts emit stable machine-readable output and do not stage/commit/push or mutate Azure.
 - Skill descriptions make routing reliable; skill bodies remain focused with conditional detail in direct references.
 - Documentation drift prevention combines owner declarations, structural checks, and semantic exact-head review.
+- Progress language is evidence-bound: inventory, scope closure, conversion,
+  local checks, exact-head CI, and independent review remain distinct states.
 
 ## Supported contracts
 
