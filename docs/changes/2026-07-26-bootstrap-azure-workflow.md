@@ -3,12 +3,12 @@
 ```yaml
 id: 2026-07-26-bootstrap-azure-workflow
 type: onboarding
-status: active
+status: ready
 risk: high
 created: 2026-07-26
 updated: 2026-07-26
 issue: https://github.com/collisionengineers/azure-workflow/issues/1
-pull_request: pending
+pull_request: https://github.com/collisionengineers/azure-workflow/pull/2
 baseline: 3be34e8e586178945dd2cbf330b9c6ecfb79f5fa
 target_release: 0.1.0-alpha.1
 roadmap_horizon: Now
@@ -41,7 +41,7 @@ Implement the approved Azure Workflow design as one installable Codex plugin, co
 ## Authorities, current state, and constraints
 
 - Authorities: the approved planning checkpoint at `3be34e8` and current user request to implement; material decisions are now mapped into canonical docs/package/tests.
-- Current implementation: package, skills, references, assets, and core helpers are being created on `workflow/20260726-bootstrap-azure-workflow`.
+- Current implementation: package, skills, references, assets, helpers, canonical documentation, GitHub intake/CI, and source retirement are complete on `workflow/20260726-bootstrap-azure-workflow`; final exact-head review remains.
 - Constraints: Windows/PowerShell 7; preserve unrelated `.obsidian/workspace.json`; private personal GitHub account; stop before merge; live Azure validation depends on working local credentials.
 - Conflicts: none unresolved.
 
@@ -90,9 +90,10 @@ The plugin registers a local Azure MCP process but deploys/mutates no Azure reso
 
 ## Implementation
 
-- Status: active.
+- Status: complete and ready for final exact-head review.
 - Deviations: the two MCP server IDs were namespaced after installation proved that a pre-existing global `azure` registration could shadow the plugin's pinned definition. The services and two-server boundary did not change.
 - Recovery actions: removed the invalid prior `collisionspike-v2` marketplace registration that prevented every Codex plugin list/install command; no repository or plugin files at that source path were removed.
+- Review remediation: rejected change-record reparse traversal and used atomic creation; made invalid comparison refs fall back safely; enforced exact canonical casing, one policy-consistent repository mode, and parsed issue-form schemas; required explicit PR identity and stable-ID evidence deduplication; added caller-level regression cases; corrected the documented reinstall sequence; and reconciled all six existing review threads.
 
 ## Source retirement parity
 
@@ -130,21 +131,22 @@ Parity conditions before retirement:
 | planning checkpoint validation | Docs | links/fences/diff valid | passed before `3be34e8`; no broken relative links or unbalanced fences |
 | plugin/skill creator scaffolds | Full | valid initial package shape | passed; scaffolders created plugin and six skills |
 | canonical Full check | Full | all package/docs/scripts/fixtures valid | passed: repository/package/tests plus official plugin and six skill validators |
-| installed plugin/MCP smoke | Full | plugin discovered; two MCP routes tested | passed in fresh read-only Codex processes: installed `0.1.0-alpha.1+codex.20260726232543`; `azure-workflow-microsoft-learn` called `microsoft_docs_search`; `azure-workflow-azure` called read-only `subscription_list` successfully |
+| installed plugin/MCP smoke | Full | reviewed plugin discovered; two MCP routes tested | passed again after remediation in fresh read-only Codex processes: installed `0.1.0-alpha.1+codex.20260727001208`; `azure-workflow-microsoft-learn` called official documentation search; `azure-workflow-azure` called read-only `subscription_list` successfully |
 | bootstrap-source retirement | Full | 1,043 inputs untracked/removed after parity; local editor files preserved | passed: no retired path remains tracked, dependency scan is clean, Full validation passes, and the local `.obsidian/workspace.json` hash was unchanged by untracking |
-| actual PR CI/review | Full | green and clean exact final head | pending |
+| candidate PR remediation | Full | all findings fixed, green CI, stable complete evidence, zero unresolved threads | passed at `a2b696ae76a3c59df45c687d56819352986609fd`; CI `verify` succeeded; evidence fingerprint `4c646f8c8599a28b31d308edef7f67ab2d11c69764baaa2d75d343541bf2553b`; 1,164 files, five commits, six resolved/zero unresolved threads |
+| final PR CI/review | Full | green and clean exact final head | pending after this required record commit |
 
 ## Independent review
 
 - Plan review: completed through the sequential audits recorded in the planning checkpoint.
-- Candidate PR review: pending.
+- Candidate PR review: `changes-required` at `3cb10d39ba664527ea2d2bcda89640d9d163b930`; it found reparse escape, invalid-ref fallback, repository-standard enforcement, evidence identity/deduplication, and stale live-review reconciliation defects. The existing GitHub review also contained six unresolved threads, including the already-fixed optional file-property defect.
 - Final exact-head review: pending.
-- Remediation rounds: none.
+- Remediation rounds: one. Commit `a2b696ae76a3c59df45c687d56819352986609fd` fixed all candidate and live-thread findings; focused/Full checks and exact-head CI passed; each thread received an evidence reply, was read back, and was resolved. This record commit deliberately invalidates that candidate verdict and creates the head for one fresh whole-PR review.
 
 ## Documentation and work tracking
 
 - Documentation impact declared before implementation: root instructions/README; product/capability/roadmap; architecture; operations; ADR; bootstrap record; package skill/reference/assets; GitHub templates/CI; tests.
-- Agent mistake entries: none.
+- Agent mistake entries: none; the defects were found by the intended pre-completion review gate and did not escape a required gate or produce false completion.
 - Product/capabilities: `docs/product/index.md`, `docs/product/capabilities.md`.
 - Design system/assets: not applicable — visual UI absent; neutral conditional onboarding templates only.
 - Roadmap/release: `docs/roadmap.md`, manifest `0.1.0-alpha.1`.
@@ -154,7 +156,7 @@ Parity conditions before retirement:
 
 ## Outcome
 
-Pending implementation, validation, installation, and exact-head PR review.
+Implementation, documentation conversion, source retirement, validation, installation, MCP read acceptance, candidate review remediation, CI, and feedback reconciliation are complete. The open unmerged PR is ready for one fresh final whole-PR review of the exact record-bearing head; no tracked edit may follow a clean verdict.
 
 ## Blocker or follow-ups
 

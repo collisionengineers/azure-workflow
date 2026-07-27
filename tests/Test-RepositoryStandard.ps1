@@ -41,7 +41,8 @@ try {
 
     $recordPath = Join-Path $tempRoot 'docs\changes\2026-07-26-bootstrap-azure-workflow.md'
     $savedRecord = Get-Content -LiteralPath $recordPath -Raw
-    [System.IO.File]::WriteAllText($recordPath, $savedRecord.Replace('status: active', 'status: imaginary'), [System.Text.UTF8Encoding]::new($false))
+    $invalidRecord = [regex]::new('(?m)^status:\s*\S+\s*$').Replace($savedRecord, 'status: imaginary', 1)
+    [System.IO.File]::WriteAllText($recordPath, $invalidRecord, [System.Text.UTF8Encoding]::new($false))
     & $validator -RepositoryPath $tempRoot | Out-Null
     Assert-ExitCode 1 'malformed change record'
     [System.IO.File]::WriteAllText($recordPath, $savedRecord, [System.Text.UTF8Encoding]::new($false))
