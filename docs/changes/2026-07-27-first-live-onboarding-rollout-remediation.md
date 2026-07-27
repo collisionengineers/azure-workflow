@@ -8,7 +8,7 @@ risk: standard
 created: 2026-07-27
 updated: 2026-07-27
 issue: https://github.com/collisionengineers/azure-workflow/issues/3
-pull_request: none
+pull_request: https://github.com/collisionengineers/azure-workflow/pull/4
 baseline: 1540464d3f6410e6222956a7d5dd204e3c4d05d9
 target_release: 0.1.0-alpha.2
 roadmap_horizon: Now
@@ -240,7 +240,7 @@ this planning or later implementation authority.
 | JSONL structured extraction | supplied snapshot | event/tool/message/failure counts and boundary established without committing the raw file | complete: 706 rows, 150 tool operations, 24 patches, 15 failed operations, one compaction; final captured event 02:17:11 UTC |
 | live corroboration | target branch/PR read-only | distinguish later continuation from snapshot | complete: later head `4ac1cf2` exists; PR 2 remained draft with no review when inspected |
 | user provenance correction | commits `8c3919c` and `9af3733` | exclude both from failure attribution | complete by explicit user direction |
-| planning validation | Docs | valid record, links, schema, and documentation-only diff | pending |
+| planning validation | Docs | valid record, links, schema, and documentation-only diff | green: repository standard, links/fences, path portability, and comparison whitespace passed |
 | implementation Full check | package/repository | `pwsh -NoLogo -NoProfile -File ./scripts/Invoke-RepoCheck.ps1 -Scope Full` green | not run — planning only |
 | fresh-context regression | onboarding trace | all acceptance criteria pass without target-repository/Azure mutation | not run — implementation only |
 
@@ -271,8 +271,9 @@ this planning or later implementation authority.
 - Operations: no current procedure changes planned outside bounded CI polling
   language in the owning onboarding reference.
 - GitHub issue/Project/milestone: [issue 3](https://github.com/collisionengineers/azure-workflow/issues/3)
-  is open with `type:bug`; Project/milestone state will be read and updated only
-  through the owning planning workflow.
+  is open with `type:bug`; documentation-only [PR 4](https://github.com/collisionengineers/azure-workflow/pull/4)
+  is draft. Project/milestone state will be read and updated only through the
+  owning planning workflow.
 
 ## Outcome
 
