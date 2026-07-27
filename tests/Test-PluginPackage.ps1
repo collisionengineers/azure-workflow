@@ -50,6 +50,18 @@ try {
     if (-not (Test-Path -LiteralPath $createdRecord -PathType Leaf)) { $failures.Add('Change-record creator did not create the declared file.') }
     & $recordCreator -RepositoryPath $recordRepository -Slug 'helper-contract' -Title 'Helper contract' -Type 'documentation' -Status 'planned' -Issue 'none' 2>$null | Out-Null
     Assert-ExitCode 1 'change-record overwrite refusal'
+
+    $junctionRepository = Join-Path $tempRoot 'junction-repository'
+    $junctionDocs = Join-Path $junctionRepository 'docs'
+    $outsideChanges = Join-Path $tempRoot 'outside-changes'
+    New-Item -ItemType Directory -Path $junctionDocs -Force | Out-Null
+    New-Item -ItemType Directory -Path $outsideChanges -Force | Out-Null
+    $junctionPath = Join-Path $junctionDocs 'changes'
+    New-Item -ItemType Junction -Path $junctionPath -Target $outsideChanges | Out-Null
+    & $recordCreator -RepositoryPath $junctionRepository -Slug 'junction-escape' -Title 'Junction escape' -Type 'documentation' -Status 'planned' -Issue 'none' 2>$null | Out-Null
+    Assert-ExitCode 1 'change-record junction refusal'
+    if (@(Get-ChildItem -LiteralPath $outsideChanges -File).Count -ne 0) { $failures.Add('Change-record creator wrote through a junction outside the repository.') }
+    Remove-Item -LiteralPath $junctionPath -Force
 }
 finally {
     if (Test-Path -LiteralPath $resolvedTempRoot) { Remove-Item -LiteralPath $resolvedTempRoot -Recurse -Force }

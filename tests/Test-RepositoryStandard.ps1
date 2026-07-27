@@ -51,6 +51,65 @@ try {
     [System.IO.File]::WriteAllText($productPath, $savedProduct.Replace('Visual UI: `absent`', 'Visual UI: `present`'), [System.Text.UTF8Encoding]::new($false))
     & $validator -RepositoryPath $tempRoot | Out-Null
     Assert-ExitCode 1 'visual UI without design authority'
+    [System.IO.File]::WriteAllText($productPath, $savedProduct, [System.Text.UTF8Encoding]::new($false))
+
+    [System.IO.File]::WriteAllText($productPath, ($savedProduct.TrimEnd() + "`n- Repository mode: `released``n"), [System.Text.UTF8Encoding]::new($false))
+    & $validator -RepositoryPath $tempRoot | Out-Null
+    Assert-ExitCode 1 'duplicate conflicting repository modes'
+    [System.IO.File]::WriteAllText($productPath, $savedProduct, [System.Text.UTF8Encoding]::new($false))
+
+    $wrongCaseHoldingPath = Join-Path $tempRoot 'docs\index-case-holding.md'
+    $wrongCaseIndexPath = Join-Path $tempRoot 'docs\Index.md'
+    Move-Item -LiteralPath $indexPath -Destination $wrongCaseHoldingPath
+    Move-Item -LiteralPath $wrongCaseHoldingPath -Destination $wrongCaseIndexPath
+    & $validator -RepositoryPath $tempRoot | Out-Null
+    Assert-ExitCode 1 'wrong canonical path casing'
+    Move-Item -LiteralPath $wrongCaseIndexPath -Destination $wrongCaseHoldingPath
+    Move-Item -LiteralPath $wrongCaseHoldingPath -Destination $indexPath
+
+    $featureFormPath = Join-Path $tempRoot '.github\ISSUE_TEMPLATE\feature.yml'
+    $savedFeatureForm = Get-Content -LiteralPath $featureFormPath -Raw
+    [System.IO.File]::WriteAllText($featureFormPath, '{"name": "broken"', [System.Text.UTF8Encoding]::new($false))
+    & $validator -RepositoryPath $tempRoot | Out-Null
+    Assert-ExitCode 1 'malformed issue form syntax'
+    [System.IO.File]::WriteAllText($featureFormPath, '{"name":"Feature","description":"Description","title":"[Feature]: ","labels":["type:feature"],"body":[]}', [System.Text.UTF8Encoding]::new($false))
+    & $validator -RepositoryPath $tempRoot | Out-Null
+    Assert-ExitCode 1 'invalid issue form schema'
+    [System.IO.File]::WriteAllText($featureFormPath, $savedFeatureForm, [System.Text.UTF8Encoding]::new($false))
+
+    $harnessRoot = Join-Path $tempRoot 'repo-check-harness'
+    New-Item -ItemType Directory -Path (Join-Path $harnessRoot 'scripts') -Force | Out-Null
+    New-Item -ItemType Directory -Path (Join-Path $harnessRoot 'plugins\azure-workflow\scripts') -Force | Out-Null
+    New-Item -ItemType Directory -Path (Join-Path $harnessRoot 'tests') -Force | Out-Null
+    New-Item -ItemType Directory -Path (Join-Path $harnessRoot 'codex-home') -Force | Out-Null
+    Copy-Item -LiteralPath (Join-Path $repositoryRoot 'scripts\Invoke-RepoCheck.ps1') -Destination (Join-Path $harnessRoot 'scripts\Invoke-RepoCheck.ps1')
+    $repositoryStub = @'
+param([string]$RepositoryPath, [string]$BaseRef)
+if ($PSBoundParameters.ContainsKey('BaseRef')) { exit 1 }
+exit 0
+'@
+    $successStub = "exit 0`n"
+    [System.IO.File]::WriteAllText((Join-Path $harnessRoot 'plugins\azure-workflow\scripts\Test-AzureWorkflowRepository.ps1'), $repositoryStub, [System.Text.UTF8Encoding]::new($false))
+    [System.IO.File]::WriteAllText((Join-Path $harnessRoot 'plugins\azure-workflow\scripts\Test-AzureWorkflowPlugin.ps1'), $successStub, [System.Text.UTF8Encoding]::new($false))
+    foreach ($testName in @('Test-RepositoryStandard.ps1', 'Test-PullRequestEvidence.ps1', 'Test-PluginPackage.ps1')) {
+        [System.IO.File]::WriteAllText((Join-Path $harnessRoot "tests\$testName"), $successStub, [System.Text.UTF8Encoding]::new($false))
+    }
+    [System.IO.File]::WriteAllText((Join-Path $harnessRoot 'README.md'), "# Harness`n", [System.Text.UTF8Encoding]::new($false))
+    & git -C $harnessRoot init --initial-branch main 2>$null | Out-Null
+    & git -C $harnessRoot config user.name 'Azure Workflow Test' | Out-Null
+    & git -C $harnessRoot config user.email 'azure-workflow-test@example.invalid' | Out-Null
+    & git -C $harnessRoot add README.md | Out-Null
+    & git -C $harnessRoot commit -m 'test harness' 2>$null | Out-Null
+    $savedCodexHome = $env:CODEX_HOME
+    try {
+        $env:CODEX_HOME = Join-Path $harnessRoot 'codex-home'
+        & (Join-Path $harnessRoot 'scripts\Invoke-RepoCheck.ps1') -Scope Auto -BaseRef 'missing-comparison-ref' -HeadRef HEAD | Out-Null
+        Assert-ExitCode 0 'invalid comparison falls back to unscoped Full validation'
+    }
+    finally {
+        if ($null -eq $savedCodexHome) { Remove-Item Env:\CODEX_HOME -ErrorAction SilentlyContinue }
+        else { $env:CODEX_HOME = $savedCodexHome }
+    }
 }
 finally {
     if (Test-Path -LiteralPath $resolvedTempRoot) { Remove-Item -LiteralPath $resolvedTempRoot -Recurse -Force }

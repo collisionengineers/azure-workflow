@@ -37,4 +37,4 @@ All tracked Markdown links resolve relative to their file. Tracked instructions/
 
 ## Verification limits
 
-Structural checks validate files, headings, links, YAML, records, taxonomy, mistake-log append history, and generated-view consistency. They must not claim semantic truth. Exact-head PR review compares canonical claims with current code/configuration/callers.
+Structural checks validate files, headings, links, records, taxonomy, mistake-log append history, generated-view consistency, and the fixed issue-form schema. Issue forms use YAML's strict JSON subset so the PowerShell validator can parse them without an undeclared YAML module. Structural checks must not claim semantic truth. Exact-head PR review compares canonical claims with current code/configuration/callers.

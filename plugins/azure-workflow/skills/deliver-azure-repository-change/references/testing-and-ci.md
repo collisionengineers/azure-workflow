@@ -8,7 +8,7 @@ Use repository-provided examples only. Do not synthesize/anonymize emails, PDFs,
 
 ## Path-aware scopes
 
-Docs scope is allowed only when every changed path is documentation, repository instructions, issue/PR templates, or other declared non-executable metadata and no generated/runtime/configuration contract is affected. It runs links, YAML, authority/record/ADR/capability/mistake schemas, append history, whitespace, and affected documentation probes.
+Docs scope is allowed only when every changed path is documentation, repository instructions, issue/PR templates, or other declared non-executable metadata and no generated/runtime/configuration contract is affected. It runs links, strict issue-form YAML/JSON parsing and schema checks, authority/record/ADR/capability/mistake schemas, append history, whitespace, and affected documentation probes.
 
 Full scope covers plugin/package/scripts/source/tests/configuration/IaC/CI/generated behavior or uncertain classification. Missing/invalid base comparison fails safe to Full.
 

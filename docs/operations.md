@@ -26,7 +26,7 @@ pwsh -NoLogo -NoProfile -File ./tests/Test-PullRequestEvidence.ps1
 pwsh -NoLogo -NoProfile -File ./tests/Test-PluginPackage.ps1
 ```
 
-The wrapper discovers plugin-creator and skill-creator validators when installed. Tests use contained repository fixtures and do not alter Git, GitHub, or Azure.
+The wrapper discovers plugin-creator and skill-creator validators when installed. Issue forms use YAML's strict JSON subset for dependency-free parsing and schema checks. Tests use contained temporary fixtures and do not alter the working repository, GitHub, or Azure.
 
 ## Deploy
 
@@ -41,7 +41,15 @@ codex plugin add azure-workflow@personal --json
 codex plugin list --json
 ```
 
-For an already installed local development version, run the plugin-creator `update_plugin_cachebuster.py` helper against `./plugins/azure-workflow`, read the marketplace name from `./.agents/plugins/marketplace.json`, then run `codex plugin add azure-workflow@personal --json`. The helper replaces one `+codex.<cachebuster>` suffix; it does not change the release version. Start a new Codex thread to test updated skills/MCPs.
+For an already installed local development version, run the plugin-creator `update_plugin_cachebuster.py` helper against `./plugins/azure-workflow`, read the marketplace name from `./.agents/plugins/marketplace.json`, then reinstall the plugin explicitly:
+
+```powershell
+codex plugin remove azure-workflow@personal --json
+codex plugin add azure-workflow@personal --json
+codex plugin list --json
+```
+
+The remove step is required: `plugin add` does not replace an installed plugin. The helper replaces one `+codex.<cachebuster>` suffix; it does not change the release version. Start a new Codex thread to test updated skills/MCPs.
 
 The plugin owns no Azure deployment. Any target-repository Azure mutation follows `$operate-azure-repository`: read current scope, present an exact apply card, receive explicit approval, apply once, and validate.
 

@@ -1,8 +1,9 @@
 [CmdletBinding()]
 param(
     [string]$RepositoryPath = '.',
+    [Parameter(Mandatory)]
     [ValidateRange(1, [int]::MaxValue)]
-    [int]$PullRequest = 1,
+    [int]$PullRequest,
     [switch]$Json
 )
 
@@ -19,19 +20,54 @@ function Invoke-GhJson {
     return ($text | ConvertFrom-Json -Depth 100)
 }
 
+function Get-StableEvidenceKey {
+    param(
+        [Parameter(Mandatory)]$Item,
+        [Parameter(Mandatory)][string]$EvidenceClass,
+        [Parameter(Mandatory)][string[]]$KeyProperties
+    )
+
+    foreach ($propertyName in $KeyProperties) {
+        $property = $Item.PSObject.Properties[$propertyName]
+        if ($null -ne $property -and $null -ne $property.Value -and -not [string]::IsNullOrWhiteSpace([string]$property.Value)) {
+            return "${propertyName}:$($property.Value)"
+        }
+    }
+    throw "$EvidenceClass item lacks a stable identifier ($($KeyProperties -join ', '))."
+}
+
+function Select-UniqueEvidenceItems {
+    param(
+        [Parameter(Mandatory)][AllowEmptyCollection()][object[]]$Items,
+        [Parameter(Mandatory)][string]$EvidenceClass,
+        [Parameter(Mandatory)][string[]]$KeyProperties
+    )
+
+    $seen = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+    $unique = [System.Collections.Generic.List[object]]::new()
+    foreach ($item in @($Items)) {
+        if ($null -eq $item) { continue }
+        $key = Get-StableEvidenceKey -Item $item -EvidenceClass $EvidenceClass -KeyProperties $KeyProperties
+        if ($seen.Add($key)) { $unique.Add($item) }
+    }
+    return @($unique)
+}
+
 function Get-RestArray {
     param(
         [Parameter(Mandatory)][string]$Endpoint,
-        [string]$Property
+        [string]$Property,
+        [string[]]$KeyProperties = @('id'),
+        [scriptblock]$RequestJson = { param([string[]]$Arguments) Invoke-GhJson -Arguments $Arguments }
     )
 
     $items = [System.Collections.Generic.List[object]]::new()
     for ($page = 1; $page -le 1000; $page++) {
         $separator = if ($Endpoint.Contains('?')) { '&' } else { '?' }
-        $response = Invoke-GhJson -Arguments @('api', "$Endpoint${separator}per_page=100&page=$page")
+        $response = & $RequestJson -Arguments @('api', "$Endpoint${separator}per_page=100&page=$page")
         $pageItems = if ([string]::IsNullOrWhiteSpace($Property)) { @($response) } else { @($response.$Property) }
         foreach ($item in @($pageItems)) { if ($null -ne $item) { $items.Add($item) } }
-        if (@($pageItems).Count -lt 100) { return @($items) }
+        if (@($pageItems).Count -lt 100) { return @(Select-UniqueEvidenceItems -Items @($items) -EvidenceClass $Endpoint -KeyProperties $KeyProperties) }
     }
     throw "Pagination did not terminate for $Endpoint"
 }
@@ -41,16 +77,23 @@ function Get-CappedRestArray {
         [Parameter(Mandatory)][string]$Endpoint,
         [Parameter(Mandatory)][ValidateRange(0, [int]::MaxValue)][int]$ExpectedCount,
         [Parameter(Mandatory)][ValidateRange(1, [int]::MaxValue)][int]$EndpointLimit,
+        [Parameter(Mandatory)][string[]]$KeyProperties,
         [scriptblock]$RequestJson = { param([string[]]$Arguments) Invoke-GhJson -Arguments $Arguments }
     )
 
     $items = [System.Collections.Generic.List[object]]::new()
+    $seen = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+    $retrievedCount = 0
     $page = 1
-    while ($items.Count -lt $ExpectedCount -and $items.Count -lt $EndpointLimit) {
+    $requestLimit = [Math]::Min($ExpectedCount, $EndpointLimit)
+    while ($retrievedCount -lt $requestLimit) {
         $response = & $RequestJson -Arguments @('api', "${Endpoint}?per_page=100&page=$page")
         $pageItems = @($response)
         foreach ($item in $pageItems) {
-            if ($null -ne $item -and $items.Count -lt $EndpointLimit) { $items.Add($item) }
+            if ($null -eq $item -or $retrievedCount -ge $EndpointLimit) { continue }
+            $retrievedCount++
+            $key = Get-StableEvidenceKey -Item $item -EvidenceClass $Endpoint -KeyProperties $KeyProperties
+            if ($seen.Add($key)) { $items.Add($item) }
         }
         if ($pageItems.Count -lt 100) { break }
         $page++
@@ -160,6 +203,7 @@ query($threadId: ID!, $after: String) {
 '@
 
     $threads = [System.Collections.Generic.List[object]]::new()
+    $threadIds = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
     $cursor = $null
     do {
         $arguments = @('api', 'graphql', '-f', "query=$threadQuery", '-F', "owner=$Owner", '-F', "name=$Name", '-F', "number=$Number")
@@ -176,8 +220,11 @@ query($threadId: ID!, $after: String) {
                 foreach ($comment in @($commentConnection.nodes)) { if ($null -ne $comment) { $comments.Add($comment) } }
                 $commentPage = $commentConnection.pageInfo
             }
-            $isOutdated = @($comments | Where-Object { $_.outdated }).Count -gt 0
+            $uniqueComments = @(Select-UniqueEvidenceItems -Items @($comments) -EvidenceClass "review thread $($thread.id) comments" -KeyProperties @('id', 'databaseId'))
+            $isOutdated = @($uniqueComments | Where-Object { $_.outdated }).Count -gt 0
             $resolvedBy = if ($null -ne $thread.resolvedBy) { $thread.resolvedBy.login } else { $null }
+            $threadKey = Get-StableEvidenceKey -Item $thread -EvidenceClass 'review thread' -KeyProperties @('id')
+            if (-not $threadIds.Add($threadKey)) { continue }
             $threads.Add([pscustomobject][ordered]@{
                 id = $thread.id
                 is_resolved = [bool]$thread.isResolved
@@ -192,7 +239,7 @@ query($threadId: ID!, $after: String) {
                 viewer_can_resolve = [bool]$thread.viewerCanResolve
                 viewer_can_unresolve = [bool]$thread.viewerCanUnresolve
                 resolved_by = $resolvedBy
-                comments = @($comments)
+                comments = $uniqueComments
             })
         }
         $cursor = $connection.pageInfo.endCursor
@@ -251,17 +298,19 @@ function Get-Snapshot {
 
     $parts = $Repository.Split('/', 2)
     $pr = Invoke-GhJson -Arguments @('api', "repos/$Repository/pulls/$Number")
-    $fileInventory = Get-CappedRestArray -Endpoint "repos/$Repository/pulls/$Number/files" -ExpectedCount ([int]$pr.changed_files) -EndpointLimit 3000
-    $commitInventory = Get-CappedRestArray -Endpoint "repos/$Repository/pulls/$Number/commits" -ExpectedCount ([int]$pr.commits) -EndpointLimit 250
+    $fileInventory = Get-CappedRestArray -Endpoint "repos/$Repository/pulls/$Number/files" -ExpectedCount ([int]$pr.changed_files) -EndpointLimit 3000 -KeyProperties @('filename')
+    $commitInventory = Get-CappedRestArray -Endpoint "repos/$Repository/pulls/$Number/commits" -ExpectedCount ([int]$pr.commits) -EndpointLimit 250 -KeyProperties @('sha')
     $files = @($fileInventory.items)
     $commits = @($commitInventory.items)
-    $reviews = Get-RestArray -Endpoint "repos/$Repository/pulls/$Number/reviews"
-    $inlineComments = Get-RestArray -Endpoint "repos/$Repository/pulls/$Number/comments"
-    $issueComments = Get-RestArray -Endpoint "repos/$Repository/issues/$Number/comments"
-    $checks = Get-RestArray -Endpoint "repos/$Repository/commits/$($pr.head.sha)/check-runs" -Property 'check_runs'
-    $statuses = Get-RestArray -Endpoint "repos/$Repository/statuses/$($pr.head.sha)"
+    $reviews = Get-RestArray -Endpoint "repos/$Repository/pulls/$Number/reviews" -KeyProperties @('id', 'node_id')
+    $inlineComments = Get-RestArray -Endpoint "repos/$Repository/pulls/$Number/comments" -KeyProperties @('id', 'node_id')
+    $issueComments = Get-RestArray -Endpoint "repos/$Repository/issues/$Number/comments" -KeyProperties @('id', 'node_id')
+    $checks = Get-RestArray -Endpoint "repos/$Repository/commits/$($pr.head.sha)/check-runs" -Property 'check_runs' -KeyProperties @('id', 'node_id')
+    $statuses = Get-RestArray -Endpoint "repos/$Repository/statuses/$($pr.head.sha)" -KeyProperties @('id', 'node_id')
     $requestResponse = Invoke-GhJson -Arguments @('api', "repos/$Repository/pulls/$Number/requested_reviewers")
-    $reviewRequests = @(@($requestResponse.users) + @($requestResponse.teams))
+    $requestedUsers = @(Select-UniqueEvidenceItems -Items @($requestResponse.users) -EvidenceClass 'requested user reviewer' -KeyProperties @('node_id', 'id', 'login'))
+    $requestedTeams = @(Select-UniqueEvidenceItems -Items @($requestResponse.teams) -EvidenceClass 'requested team reviewer' -KeyProperties @('node_id', 'id', 'slug'))
+    $reviewRequests = @($requestedUsers + $requestedTeams)
     $reviewState = Invoke-GhJson -Arguments @('pr', 'view', "$Number", '--repo', $Repository, '--json', 'reviewDecision')
     $threads = Get-ReviewThreads -Owner $parts[0] -Name $parts[1] -Number $Number
 

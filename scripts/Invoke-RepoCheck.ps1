@@ -40,7 +40,11 @@ try {
         if (-not [string]::IsNullOrWhiteSpace($BaseRef)) {
             $diffOutput = & git diff --name-only "$BaseRef...$HeadRef" -- 2>&1
             if ($LASTEXITCODE -eq 0) { $changedPaths = @($diffOutput | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }) }
-            elseif ($Scope -eq 'Auto') { $Scope = 'Full'; 'Auto classification fell back to Full because the comparison could not be resolved.' }
+            elseif ($Scope -eq 'Auto') {
+                $Scope = 'Full'
+                $BaseRef = $null
+                'Auto classification fell back to Full without a comparison because the requested refs could not be resolved.'
+            }
             else { throw "Could not compare $BaseRef...$HeadRef`: $($diffOutput -join [Environment]::NewLine)" }
         } elseif ($Scope -eq 'Auto') {
             $Scope = 'Full'

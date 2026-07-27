@@ -4,7 +4,11 @@
 
 This repository develops `azure-workflow`, one Codex plugin for durable Azure-oriented repository onboarding, planning, delivery, explanation, independent pull-request review, documentation stewardship, GitHub work management, and controlled Azure operations. It is general across Azure projects; it does not own non-Azure repositories.
 
-Read [docs/index.md](docs/index.md) before material work. The repository is in `development` mode at `0.1.0-alpha.1`; no supported compatibility contract exists yet.
+Read [docs/index.md](docs/index.md) before material work.
+
+Repository mode: `development`
+
+The current version is `0.1.0-alpha.1`; no supported compatibility contract exists yet.
 
 ## Environment and commands
 

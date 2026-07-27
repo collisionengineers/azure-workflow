@@ -24,6 +24,23 @@ function Write-ValidationFailure {
     exit 1
 }
 
+function Assert-NoReparseTraversal {
+    param(
+        [Parameter(Mandatory)][string]$Root,
+        [Parameter(Mandatory)][string]$RelativePath
+    )
+
+    $current = $Root
+    foreach ($segment in @($RelativePath -split '[\\/]')) {
+        if ([string]::IsNullOrWhiteSpace($segment)) { continue }
+        $current = Join-Path $current $segment
+        $item = Get-Item -LiteralPath $current -Force -ErrorAction Stop
+        if (($item.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) {
+            Write-ValidationFailure "Refusing change-record path through reparse point: $($RelativePath.Replace('\\', '/'))"
+        }
+    }
+}
+
 try {
     $resolvedRepository = Resolve-Path -LiteralPath $RepositoryPath -ErrorAction Stop
     $repositoryRoot = [System.IO.Path]::GetFullPath($resolvedRepository.Path)
@@ -32,6 +49,8 @@ try {
     if (-not (Test-Path -LiteralPath $changesDirectory -PathType Container)) {
         Write-ValidationFailure "Required directory does not exist: docs/changes"
     }
+
+    Assert-NoReparseTraversal -Root $repositoryRoot -RelativePath 'docs\changes'
 
     $resolvedChanges = [System.IO.Path]::GetFullPath((Resolve-Path -LiteralPath $changesDirectory).Path)
     $rootPrefix = $repositoryRoot.TrimEnd([System.IO.Path]::DirectorySeparatorChar) + [System.IO.Path]::DirectorySeparatorChar
@@ -76,7 +95,17 @@ try {
         $content = $content.Replace([string]$entry.Key, [string]$entry.Value)
     }
 
-    [System.IO.File]::WriteAllText($resolvedTarget, $content, [System.Text.UTF8Encoding]::new($false))
+    # Recheck immediately before an atomic create so an existing record is never replaced.
+    Assert-NoReparseTraversal -Root $repositoryRoot -RelativePath 'docs\changes'
+    $stream = [System.IO.FileStream]::new($resolvedTarget, [System.IO.FileMode]::CreateNew, [System.IO.FileAccess]::Write, [System.IO.FileShare]::None)
+    try {
+        $writer = [System.IO.StreamWriter]::new($stream, [System.Text.UTF8Encoding]::new($false))
+        try { $writer.Write($content) }
+        finally { $writer.Dispose() }
+    }
+    finally {
+        if ($null -ne $stream) { $stream.Dispose() }
+    }
 
     [ordered]@{
         path = "docs/changes/$fileName"

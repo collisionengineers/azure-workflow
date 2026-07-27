@@ -20,7 +20,11 @@ foreach ($required in @('/files', '/commits', '/reviews', '/comments', '/issues/
 }
 if ([regex]::Matches($collector, 'Get-Snapshot -Repository').Count -lt 2) { $failures.Add('Collector must take two complete snapshots for stability comparison.') }
 
-. $collectorPath
+. $collectorPath -PullRequest 1
+
+$pwshPath = (Get-Process -Id $PID).Path
+$omittedIdentityOutput = & $pwshPath -NoLogo -NoProfile -NonInteractive -File $collectorPath -RepositoryPath $repositoryRoot -Json 2>&1
+if ($LASTEXITCODE -eq 0) { $failures.Add('Collector must reject invocation without an explicit pull-request number.') }
 
 function Test-CappedInventory {
     param(
@@ -41,7 +45,7 @@ function Test-CappedInventory {
         return @($(for ($index = 0; $index -lt $count; $index++) { [pscustomobject]@{ sha = "$Name-$($start + $index)" } }))
     }.GetNewClosure()
 
-    $observed = Get-CappedRestArray -Endpoint 'fixture' -ExpectedCount $ExpectedCount -EndpointLimit $EndpointLimit -RequestJson $request
+    $observed = Get-CappedRestArray -Endpoint 'fixture' -ExpectedCount $ExpectedCount -EndpointLimit $EndpointLimit -KeyProperties @('sha') -RequestJson $request
     if ([bool]$observed.complete -ne $ExpectedComplete) { $failures.Add("Capped inventory result mismatch: $Name") }
     if ($observed.collected_count -ne [Math]::Min($AvailableCount, $EndpointLimit)) { $failures.Add("Capped inventory count mismatch: $Name") }
 }
@@ -58,12 +62,31 @@ try {
         if ($uri -match 'page=2') { throw 'fixture partial API failure' }
         return @(1..100 | ForEach-Object { [pscustomobject]@{ sha = "partial-$_" } })
     }
-    [void](Get-CappedRestArray -Endpoint 'fixture' -ExpectedCount 150 -EndpointLimit 250 -RequestJson $failingRequest)
+    [void](Get-CappedRestArray -Endpoint 'fixture' -ExpectedCount 150 -EndpointLimit 250 -KeyProperties @('sha') -RequestJson $failingRequest)
 }
 catch {
     $partialFailureObserved = $_.Exception.Message -match 'fixture partial API failure'
 }
 if (-not $partialFailureObserved) { $failures.Add('Partial API failure must block capped inventory collection.') }
+
+$duplicateCappedRequest = {
+    param([string[]]$Arguments)
+    $uri = $Arguments[-1]
+    if ($uri -match 'page=1') { return @(1..100 | ForEach-Object { [pscustomobject]@{ sha = "duplicate-cap-$_" } }) }
+    return @([pscustomobject]@{ sha = 'duplicate-cap-100' })
+}
+$duplicateCapped = Get-CappedRestArray -Endpoint 'duplicate-capped-fixture' -ExpectedCount 101 -EndpointLimit 250 -KeyProperties @('sha') -RequestJson $duplicateCappedRequest
+if ($duplicateCapped.complete -or $duplicateCapped.collected_count -ne 100) { $failures.Add('Capped inventory must deduplicate stable IDs and block an incomplete unique inventory.') }
+
+$duplicateRestRequest = {
+    param([string[]]$Arguments)
+    $uri = $Arguments[-1]
+    $page = [int]([regex]::Match($uri, '[?&]page=(\d+)').Groups[1].Value)
+    if ($page -eq 1) { return @(1..100 | ForEach-Object { [pscustomobject]@{ id = $_ } }) }
+    return @([pscustomobject]@{ id = 100 }, [pscustomobject]@{ id = 101 })
+}
+$duplicateRest = @(Get-RestArray -Endpoint 'duplicate-rest-fixture' -KeyProperties @('id') -RequestJson $duplicateRestRequest)
+if ($duplicateRest.Count -ne 101 -or @($duplicateRest | Where-Object { $_.id -eq 100 }).Count -ne 1) { $failures.Add('Generic REST pagination must deduplicate stable IDs across pages.') }
 
 $originalInvokeGhJson = (Get-Item -LiteralPath Function:\Invoke-GhJson).ScriptBlock
 function Invoke-GhJson {
@@ -110,7 +133,10 @@ function Invoke-GhJson {
             data = [pscustomobject]@{
                 node = [pscustomobject]@{
                     comments = [pscustomobject]@{
-                        nodes = @([pscustomobject]@{ id = 'comment-101'; updatedAt = '2026-07-26T00:00:00Z'; author = [pscustomobject]@{ login = 'reviewer' }; outdated = $false; body = 'reply' })
+                        nodes = @(
+                            [pscustomobject]@{ id = 'comment-100'; updatedAt = '2026-07-26T00:00:00Z'; author = [pscustomobject]@{ login = 'reviewer' }; outdated = $false; body = 'duplicate boundary comment' },
+                            [pscustomobject]@{ id = 'comment-101'; updatedAt = '2026-07-26T00:00:00Z'; author = [pscustomobject]@{ login = 'reviewer' }; outdated = $false; body = 'reply' }
+                        )
                         pageInfo = [pscustomobject]@{ hasNextPage = $false; endCursor = $null }
                     }
                 }
@@ -125,11 +151,18 @@ function Invoke-GhJson {
                 repository = [pscustomobject]@{
                     pullRequest = [pscustomobject]@{
                         reviewThreads = [pscustomobject]@{
-                            nodes = @([pscustomobject]@{
-                                id = 'thread-2'; isResolved = $true; path = 'second.ps1'; line = 2; originalLine = 2; startLine = $null; diffSide = 'RIGHT'; startDiffSide = $null
-                                viewerCanReply = $true; viewerCanResolve = $false; viewerCanUnresolve = $true; resolvedBy = [pscustomobject]@{ login = 'reviewer' }
-                                comments = [pscustomobject]@{ nodes = @(); pageInfo = [pscustomobject]@{ hasNextPage = $false; endCursor = $null } }
-                            })
+                            nodes = @(
+                                [pscustomobject]@{
+                                    id = 'thread-1'; isResolved = $false; path = 'first.ps1'; line = 1; originalLine = 1; startLine = $null; diffSide = 'RIGHT'; startDiffSide = $null
+                                    viewerCanReply = $true; viewerCanResolve = $true; viewerCanUnresolve = $false; resolvedBy = $null
+                                    comments = [pscustomobject]@{ nodes = @(); pageInfo = [pscustomobject]@{ hasNextPage = $false; endCursor = $null } }
+                                },
+                                [pscustomobject]@{
+                                    id = 'thread-2'; isResolved = $true; path = 'second.ps1'; line = 2; originalLine = 2; startLine = $null; diffSide = 'RIGHT'; startDiffSide = $null
+                                    viewerCanReply = $true; viewerCanResolve = $false; viewerCanUnresolve = $true; resolvedBy = [pscustomobject]@{ login = 'reviewer' }
+                                    comments = [pscustomobject]@{ nodes = @(); pageInfo = [pscustomobject]@{ hasNextPage = $false; endCursor = $null } }
+                                }
+                            )
                             pageInfo = [pscustomobject]@{ hasNextPage = $false; endCursor = $null }
                         }
                     }
