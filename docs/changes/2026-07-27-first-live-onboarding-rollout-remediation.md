@@ -115,8 +115,9 @@ workflow.
 
 ## Acceptance criteria
 
-- Before the first onboarding edit or GitHub mutation, the change record lists
-  every material source with content role, mutation rule, disposition
+- After read-only inventory and before the first target-content edit or GitHub
+  mutation, the onboarding record exists and lists every material source with
+  content role, mutation rule, disposition
   (`preserve/link`, `convert in place`, `relocate/merge`, or `retain as
   history`), and any user-owned commits already in branch ancestry.
 - Any disposition that conflicts with current authority is resolved through one
@@ -150,11 +151,15 @@ workflow.
 ## Plan
 
 1. In
-   `plugins/azure-workflow/skills/onboard-azure-repository/SKILL.md`, insert a
-   named pre-mutation scope gate after inventory. Require the source-disposition
-   table, user-owned ancestry declaration, unresolved-decision check, and
-   `update_plan` state before conversion. Add evidence-bound progress terms and
-   a publication gate that cannot be described as completion.
+   `plugins/azure-workflow/skills/onboard-azure-repository/SKILL.md`, make the
+   order explicit: call `update_plan`; perform read-only repository/GitHub
+   inventory; resolve the change identity; create the onboarding record; write
+   the source-disposition table and user-owned ancestry into that record; close
+   or block every material scope decision; only then permit target-content
+   conversion or GitHub mutation. Add evidence-bound progress terms and a
+   publication gate that cannot be described as completion. Creation and
+   completion of the onboarding record are the gate mechanism, not prohibited
+   target-content edits.
 2. In `references/authority-and-conflicts.md` and
    `references/documentation-conversion.md`, add the disposition field and
    rules for protected sources: preserve/link is the safe default, but ask one
@@ -241,15 +246,20 @@ this planning or later implementation authority.
 | live corroboration | target branch/PR read-only | distinguish later continuation from snapshot | complete: later head `4ac1cf2` exists; PR 2 remained draft with no review when inspected |
 | user provenance correction | commits `8c3919c` and `9af3733` | exclude both from failure attribution | complete by explicit user direction |
 | planning validation | Docs | valid record, links, schema, and documentation-only diff | green: repository standard, links/fences, path portability, and comparison whitespace passed |
+| planning PR CI | exact head `82c93f7ad802bfdc955b3a997aac507308eedf3a` | green Docs workflow | green: `verify` completed successfully |
 | implementation Full check | package/repository | `pwsh -NoLogo -NoProfile -File ./scripts/Invoke-RepoCheck.ps1 -Scope Full` green | not run — planning only |
 | fresh-context regression | onboarding trace | all acceptance criteria pass without target-repository/Azure mutation | not run — implementation only |
 
 ## Independent review
 
-- Plan review: pending.
+- Plan review: candidate review at head `82c93f7ad802bfdc955b3a997aac507308eedf3a`
+  returned `changes-required`; RVW-001 identified an impossible ordering between
+  record creation and the pre-mutation gate. The plan now explicitly orders
+  read-only inventory, record creation/population, scope closure, then
+  target-content/GitHub mutation.
 - Candidate PR review: not run — planning only.
 - Final exact-head review: not run — planning only.
-- Remediation rounds: none.
+- Remediation rounds: one planning-review batch; no implementation remediation.
 
 ## Documentation and work tracking
 
@@ -272,8 +282,9 @@ this planning or later implementation authority.
   language in the owning onboarding reference.
 - GitHub issue/Project/milestone: [issue 3](https://github.com/collisionengineers/azure-workflow/issues/3)
   is open with `type:bug`; documentation-only [PR 4](https://github.com/collisionengineers/azure-workflow/pull/4)
-  is draft. Project/milestone state will be read and updated only through the
-  owning planning workflow.
+  is draft; milestone is `0.1.0-alpha.2`; Project values are `P1 High`, `Now`,
+  and `In Progress`. The existing Project Status options lack `In review` and
+  `Ready`, so this plan does not claim those unavailable states.
 
 ## Outcome
 
